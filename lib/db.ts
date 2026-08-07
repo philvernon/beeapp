@@ -1,4 +1,6 @@
 import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from './schema';
 
 let pool: Pool;
 
@@ -12,5 +14,24 @@ if (process.env.NODE_ENV === 'production') {
   }
   pool = g.pgPool;
 }
+
+// Drizzle instance with schema for type-safe queries
+export const db = drizzle(pool, { schema });
+
+// Re-export schema and Zod schemas for convenience
+export { schema };
+export {
+  ApiaryInsert,
+  ApiarySelect,
+  ApiaryUpdate,
+  HiveInsert,
+  HiveSelect,
+  HiveUpdate,
+  InspectionInsert,
+  InspectionSelect,
+  queenColourLabels,
+  varroaLevelLabels,
+  weatherConditionLabels,
+} from './schema';
 
 export default pool;

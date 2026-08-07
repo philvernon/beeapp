@@ -1,29 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
-import { hiveCreateSchema } from '@/lib/validations';
+import { NextResponse } from 'next/server';
+import { db, HiveInsert } from '@/lib/db';
+import { hives, apiaries } from '@/lib/schema';
+import { eq, sql } from 'drizzle-orm';
 
 // GET /api/hives — list all hives (with apiary name)
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const apiaryId = url.searchParams.get('apiary_id');
 
-    let query = `
-      SELECT h.*, a.name as apiary_name
-      FROM hives h
-      JOIN apiaries a ON h.apiary_id = a.id
-    `;
-    const params: any[] = [];
+    let query = db.select().from(hives)
+      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+      .orderBy(hives.createdAt);
 
     if (apiaryId) {
-      params.push(apiaryId);
-      query += ` WHERE h.apiary_id = $${params.length}`;
+      query = query.where(eq(hives.apiaryId, apiaryId));
     }
 
-    query += ' ORDER BY h.created_at DESC';
+    const result = await query;
+    // Flatten the left join into a single object per hive
+    const flattened = result.map(row => ({
+      ...row.hives,
+      apiary_name: row.apiaries?.name ?? null,
+    }));
 
-    const result = await pool.query(query, params);
-    return NextResponse.json(result.rows);
+    return NextResponse.json(flattened);
   } catch (err) {
     console.error('GET /api/hives error:', err);
     return NextResponse.json({ error: 'Failed to fetch hives' }, { status: 500 });
@@ -31,10 +32,10 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/hives — create hive
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const validated = hiveCreateSchema.safeParse(body);
+    const validated = HiveInsert.safeParse(body);
     if (!validated.success) {
       return NextResponse.json(
         { error: 'Validation failed', details: validated.error.issues },
@@ -42,13 +43,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { apiary_id, name, queen_breed, queen_clipped, notes } = validated.data;
-    const result = await pool.query(
-      `INSERT INTO hives (apiary_id, name, queen_breed, queen_clipped, notes)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [apiary_id, name, queen_breed ?? null, queen_clipped ?? false, notes ?? null]
-    );
-    return NextResponse.json(result.rows[0], { status: 201 });
+    const result = await db.insert(hives).values({
+      apiaryId: validated.data.apiaryId,
+      name: validated.data.name,
+      queenBreed: validated.data.queenBreed ?? null,
+      queenClipped: validated.data.queenClipped ?? false,
+      notes: validated.data.notes ?? null,
+    }).returning();
+    return NextResponse.json(result[0], { status: 201 });
   } catch (err) {
     console.error('POST /api/hives error:', err);
     return NextResponse.json({ error: 'Failed to create hive' }, { status: 500 });

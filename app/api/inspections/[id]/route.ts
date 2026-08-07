@@ -1,26 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { NextResponse } from 'next/server';
+import { eq, sql } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { inspections, hives, apiaries } from '@/lib/schema';
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
-  _req: NextRequest,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
 
-    const result = await pool.query(
-      `SELECT i.*, h.name as hive_name, a.name as apiary_name
-       FROM inspections i
-       JOIN hives h ON i.hive_id = h.id
-       JOIN apiaries a ON h.apiary_id = a.id
-       WHERE i.id = $1`,
-      [id]
-    );
-    if (result.rows.length === 0) {
+    const result = await db.select()
+      .from(inspections)
+      .leftJoin(hives, eq(inspections.hiveId, hives.id))
+      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+      .where(eq(inspections.id, id))
+      .limit(1);
+
+    if (result.length === 0) {
       return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
     }
-    return NextResponse.json(result.rows[0]);
+
+    const row = result[0];
+    return NextResponse.json({
+      ...row.inspections,
+      hive_name: row.hives?.name ?? null,
+      apiary_name: row.apiaries?.name ?? null,
+    });
   } catch (err) {
     console.error('GET /api/inspections/:id error:', err);
     return NextResponse.json({ error: 'Failed to fetch inspection' }, { status: 500 });
@@ -29,53 +36,48 @@ export async function GET(
 
 // PUT /api/inspections/:id — update inspection
 export async function PUT(
-  req: NextRequest,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
     const body = await req.json();
 
-    // Build dynamic update query from allowed fields
+    // Build dynamic update from allowed fields
+    const updates: Record<string, unknown> = {};
     const allowedFields = [
-      'queen_seen', 'queen_colour',
-      'queen_cells_found', 'queen_cells_removed',
-      'eggs_seen', 'brood_pattern_ok', 'brood_frame_count',
-      'store_frames', 'room_frames',
-      'health_ok', 'chalk_brood_suspected', 'efb_suspected', 'afb_suspected',
-      'varroa_level', 'varroa_count',
-      'temperament_score',
-      'feed_litres_light_syrup', 'feed_litres_heavy_syrup',
-      'supers_change',
-      'weather_temperature_c', 'weather_condition',
+      'queenSeen', 'queenColour',
+      'queenCellsFound', 'queenCellsRemoved',
+      'eggsSeen', 'broodPatternOk', 'broodFrameCount',
+      'storeFrames', 'roomFrames',
+      'healthOk', 'chalkBroodSuspected', 'efbSuspected', 'afbSuspected',
+      'varroaLevel', 'varroaCount',
+      'temperamentScore',
+      'feedLitresLightSyrup', 'feedLitresHeavySyrup',
+      'supersChange',
+      'weatherTemperatureC', 'weatherCondition',
       'notes',
     ];
 
-    const updates: string[] = [];
-    const values: any[] = [];
-    let idx = 1;
-
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        updates.push(`${field} = $${idx}`);
-        values.push(body[field]);
-        idx++;
+        updates[field] = body[field];
       }
     }
 
-    if (updates.length === 0) {
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
-    values.push(id);
-    const result = await pool.query(
-      `UPDATE inspections SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
-      values
-    );
-    if (result.rows.length === 0) {
+    const result = await db.update(inspections)
+      .set(updates)
+      .where(eq(inspections.id, id))
+      .returning();
+
+    if (result.length === 0) {
       return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
     }
-    return NextResponse.json(result.rows[0]);
+    return NextResponse.json(result[0]);
   } catch (err) {
     console.error('PUT /api/inspections/:id error:', err);
     return NextResponse.json({ error: 'Failed to update inspection' }, { status: 500 });
@@ -84,16 +86,16 @@ export async function PUT(
 
 // DELETE /api/inspections/:id — delete inspection
 export async function DELETE(
-  _req: NextRequest,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const result = await pool.query('DELETE FROM inspections WHERE id = $1 RETURNING *', [id]);
-    if (result.rows.length === 0) {
+    const result = await db.delete(inspections).where(eq(inspections.id, id)).returning();
+    if (result.length === 0) {
       return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, deleted: result.rows[0] });
+    return NextResponse.json({ success: true, deleted: result[0] });
   } catch (err) {
     console.error('DELETE /api/inspections/:id error:', err);
     return NextResponse.json({ error: 'Failed to delete inspection' }, { status: 500 });
