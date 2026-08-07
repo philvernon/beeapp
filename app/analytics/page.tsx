@@ -92,16 +92,16 @@ export default async function AnalyticsPage() {
   const data = await getAnalyticsData();
 
   const StatCard = ({ label, value, sub }: { label: string; value: string | number; sub?: string }) => (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
-      <p className="text-xs text-zinc-400 uppercase tracking-wide">{label}</p>
-      <p className="text-2xl font-bold text-zinc-900 mt-1">{value}</p>
-      {sub && <p className="text-xs text-zinc-500 mt-1">{sub}</p>}
+    <div className="border border-primary/20 bg-surface p-5">
+      <p className="text-xs text-secondary uppercase tracking-wide">{label}</p>
+      <p className="text-2xl font-bold text-primary mt-1">{value}</p>
+      {sub && <p className="text-xs text-secondary mt-1">{sub}</p>}
     </div>
   );
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-900 mb-6">Analytics</h1>
+      <h1 className="text-2xl font-bold text-primary mb-6">Analytics</h1>
 
       {/* Overview Stats */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6 mb-8">
@@ -115,53 +115,53 @@ export default async function AnalyticsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
         {/* Varroa Summary */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-zinc-900 mb-3">Varroa Levels</h2>
+        <div className="border border-primary/20 bg-surface p-5">
+          <h2 className="text-sm font-semibold text-primary mb-3">Varroa Levels</h2>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-green-700">🟢 Low</span>
-              <span className="font-medium">{data.varroaLow}</span>
+              <span className="text-sm text-secondary">Low</span>
+              <span className="font-medium text-primary">{data.varroaLow}</span>
             </div>
-            <div className="w-full bg-zinc-100 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: `${data.totalInspections > 0 ? (data.varroaLow / data.totalInspections) * 100 : 0}%` }} />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-amber-700">🟡 Medium</span>
-              <span className="font-medium">{data.varroaMed}</span>
-            </div>
-            <div className="w-full bg-zinc-100 rounded-full h-2">
-              <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${data.totalInspections > 0 ? (data.varroaMed / data.totalInspections) * 100 : 0}%` }} />
+            <div className="w-full bg-zinc-100 h-2">
+              <div className="bg-accent h-2" style={{ width: `${data.totalInspections > 0 ? (data.varroaLow / data.totalInspections) * 100 : 0}%` }} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-red-700">🔴 High</span>
-              <span className="font-medium">{data.varroaHigh}</span>
+              <span className="text-sm text-secondary">Medium</span>
+              <span className="font-medium text-primary">{data.varroaMed}</span>
             </div>
-            <div className="w-full bg-zinc-100 rounded-full h-2">
-              <div className="bg-red-500 h-2 rounded-full" style={{ width: `${data.totalInspections > 0 ? (data.varroaHigh / data.totalInspections) * 100 : 0}%` }} />
+            <div className="w-full bg-zinc-100 h-2">
+              <div className="bg-accent h-2" style={{ width: `${data.totalInspections > 0 ? (data.varroaMed / data.totalInspections) * 100 : 0}%` }} />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-secondary">High</span>
+              <span className="font-medium text-primary">{data.varroaHigh}</span>
+            </div>
+            <div className="w-full bg-zinc-100 h-2">
+              <div className="bg-primary/40 h-2" style={{ width: `${data.totalInspections > 0 ? (data.varroaHigh / data.totalInspections) * 100 : 0}%` }} />
             </div>
           </div>
         </div>
 
         {/* Averages */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-zinc-900 mb-3">Averages</h2>
+        <div className="border border-primary/20 bg-surface p-5">
+          <h2 className="text-sm font-semibold text-primary mb-3">Averages</h2>
           <div className="space-y-3">
             {data.avgBroodFrames !== null && (
               <div className="flex justify-between">
-                <span className="text-sm text-zinc-500">Avg Brood Frames</span>
-                <span className="font-medium">{data.avgBroodFrames}</span>
+                <span className="text-sm text-secondary">Avg Brood Frames</span>
+                <span className="font-medium text-primary">{data.avgBroodFrames}</span>
               </div>
             )}
             {data.avgStoreFrames !== null && (
               <div className="flex justify-between">
-                <span className="text-sm text-zinc-500">Avg Store Frames</span>
-                <span className="font-medium">{data.avgStoreFrames}</span>
+                <span className="text-sm text-secondary">Avg Store Frames</span>
+                <span className="font-medium text-primary">{data.avgStoreFrames}</span>
               </div>
             )}
             {data.avgTemperament !== null && (
               <div className="flex justify-between">
-                <span className="text-sm text-zinc-500">Avg Temperament</span>
-                <span className="font-medium">{data.avgTemperament}/10</span>
+                <span className="text-sm text-secondary">Avg Temperament</span>
+                <span className="font-medium text-primary">{data.avgTemperament}/10</span>
               </div>
             )}
           </div>
@@ -169,23 +169,23 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Hive Performance */}
-      <div className="rounded-lg border border-zinc-200 bg-white shadow-sm mb-8">
-        <div className="p-5 border-b border-zinc-200">
-          <h2 className="text-sm font-semibold text-zinc-900">Hive Inspection Counts</h2>
+      <div className="border border-primary/20 bg-surface shadow-sm mb-8">
+        <div className="p-5 border-b border-primary/10">
+          <h2 className="text-sm font-semibold text-primary">Hive Inspection Counts</h2>
         </div>
         {data.hiveStats.length === 0 ? (
-          <p className="p-5 text-sm text-zinc-500 text-center">No hives to show. <Link href="/apiaries" className="text-amber-600 hover:text-amber-700">Create an apiary</Link> to get started.</p>
+          <p className="p-5 text-sm text-secondary text-center">No hives to show. <Link href="/apiaries" className="text-accent hover:text-accent/80">Create an apiary</Link> to get started.</p>
         ) : (
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-primary/10">
             {data.hiveStats.map((h: any) => (
               <Link key={h.id} href={`/hives/${h.id}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
                 <div>
-                  <p className="text-sm font-medium text-zinc-900">{h.name}</p>
-                  <p className="text-xs text-zinc-500">{h.apiary_name}</p>
+                  <p className="text-sm font-medium text-primary">{h.name}</p>
+                  <p className="text-xs text-secondary">{h.apiary_name}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-zinc-900">{h.inspectionCount}</p>
-                  <p className="text-xs text-zinc-400">last: {h.lastInspection}</p>
+                  <p className="text-sm font-semibold text-primary">{h.inspectionCount}</p>
+                  <p className="text-xs text-secondary">last: {h.lastInspection}</p>
                 </div>
               </Link>
             ))}
@@ -194,23 +194,23 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Recent Inspections */}
-      <div className="rounded-lg border border-zinc-200 bg-white shadow-sm">
-        <div className="p-5 border-b border-zinc-200">
-          <h2 className="text-sm font-semibold text-zinc-900">Recent Inspections</h2>
+      <div className="border border-primary/20 bg-surface shadow-sm">
+        <div className="p-5 border-b border-primary/10">
+          <h2 className="text-sm font-semibold text-primary">Recent Inspections</h2>
         </div>
         {data.recentInspections.length === 0 ? (
-          <p className="p-5 text-sm text-zinc-500 text-center">No inspections yet.</p>
+          <p className="p-5 text-sm text-secondary text-center">No inspections yet.</p>
         ) : (
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-primary/10">
             {data.recentInspections.map((i: any) => (
               <Link key={i.id} href={`/hives/${i.hive_id}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
                 <div>
-                  <p className="text-sm font-medium text-zinc-900">{i.date}</p>
-                  <p className="text-xs text-zinc-500">{i.hive_name} ({i.apiary_name})</p>
+                  <p className="text-sm font-medium text-primary">{i.date}</p>
+                  <p className="text-xs text-secondary">{i.hive_name} ({i.apiary_name})</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {i.queen_seen && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Queen ✓</span>}
-                  {i.health_ok === false && <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Issues</span>}
+                  {i.queen_seen && <span className="text-xs bg-zinc-100 text-secondary px-2 py-0.5">Queen ✓</span>}
+                  {i.health_ok === false && <span className="text-xs border border-primary/30 text-primary px-2 py-0.5">Issues</span>}
                 </div>
               </Link>
             ))}
