@@ -98,19 +98,19 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const inputClass = 'w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500';
-  const labelClass = 'block text-sm font-medium text-zinc-700 mb-1';
-  const fieldsetClass = 'border border-zinc-200 rounded-lg p-4 space-y-3';
+  const inputClass = 'w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface';
+  const labelClass = 'block text-sm font-medium text-primary mb-1';
+  const fieldsetClass = 'border border-primary/20 p-4 space-y-3';
 
   return (
     <div className="max-w-2xl">
-      <Link href={`/hives/${id}`} className="text-sm text-zinc-500 hover:text-zinc-700 mb-4 inline-block">
+      <Link href={`/hives/${id}`} className="text-sm text-secondary hover:text-primary/70 mb-4 inline-block">
         ← Back to {hiveName || 'Hive'}
       </Link>
-      <h1 className="text-2xl font-bold text-zinc-900 mb-6">New Inspection — {hiveName}</h1>
+      <h1 className="text-2xl font-bold text-primary mb-6">New Inspection — {hiveName}</h1>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -123,11 +123,11 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Queen */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">👑 Queen</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">👑 Queen</legend>
           <div className="flex items-center gap-2">
             <input id="queenSeen" type="checkbox" checked={queenSeen} onChange={(e) => setQueenSeen(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
-            <label htmlFor="queenSeen" className="text-sm text-zinc-700">Queen seen this inspection</label>
+              className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
+            <label htmlFor="queenSeen" className="text-sm text-primary">Queen seen this inspection</label>
           </div>
           {queenSeen && (
             <div className="ml-6 space-y-3">
@@ -150,25 +150,25 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
             </div>
             <div className="flex items-center pt-6">
               <input id="queenCellsRemoved" type="checkbox" checked={queenCellsRemoved} onChange={(e) => setQueenCellsRemoved(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
-              <label htmlFor="queenCellsRemoved" className="ml-2 text-sm text-zinc-700">Cells removed</label>
+                className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
+              <label htmlFor="queenCellsRemoved" className="ml-2 text-sm text-primary">Cells removed</label>
             </div>
           </div>
         </fieldset>
 
         {/* Brood */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🐝 Brood</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🐝 Brood</legend>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <input id="eggsSeen" type="checkbox" checked={eggsSeen} onChange={(e) => setEggsSeen(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
-              <label htmlFor="eggsSeen" className="text-sm text-zinc-700">Eggs seen</label>
+                className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
+              <label htmlFor="eggsSeen" className="text-sm text-primary">Eggs seen</label>
             </div>
             <div className="flex items-center gap-2">
               <input id="broodOk" type="checkbox" checked={broodPatternOk} onChange={(e) => setBroodPatternOk(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
-              <label htmlFor="broodOk" className="text-sm text-zinc-700">Brood pattern OK</label>
+                className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
+              <label htmlFor="broodOk" className="text-sm text-primary">Brood pattern OK</label>
             </div>
           </div>
           <div>
@@ -180,7 +180,7 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Stores & Space */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🍯 Stores & Space</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🍯 Stores & Space</legend>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Store Frames (honey/pollen)</label>
@@ -197,29 +197,29 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Health */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🏥 Health</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🏥 Health</legend>
           <div className="flex items-center gap-2 mb-3">
             <input id="healthOk" type="checkbox" checked={healthOk} onChange={(e) => setHealthOk(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
-            <label htmlFor="healthOk" className="text-sm text-zinc-700">No disease signs</label>
+              className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
+            <label htmlFor="healthOk" className="text-sm text-primary">No disease signs</label>
           </div>
           {!healthOk && (
             <div className="ml-6 space-y-2">
-              <p className="text-xs text-zinc-500 mb-1">Disease flags:</p>
+              <p className="text-xs text-secondary mb-1">Disease flags:</p>
               <div className="flex gap-4">
-                <label className="flex items-center gap-1.5 text-sm text-zinc-700">
+                <label className="flex items-center gap-1.5 text-sm text-primary">
                   <input type="checkbox" checked={chalkBrood} onChange={(e) => setChalkBrood(e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300 text-red-600 focus:ring-red-500" />
+                    className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
                   Chalk Brood
                 </label>
-                <label className="flex items-center gap-1.5 text-sm text-zinc-700">
+                <label className="flex items-center gap-1.5 text-sm text-primary">
                   <input type="checkbox" checked={efbSuspected} onChange={(e) => setEfbSuspected(e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300 text-red-600 focus:ring-red-500" />
+                    className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
                   EFB
                 </label>
-                <label className="flex items-center gap-1.5 text-sm text-zinc-700">
+                <label className="flex items-center gap-1.5 text-sm text-primary">
                   <input type="checkbox" checked={afbSuspected} onChange={(e) => setAfbSuspected(e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300 text-red-600 focus:ring-red-500" />
+                    className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent" />
                   AFB
                 </label>
               </div>
@@ -229,7 +229,7 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Varroa */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🔬 Varroa</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🔬 Varroa</legend>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Level</label>
@@ -250,7 +250,7 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Temperament */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🌡️ Temperament</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🌡️ Temperament</legend>
           <div>
             <label className={labelClass}>Docility Score (1 = aggressive, 10 = docile)</label>
             <input type="number" min="1" max="10" value={temperament} onChange={(e) => setTemperament(e.target.value === '' ? '' : parseInt(e.target.value))}
@@ -260,7 +260,7 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Feed */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🍯 Feeding</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🍯 Feeding</legend>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Light Syrup (litres)</label>
@@ -277,7 +277,7 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Supers */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">📦 Supers</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">📦 Supers</legend>
           <div>
             <label className={labelClass}>Supers Change (positive = added, negative = removed)</label>
             <input type="number" step="0.5" value={supersChange} onChange={(e) => setSupersChange(e.target.value === '' ? '' : parseFloat(e.target.value))}
@@ -287,7 +287,7 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
 
         {/* Weather */}
         <fieldset className={fieldsetClass}>
-          <legend className="text-sm font-semibold text-zinc-900 mb-2">🌤️ Weather</legend>
+          <legend className="text-sm font-semibold text-primary mb-2">🌤️ Weather</legend>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Temperature (°C)</label>
@@ -316,10 +316,10 @@ export default function NewInspectionPage({ params }: { params: Promise<{ id: st
         {/* Submit */}
         <div className="flex gap-3 pt-2">
           <button type="submit" disabled={loading}
-            className="rounded-lg bg-amber-600 px-6 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
+            className="bg-accent px-6 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors">
             {loading ? 'Saving…' : 'Save Inspection'}
           </button>
-          <Link href={`/hives/${id}`} className="text-sm text-zinc-500 hover:text-zinc-700 py-2">Cancel</Link>
+          <Link href={`/hives/${id}`} className="text-sm text-secondary hover:text-primary/70 py-2">Cancel</Link>
         </div>
       </form>
     </div>
