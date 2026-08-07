@@ -5,6 +5,7 @@
 ### 1. Client → Server contract mismatch (will break all mutations)
 
 ✅ **FIXED** — Added `snakeToCamel()` helper in `lib/schema.ts` that wraps each insert/update schema with `.transform()` to accept snake_case keys from clients and normalize them to camelCase before Zod validation. This covers:
+
 - `ApiaryInsert`, `ApiaryUpdate`
 - `HiveInsert`, `HiveUpdate`
 - `InspectionInsert`, `InspectionUpdate` (newly added)
@@ -49,7 +50,7 @@ This is fine, but verify the client handles `0` vs `undefined` consistently.
 
 ### 10. `lib/validations.ts` is now dead code
 
-The enum helpers (`queenColourLabels`, etc.) are re-exported from `schema.ts` and also still in `validations.ts`. The file is only imported by `new-inspection/page.tsx` for those labels. Consider cleaning this up — either remove `validations.ts` entirely or keep it as a thin re-export layer.
+✅ **FIXED** — Removed `lib/validations.ts` entirely. Updated `app/hives/[id]/new-inspection/page.tsx` to import enum labels from `@/lib/schema` instead.
 
 ### 11. `drizzle.config.ts` uses `DATABASE_URL!` with non-null assertion
 
@@ -70,9 +71,9 @@ The schema file exists but there's no migration from the old raw SQL table struc
 ## Summary
 
 | Severity | Count | Key Issue |
-|----------|-------|-----------|
+| ---------- | ------- | ----------- |
 | 🔴 Critical | 3 | ~~Client/server field name mismatch will break all mutations~~ ✅ FIXED |
 | 🟡 Medium | 4 | ~~Missing InspectionUpdate, manual allowed-fields list, redundant checks~~ ✅ FIXED |
-| 🟢 Minor | 5 | Timestamp format, dead code, non-null assertion |
+| 🟢 Minor | 4 | Timestamp format, non-null assertion, migrations |
 
-**Status:** Critical and Medium issues (#1, #4, #5, #6) have been resolved. Remaining minor issues (#8–#12) are non-blocking.
+**Status:** Critical and Medium issues (#1, #4, #5, #6) have been resolved. Minor issue #10 (dead code) has been resolved. Remaining minor issues (#8, #9, #11, #12) are non-blocking.
