@@ -1,0 +1,327 @@
+'use client';
+
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { queenColourLabels, varroaLevelLabels, weatherConditionLabels } from '@/lib/validations';
+
+export default function NewInspectionPage({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter();
+  const { id } = React.use(params);
+
+  const [hiveName, setHiveName] = useState('');
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Inspection fields
+  const [queenSeen, setQueenSeen] = useState(false);
+  const [queenColour, setQueenColour] = useState<string>('');
+  const [queenCellsFound, setQueenCellsFound] = useState<number | ''>('');
+  const [queenCellsRemoved, setQueenCellsRemoved] = useState(false);
+  const [eggsSeen, setEggsSeen] = useState(false);
+  const [broodPatternOk, setBroodPatternOk] = useState(true);
+  const [broodFrameCount, setBroodFrameCount] = useState<number | ''>('');
+  const [storeFrames, setStoreFrames] = useState<number | ''>('');
+  const [roomFrames, setRoomFrames] = useState<number | ''>('');
+  const [healthOk, setHealthOk] = useState(true);
+  const [chalkBrood, setChalkBrood] = useState(false);
+  const [efbSuspected, setEfbSuspected] = useState(false);
+  const [afbSuspected, setAfbSuspected] = useState(false);
+  const [varroaLevel, setVarroaLevel] = useState<string>('');
+  const [varroaCount, setVarroaCount] = useState<number | ''>('');
+  const [temperament, setTemperament] = useState<number | ''>('');
+  const [feedLight, setFeedLight] = useState<number | ''>('');
+  const [feedHeavy, setFeedHeavy] = useState<number | ''>('');
+  const [supersChange, setSupersChange] = useState<number | ''>('');
+  const [weatherTemp, setWeatherTemp] = useState<number | ''>('');
+  const [weatherCondition, setWeatherCondition] = useState<string>('');
+  const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    fetch(`/api/hives/${id}`)
+      .then((r) => r.json())
+      .then((data) => { if (data?.name) setHiveName(data.name); else router.push('/hives'); })
+      .catch(() => router.push('/hives'));
+  }, [id, router]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const body = {
+      hive_id: id,
+      inspection_date: date,
+      queen_seen: queenSeen,
+      queen_colour: queenColour || null,
+      queen_cells_found: queenCellsFound === '' ? null : queenCellsFound,
+      queen_cells_removed: queenCellsRemoved,
+      eggs_seen: eggsSeen,
+      brood_pattern_ok: broodPatternOk,
+      brood_frame_count: broodFrameCount === '' ? null : broodFrameCount,
+      store_frames: storeFrames === '' ? null : storeFrames,
+      room_frames: roomFrames === '' ? null : roomFrames,
+      health_ok: healthOk,
+      chalk_brood_suspected: chalkBrood,
+      efb_suspected: efbSuspected,
+      afb_suspected: afbSuspected,
+      varroa_level: varroaLevel || null,
+      varroa_count: varroaCount === '' ? null : varroaCount,
+      temperament_score: temperament === '' ? null : temperament,
+      feed_litres_light_syrup: feedLight === '' ? null : Number(feedLight),
+      feed_litres_heavy_syrup: feedHeavy === '' ? null : Number(feedHeavy),
+      supers_change: supersChange === '' ? null : Number(supersChange),
+      weather_temperature_c: weatherTemp === '' ? null : Number(weatherTemp),
+      weather_condition: weatherCondition || null,
+      notes: notes || undefined,
+    };
+
+    try {
+      const res = await fetch('/api/inspections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || data.details?.[0]?.message || 'Failed to save inspection');
+      }
+
+      router.push(`/hives/${id}`);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const inputClass = 'w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500';
+  const labelClass = 'block text-sm font-medium text-zinc-700 mb-1';
+  const fieldsetClass = 'border border-zinc-200 rounded-lg p-4 space-y-3';
+
+  return (
+    <div className="max-w-2xl">
+      <Link href={`/hives/${id}`} className="text-sm text-zinc-500 hover:text-zinc-700 mb-4 inline-block">
+        ← Back to {hiveName || 'Hive'}
+      </Link>
+      <h1 className="text-2xl font-bold text-zinc-900 mb-6">New Inspection — {hiveName}</h1>
+
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Date */}
+        <div>
+          <label htmlFor="date" className={labelClass}>Inspection Date *</label>
+          <input id="date" type="date" required value={date} onChange={(e) => setDate(e.target.value)}
+            className={inputClass} />
+        </div>
+
+        {/* Queen */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">👑 Queen</legend>
+          <div className="flex items-center gap-2">
+            <input id="queenSeen" type="checkbox" checked={queenSeen} onChange={(e) => setQueenSeen(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
+            <label htmlFor="queenSeen" className="text-sm text-zinc-700">Queen seen this inspection</label>
+          </div>
+          {queenSeen && (
+            <div className="ml-6 space-y-3">
+              <div>
+                <label className={labelClass}>Queen Colour</label>
+                <select value={queenColour} onChange={(e) => setQueenColour(e.target.value)} className={inputClass}>
+                  <option value="">Select…</option>
+                  {Object.entries(queenColourLabels).map(([k, v]) => (
+                    <option key={k} value={k}>{v} ({k})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Queen Cells Found</label>
+              <input type="number" min="0" value={queenCellsFound} onChange={(e) => setQueenCellsFound(e.target.value === '' ? '' : parseInt(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+            <div className="flex items-center pt-6">
+              <input id="queenCellsRemoved" type="checkbox" checked={queenCellsRemoved} onChange={(e) => setQueenCellsRemoved(e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
+              <label htmlFor="queenCellsRemoved" className="ml-2 text-sm text-zinc-700">Cells removed</label>
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Brood */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🐝 Brood</legend>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <input id="eggsSeen" type="checkbox" checked={eggsSeen} onChange={(e) => setEggsSeen(e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
+              <label htmlFor="eggsSeen" className="text-sm text-zinc-700">Eggs seen</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input id="broodOk" type="checkbox" checked={broodPatternOk} onChange={(e) => setBroodPatternOk(e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
+              <label htmlFor="broodOk" className="text-sm text-zinc-700">Brood pattern OK</label>
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Brood Frame Count</label>
+            <input type="number" min="0" value={broodFrameCount} onChange={(e) => setBroodFrameCount(e.target.value === '' ? '' : parseInt(e.target.value))}
+              placeholder="—" className={inputClass} />
+          </div>
+        </fieldset>
+
+        {/* Stores & Space */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🍯 Stores & Space</legend>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Store Frames (honey/pollen)</label>
+              <input type="number" min="0" value={storeFrames} onChange={(e) => setStoreFrames(e.target.value === '' ? '' : parseInt(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Room Frames (available space)</label>
+              <input type="number" min="0" value={roomFrames} onChange={(e) => setRoomFrames(e.target.value === '' ? '' : parseInt(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Health */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🏥 Health</legend>
+          <div className="flex items-center gap-2 mb-3">
+            <input id="healthOk" type="checkbox" checked={healthOk} onChange={(e) => setHealthOk(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-300 text-amber-600 focus:ring-amber-500" />
+            <label htmlFor="healthOk" className="text-sm text-zinc-700">No disease signs</label>
+          </div>
+          {!healthOk && (
+            <div className="ml-6 space-y-2">
+              <p className="text-xs text-zinc-500 mb-1">Disease flags:</p>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-1.5 text-sm text-zinc-700">
+                  <input type="checkbox" checked={chalkBrood} onChange={(e) => setChalkBrood(e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300 text-red-600 focus:ring-red-500" />
+                  Chalk Brood
+                </label>
+                <label className="flex items-center gap-1.5 text-sm text-zinc-700">
+                  <input type="checkbox" checked={efbSuspected} onChange={(e) => setEfbSuspected(e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300 text-red-600 focus:ring-red-500" />
+                  EFB
+                </label>
+                <label className="flex items-center gap-1.5 text-sm text-zinc-700">
+                  <input type="checkbox" checked={afbSuspected} onChange={(e) => setAfbSuspected(e.target.checked)}
+                    className="h-4 w-4 rounded border-zinc-300 text-red-600 focus:ring-red-500" />
+                  AFB
+                </label>
+              </div>
+            </div>
+          )}
+        </fieldset>
+
+        {/* Varroa */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🔬 Varroa</legend>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Level</label>
+              <select value={varroaLevel} onChange={(e) => setVarroaLevel(e.target.value)} className={inputClass}>
+                <option value="">Select…</option>
+                {Object.entries(varroaLevelLabels).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>Count (optional)</label>
+              <input type="number" min="0" value={varroaCount} onChange={(e) => setVarroaCount(e.target.value === '' ? '' : parseInt(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Temperament */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🌡️ Temperament</legend>
+          <div>
+            <label className={labelClass}>Docility Score (1 = aggressive, 10 = docile)</label>
+            <input type="number" min="1" max="10" value={temperament} onChange={(e) => setTemperament(e.target.value === '' ? '' : parseInt(e.target.value))}
+              placeholder="—" className={inputClass} />
+          </div>
+        </fieldset>
+
+        {/* Feed */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🍯 Feeding</legend>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Light Syrup (litres)</label>
+              <input type="number" step="0.25" min="0" value={feedLight} onChange={(e) => setFeedLight(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Heavy Syrup (litres)</label>
+              <input type="number" step="0.25" min="0" value={feedHeavy} onChange={(e) => setFeedHeavy(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Supers */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">📦 Supers</legend>
+          <div>
+            <label className={labelClass}>Supers Change (positive = added, negative = removed)</label>
+            <input type="number" step="0.5" value={supersChange} onChange={(e) => setSupersChange(e.target.value === '' ? '' : parseFloat(e.target.value))}
+              placeholder="—" className={inputClass} />
+          </div>
+        </fieldset>
+
+        {/* Weather */}
+        <fieldset className={fieldsetClass}>
+          <legend className="text-sm font-semibold text-zinc-900 mb-2">🌤️ Weather</legend>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Temperature (°C)</label>
+              <input type="number" step="0.1" value={weatherTemp} onChange={(e) => setWeatherTemp(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                placeholder="—" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Condition</label>
+              <select value={weatherCondition} onChange={(e) => setWeatherCondition(e.target.value)} className={inputClass}>
+                <option value="">Select…</option>
+                {Object.entries(weatherConditionLabels).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Notes */}
+        <div>
+          <label htmlFor="notes" className={labelClass}>Notes</label>
+          <textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
+            className={inputClass} placeholder="Any additional observations…" />
+        </div>
+
+        {/* Submit */}
+        <div className="flex gap-3 pt-2">
+          <button type="submit" disabled={loading}
+            className="rounded-lg bg-amber-600 px-6 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
+            {loading ? 'Saving…' : 'Save Inspection'}
+          </button>
+          <Link href={`/hives/${id}`} className="text-sm text-zinc-500 hover:text-zinc-700 py-2">Cancel</Link>
+        </div>
+      </form>
+    </div>
+  );
+}
