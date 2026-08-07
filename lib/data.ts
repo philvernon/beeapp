@@ -5,7 +5,7 @@ import { eq, asc } from "drizzle-orm";
 // ── Apiaries ──────────────────────────────────────────────
 
 export async function getApiaries() {
-	return db.select().from(apiaries).orderBy(asc(apiaries.createdAt));
+	return await db.select().from(apiaries).orderBy(asc(apiaries.createdAt));
 }
 
 export async function getApiary(id: string) {
@@ -77,16 +77,16 @@ export async function getHive(id: string) {
 export async function getInspections(hiveId?: string) {
 	const rows = hiveId
 		? await db
-				.select()
-				.from(inspections)
-				.leftJoin(hives, eq(inspections.hiveId, hives.id))
-				.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-				.where(eq(inspections.hiveId, hiveId))
+			.select()
+			.from(inspections)
+			.leftJoin(hives, eq(inspections.hiveId, hives.id))
+			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+			.where(eq(inspections.hiveId, hiveId))
 		: await db
-				.select()
-				.from(inspections)
-				.leftJoin(hives, eq(inspections.hiveId, hives.id))
-				.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
+			.select()
+			.from(inspections)
+			.leftJoin(hives, eq(inspections.hiveId, hives.id))
+			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 
 	return rows.map((row) => ({
 		...row.inspections,

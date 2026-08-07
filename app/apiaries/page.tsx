@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
+
+export const dynamic = "force-dynamic";
+
 import { getApiaries } from "@/lib/data";
 
-async function ApiaryList() {
+export async function ApiaryList() {
 	const apiaries = await getApiaries();
 
 	if (apiaries.length === 0) {
@@ -43,7 +46,7 @@ async function ApiaryList() {
 	);
 }
 
-export default function ApiariesPage() {
+export default async function ApiariesPage() {
 	return (
 		<div>
 			<div className="flex items-center justify-between mb-6">

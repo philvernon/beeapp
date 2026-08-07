@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
+
+export const dynamic = "force-dynamic";
+
 import { getHives } from "@/lib/data";
 
-async function HiveList() {
+export async function HiveList() {
 	const hives = await getHives();
 
 	if (hives.length === 0) {
@@ -46,7 +49,7 @@ async function HiveList() {
 	);
 }
 
-export default function HivesPage() {
+export default async function HivesPage() {
 	return (
 		<div>
 			<div className="flex items-center justify-between mb-6">

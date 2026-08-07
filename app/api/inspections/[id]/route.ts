@@ -1,94 +1,120 @@
-import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
-import { db, InspectionUpdate } from '@/lib/db';
-import { inspections, hives, apiaries } from '@/lib/schema';
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { db, InspectionUpdate } from "@/lib/db";
+import { inspections, hives, apiaries } from "@/lib/schema";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
+	_req: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
+	try {
+		const { id } = await params;
 
-    const result = await db.select()
-      .from(inspections)
-      .leftJoin(hives, eq(inspections.hiveId, hives.id))
-      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-      .where(eq(inspections.id, id))
-      .limit(1);
+		const result = await db
+			.select()
+			.from(inspections)
+			.leftJoin(hives, eq(inspections.hiveId, hives.id))
+			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+			.where(eq(inspections.id, id))
+			.limit(1);
 
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
-    }
+		if (result.length === 0) {
+			return NextResponse.json(
+				{ error: "Inspection not found" },
+				{ status: 404 },
+			);
+		}
 
-    const row = result[0];
-    return NextResponse.json({
-      ...row.inspections,
-      hive_name: row.hives?.name ?? null,
-      apiary_name: row.apiaries?.name ?? null,
-    });
-  } catch (err) {
-    console.error('GET /api/inspections/:id error:', err);
-    return NextResponse.json({ error: 'Failed to fetch inspection' }, { status: 500 });
-  }
+		const row = result[0];
+		return NextResponse.json({
+			...row.inspections,
+			hive_name: row.hives?.name ?? null,
+			apiary_name: row.apiaries?.name ?? null,
+		});
+	} catch (err) {
+		console.error("GET /api/inspections/:id error:", err);
+		return NextResponse.json(
+			{ error: "Failed to fetch inspection" },
+			{ status: 500 },
+		);
+	}
 }
 
 // PUT /api/inspections/:id — update inspection
 export async function PUT(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
+	req: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const body = await req.json();
+	try {
+		const { id } = await params;
+		const body = await req.json();
 
-    const validated = InspectionUpdate.safeParse(body);
-    if (!validated.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validated.error.issues },
-        { status: 400 }
-      );
-    }
+		const validated = InspectionUpdate.safeParse(body);
+		if (!validated.success) {
+			return NextResponse.json(
+				{ error: "Validation failed", details: validated.error.issues },
+				{ status: 400 },
+			);
+		}
 
-    // Build update object with only defined fields
-    const updates = Object.fromEntries(
-      Object.entries(validated.data).filter(([, v]) => v !== undefined)
-    );
+		// Build update object with only defined fields
+		const updates = Object.fromEntries(
+			Object.entries(validated.data).filter(([, v]) => v !== undefined),
+		);
 
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
-    }
+		if (Object.keys(updates).length === 0) {
+			return NextResponse.json(
+				{ error: "No fields to update" },
+				{ status: 400 },
+			);
+		}
 
-    const result = await db.update(inspections)
-      .set(updates)
-      .where(eq(inspections.id, id))
-      .returning();
+		const result = await db
+			.update(inspections)
+			.set(updates)
+			.where(eq(inspections.id, id))
+			.returning();
 
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
-    }
-    return NextResponse.json(result[0]);
-  } catch (err) {
-    console.error('PUT /api/inspections/:id error:', err);
-    return NextResponse.json({ error: 'Failed to update inspection' }, { status: 500 });
-  }
+		if (result.length === 0) {
+			return NextResponse.json(
+				{ error: "Inspection not found" },
+				{ status: 404 },
+			);
+		}
+		return NextResponse.json(result[0]);
+	} catch (err) {
+		console.error("PUT /api/inspections/:id error:", err);
+		return NextResponse.json(
+			{ error: "Failed to update inspection" },
+			{ status: 500 },
+		);
+	}
 }
 
 // DELETE /api/inspections/:id — delete inspection
 export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
+	_req: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
-    const result = await db.delete(inspections).where(eq(inspections.id, id)).returning();
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Inspection not found' }, { status: 404 });
-    }
-    return NextResponse.json({ success: true, deleted: result[0] });
-  } catch (err) {
-    console.error('DELETE /api/inspections/:id error:', err);
-    return NextResponse.json({ error: 'Failed to delete inspection' }, { status: 500 });
-  }
+	try {
+		const { id } = await params;
+		const result = await db
+			.delete(inspections)
+			.where(eq(inspections.id, id))
+			.returning();
+		if (result.length === 0) {
+			return NextResponse.json(
+				{ error: "Inspection not found" },
+				{ status: 404 },
+			);
+		}
+		return NextResponse.json({ success: true, deleted: result[0] });
+	} catch (err) {
+		console.error("DELETE /api/inspections/:id error:", err);
+		return NextResponse.json(
+			{ error: "Failed to delete inspection" },
+			{ status: 500 },
+		);
+	}
 }
