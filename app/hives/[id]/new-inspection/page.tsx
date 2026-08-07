@@ -4,7 +4,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { queenColourLabels, varroaLevelLabels, weatherConditionLabels } from '@/lib/validations';
+import { queenColourLabels, varroaLevelLabels, weatherConditionLabels } from '@/lib/schema';
 
 export default function NewInspectionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
