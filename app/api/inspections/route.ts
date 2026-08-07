@@ -12,8 +12,7 @@ export async function GET(req: Request) {
     let query = db.select()
       .from(inspections)
       .leftJoin(hives, eq(inspections.hiveId, hives.id))
-      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-      .orderBy(desc(inspections.inspectionDate));
+      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 
     if (hiveId) {
       query = query.where(eq(inspections.hiveId, hiveId));

@@ -1,13 +1,6 @@
 import { pgTable, uuid, text, boolean, integer, numeric, timestamp, date } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 
-// Helper: coerce numeric strings to numbers for API responses
-function numericToNumber(val: string | number | null | undefined): number | null {
-  if (val === null || val === undefined) return null;
-  const n = typeof val === 'string' ? parseFloat(val) : val;
-  return isNaN(n) ? null : n;
-}
-
 // ── Apiaries ──────────────────────────────────────────────
 export const apiaries = pgTable('apiaries', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -49,20 +42,20 @@ export const inspections = pgTable('inspections', {
 
   // Queen
   queenSeen: boolean('queen_seen').default(false),
-  queenColour: text('queen_colour').$type<'W' | 'Y' | 'R' | 'G' | 'B' | null>().nullable(),
+  queenColour: text('queen_colour', { enum: ['W', 'Y', 'R', 'G', 'B'] }).nullable(),
 
   // Queen cells
-  queenCellsFound: integer('queen_cells_found').min(0).nullable(),
+  queenCellsFound: integer('queen_cells_found').nullable(),
   queenCellsRemoved: boolean('queen_cells_removed').default(false),
 
   // Brood
   eggsSeen: boolean('eggs_seen').default(false),
   broodPatternOk: boolean('brood_pattern_ok').default(true),
-  broodFrameCount: integer('brood_frame_count').min(0).nullable(),
+  broodFrameCount: integer('brood_frame_count').nullable(),
 
   // Stores & Space
-  storeFrames: integer('store_frames').min(0).nullable(),
-  roomFrames: integer('room_frames').min(0).nullable(),
+  storeFrames: integer('store_frames').nullable(),
+  roomFrames: integer('room_frames').nullable(),
 
   // Health
   healthOk: boolean('health_ok').default(true),
@@ -71,11 +64,11 @@ export const inspections = pgTable('inspections', {
   afbSuspected: boolean('afb_suspected').default(false),
 
   // Varroa
-  varroaLevel: text('varroa_level').$type<'l' | 'm' | 'h' | null>().nullable(),
-  varroaCount: integer('varroa_count').min(0).nullable(),
+  varroaLevel: text('varroa_level', { enum: ['l', 'm', 'h'] }).nullable(),
+  varroaCount: integer('varroa_count').nullable(),
 
   // Temperament
-  temperamentScore: integer('temperament_score').min(1).max(10).nullable(),
+  temperamentScore: integer('temperament_score').nullable(),
 
   // Feed
   feedLitresLightSyrup: numeric('feed_litres_light_syrup', { precision: 5, scale: 2 }).nullable(),
@@ -86,7 +79,7 @@ export const inspections = pgTable('inspections', {
 
   // Weather
   weatherTemperatureC: numeric('weather_temperature_c', { precision: 4, scale: 1 }).nullable(),
-  weatherCondition: text('weather_condition').$type<'c' | 's' | 'r' | 'f' | null>().nullable(),
+  weatherCondition: text('weather_condition', { enum: ['c', 's', 'r', 'f'] }).nullable(),
 
   // Notes
   notes: text('notes'),

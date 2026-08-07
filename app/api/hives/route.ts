@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db, HiveInsert } from '@/lib/db';
 import { hives, apiaries } from '@/lib/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 // GET /api/hives — list all hives (with apiary name)
 export async function GET(req: Request) {
@@ -9,9 +9,9 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const apiaryId = url.searchParams.get('apiary_id');
 
-    let query = db.select().from(hives)
-      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-      .orderBy(hives.createdAt);
+    let query = db.select()
+      .from(hives)
+      .leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 
     if (apiaryId) {
       query = query.where(eq(hives.apiaryId, apiaryId));
