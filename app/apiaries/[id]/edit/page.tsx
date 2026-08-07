@@ -50,32 +50,32 @@ export default function EditApiaryPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="max-w-lg">
-      <Link href={`/apiaries/${id}`} className="text-sm text-zinc-500 hover:text-zinc-700 mb-4 inline-block">
+      <Link href={`/apiaries/${id}`} className="text-sm text-secondary hover:text-primary/70 mb-4 inline-block">
         ← Back to Apiary
       </Link>
-      <h1 className="text-2xl font-bold text-zinc-900 mb-6">Edit Apiary</h1>
+      <h1 className="text-2xl font-bold text-primary mb-6">Edit Apiary</h1>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-zinc-700 mb-1">Name *</label>
+          <label htmlFor="name" className="block text-sm font-medium text-primary mb-1">Name *</label>
           <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" />
+            className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface" />
         </div>
         <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-zinc-700 mb-1">Notes</label>
+          <label htmlFor="notes" className="block text-sm font-medium text-primary mb-1">Notes</label>
           <textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" />
+            className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface" />
         </div>
         <div className="flex gap-3 pt-2">
           <button type="submit" disabled={loading}
-            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
+            className="bg-accent px-4 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors">
             {loading ? 'Saving…' : 'Save Changes'}
           </button>
-          <Link href={`/apiaries/${id}`} className="text-sm text-zinc-500 hover:text-zinc-700 py-2">Cancel</Link>
+          <Link href={`/apiaries/${id}`} className="text-sm text-secondary hover:text-primary/70 py-2">Cancel</Link>
         </div>
       </form>
     </div>
