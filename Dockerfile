@@ -1,29 +1,67 @@
-FROM node:22-alpine AS base
+# ============================================
+# Base
+# ============================================
 
-# Install dependencies only when needed
-FROM base AS deps
-FROM ghcr.io/pnpm/pnpm:11
-RUN pnpm runtime set node 22 -g
+ARG NODE_VERSION=24.13.0-slim
+
+FROM node:${NODE_VERSION} AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME/bin:$PATH"
+
+RUN corepack enable
+
 WORKDIR /app
-COPY . .
-ENV CI=true
-RUN pnpm install --frozen-lockfile
 
-# Rebuild the source code only when needed
-# FROM base AS builder
-# WORKDIR /app
-# COPY --from=deps /app/node_modules ./node_modules
-# COPY . .
-# RUN pnpm build
-#
-# # Production image, copy all files and run Next.js
-# FROM base AS runner
-# WORKDIR /app
-# ENV NODE_ENV=production
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/.next/standalone ./
-# COPY --from=builder /app/.next/static ./.next/static
+
+# ============================================
+# Dependencies
+# ============================================
+
+FROM base AS dependencies
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc* ./
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+
+
+# ============================================
+# Build
+# ============================================
+
+FROM base AS builder
+
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
+
+ENV NODE_ENV=production
+
+RUN --mount=type=cache,target=/app/.next/cache \
+    pnpm build
+
+
+# ============================================
+# Runtime
+# ============================================
+
+FROM node:${NODE_VERSION} AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+COPY --from=builder --chown=node:node /app/public ./public
+
+RUN mkdir .next && chown node:node .next
+
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+
+USER node
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["node", "server.js"]
