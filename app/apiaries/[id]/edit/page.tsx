@@ -41,8 +41,8 @@ export default function EditApiaryPage({ params }: { params: Promise<{ id: strin
       }
 
       router.push(`/apiaries/${id}`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }

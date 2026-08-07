@@ -1,17 +1,19 @@
-import Link from 'next/link';
-import { Suspense } from 'react';
+import Link from "next/link";
+import { Suspense } from "react";
+import { getApiaries } from "@/lib/data";
 
 async function ApiaryList() {
-	const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/apiaries`);
-	if (!res.ok) return <p className="text-primary font-medium">Failed to load apiaries</p>;
-	const apiaries: Array<{ id: string; name: string; notes?: string | null; created_at: string }> = await res.json();
+	const apiaries = await getApiaries();
 
 	if (apiaries.length === 0) {
 		return (
 			<div className="text-center py-16">
 				hi
 				<p className="text-secondary mb-4">No apiaries yet</p>
-				<Link href="/apiaries/new" className="text-accent hover:text-accent/80 font-medium">
+				<Link
+					href="/apiaries/new"
+					className="text-accent hover:text-accent/80 font-medium"
+				>
 					Create your first apiary →
 				</Link>
 			</div>
@@ -27,9 +29,13 @@ async function ApiaryList() {
 					className="block border border-primary/20 bg-surface p-5 hover:border-accent/50 transition-all"
 				>
 					<h3 className="text-lg font-semibold text-primary">{a.name}</h3>
-					{a.notes && <p className="mt-1 text-sm text-secondary line-clamp-2">{a.notes}</p>}
+					{a.notes && (
+						<p className="mt-1 text-sm text-secondary line-clamp-2">
+							{a.notes}
+						</p>
+					)}
 					<p className="mt-3 text-xs text-secondary">
-						Created {new Date(a.created_at).toLocaleDateString()}
+						Created {new Date(a.createdAt).toLocaleDateString()}
 					</p>
 				</Link>
 			))}
