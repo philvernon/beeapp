@@ -59,12 +59,9 @@ export async function PUT(
     }
 
     // Build update object with only defined fields
-    const updates: Record<string, unknown> = {};
-    if (validated.data.apiaryId !== undefined) updates.apiaryId = validated.data.apiaryId;
-    if (validated.data.name !== undefined) updates.name = validated.data.name;
-    if (validated.data.queenBreed !== undefined) updates.queenBreed = validated.data.queenBreed ?? null;
-    if (validated.data.queenClipped !== undefined) updates.queenClipped = validated.data.queenClipped;
-    if (validated.data.notes !== undefined) updates.notes = validated.data.notes ?? null;
+    const updates = Object.fromEntries(
+      Object.entries(validated.data).filter(([, v]) => v !== undefined)
+    );
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });

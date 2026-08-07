@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { eq, sql } from 'drizzle-orm';
-import { db } from '@/lib/db';
+import { db, InspectionUpdate } from '@/lib/db';
 import { inspections, hives, apiaries } from '@/lib/schema';
 
 // GET /api/inspections/:id — single inspection
@@ -43,27 +43,18 @@ export async function PUT(
     const { id } = await params;
     const body = await req.json();
 
-    // Build dynamic update from allowed fields
-    const updates: Record<string, unknown> = {};
-    const allowedFields = [
-      'queenSeen', 'queenColour',
-      'queenCellsFound', 'queenCellsRemoved',
-      'eggsSeen', 'broodPatternOk', 'broodFrameCount',
-      'storeFrames', 'roomFrames',
-      'healthOk', 'chalkBroodSuspected', 'efbSuspected', 'afbSuspected',
-      'varroaLevel', 'varroaCount',
-      'temperamentScore',
-      'feedLitresLightSyrup', 'feedLitresHeavySyrup',
-      'supersChange',
-      'weatherTemperatureC', 'weatherCondition',
-      'notes',
-    ];
-
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) {
-        updates[field] = body[field];
-      }
+    const validated = InspectionUpdate.safeParse(body);
+    if (!validated.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validated.error.issues },
+        { status: 400 }
+      );
     }
+
+    // Build update object with only defined fields
+    const updates = Object.fromEntries(
+      Object.entries(validated.data).filter(([, v]) => v !== undefined)
+    );
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });

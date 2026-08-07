@@ -29,6 +29,7 @@ export {
   HiveUpdate,
   InspectionInsert,
   InspectionSelect,
+  InspectionUpdate,
   queenColourLabels,
   varroaLevelLabels,
   weatherConditionLabels,
