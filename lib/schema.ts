@@ -7,6 +7,7 @@ import {
 	numeric,
 	timestamp,
 	date,
+	index,
 } from "drizzle-orm/pg-core";
 import {
 	createInsertSchema,
@@ -50,19 +51,23 @@ export const ApiaryUpdate = snakeToCamel(
 );
 
 // ── Hives ─────────────────────────────────────────────────
-export const hives = pgTable("hives", {
-	id: uuid("id").defaultRandom().primaryKey(),
-	apiaryId: uuid("apiary_id")
-		.notNull()
-		.references(() => apiaries.id, { onDelete: "restrict" }),
-	name: text("name").notNull(),
-	queenBreed: text("queen_breed"),
-	queenClipped: boolean("queen_clipped").default(false),
-	notes: text("notes"),
-	createdAt: timestamp("created_at", { withTimezone: true })
-		.defaultNow()
-		.notNull(),
-});
+export const hives = pgTable(
+	"hives",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		apiaryId: uuid("apiary_id")
+			.notNull()
+			.references(() => apiaries.id, { onDelete: "restrict" }),
+		name: text("name").notNull(),
+		queenBreed: text("queen_breed"),
+		queenClipped: boolean("queen_clipped").default(false),
+		notes: text("notes"),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(t) => [index("idx_hives_apiary_id").on(t.apiaryId)],
+);
 
 export const HiveInsert = snakeToCamel(createInsertSchema(hives));
 export const HiveSelect = createSelectSchema(hives);
@@ -75,69 +80,75 @@ export const HiveUpdate = snakeToCamel(
 );
 
 // ── Inspections ───────────────────────────────────────────
-export const inspections = pgTable("inspections", {
-	id: uuid("id").defaultRandom().primaryKey(),
-	hiveId: uuid("hive_id")
-		.notNull()
-		.references(() => hives.id, { onDelete: "cascade" }),
-	inspectionDate: date("inspection_date").notNull(),
+export const inspections = pgTable(
+	"inspections",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		hiveId: uuid("hive_id")
+			.notNull()
+			.references(() => hives.id, { onDelete: "cascade" }),
+		inspectionDate: date("inspection_date").notNull(),
 
-	// Queen
-	queenSeen: boolean("queen_seen").default(false),
-	queenColour: text("queen_colour", { enum: ["W", "Y", "R", "G", "B"] }),
+		// Queen
+		queenSeen: boolean("queen_seen").default(false),
+		queenColour: text("queen_colour", { enum: ["W", "Y", "R", "G", "B"] }),
 
-	// Queen cells
-	queenCellsFound: integer("queen_cells_found"),
-	queenCellsRemoved: boolean("queen_cells_removed").default(false),
+		// Queen cells
+		queenCellsFound: integer("queen_cells_found"),
+		queenCellsRemoved: boolean("queen_cells_removed").default(false),
 
-	// Brood
-	eggsSeen: boolean("eggs_seen").default(false),
-	broodPatternOk: boolean("brood_pattern_ok").default(true),
-	broodFrameCount: integer("brood_frame_count"),
+		// Brood
+		eggsSeen: boolean("eggs_seen").default(false),
+		broodPatternOk: boolean("brood_pattern_ok").default(true),
+		broodFrameCount: integer("brood_frame_count"),
 
-	// Stores & Space
-	storeFrames: integer("store_frames"),
-	roomFrames: integer("room_frames"),
+		// Stores & Space
+		storeFrames: integer("store_frames"),
+		roomFrames: integer("room_frames"),
 
-	// Health
-	healthOk: boolean("health_ok").default(true),
-	chalkBroodSuspected: boolean("chalk_brood_suspected").default(false),
-	efbSuspected: boolean("efb_suspected").default(false),
-	afbSuspected: boolean("afb_suspected").default(false),
+		// Health
+		healthOk: boolean("health_ok").default(true),
+		chalkBroodSuspected: boolean("chalk_brood_suspected").default(false),
+		efbSuspected: boolean("efb_suspected").default(false),
+		afbSuspected: boolean("afb_suspected").default(false),
 
-	// Varroa
-	varroaLevel: text("varroa_level", { enum: ["l", "m", "h"] }),
-	varroaCount: integer("varroa_count"),
+		// Varroa
+		varroaLevel: text("varroa_level", { enum: ["l", "m", "h"] }),
+		varroaCount: integer("varroa_count"),
 
-	// Temperament
-	temperamentScore: integer("temperament_score"),
+		// Temperament
+		temperamentScore: integer("temperament_score"),
 
-	// Feed
-	feedLitresLightSyrup: numeric("feed_litres_light_syrup", {
-		precision: 5,
-		scale: 2,
-	}),
-	feedLitresHeavySyrup: numeric("feed_litres_heavy_syrup", {
-		precision: 5,
-		scale: 2,
-	}),
+		// Feed
+		feedLitresLightSyrup: numeric("feed_litres_light_syrup", {
+			precision: 5,
+			scale: 2,
+		}),
+		feedLitresHeavySyrup: numeric("feed_litres_heavy_syrup", {
+			precision: 5,
+			scale: 2,
+		}),
 
-	// Supers
-	supersChange: numeric("supers_change", { precision: 5, scale: 2 }),
+		// Supers
+		supersChange: numeric("supers_change", { precision: 5, scale: 2 }),
 
-	// Weather
-	weatherTemperatureC: numeric("weather_temperature_c", {
-		precision: 4,
-		scale: 1,
-	}),
-	weatherCondition: text("weather_condition", { enum: ["c", "s", "r", "f"] }),
+		// Weather
+		weatherTemperatureC: numeric("weather_temperature_c", {
+			precision: 4,
+			scale: 1,
+		}),
+		weatherCondition: text("weather_condition", { enum: ["c", "s", "r", "f"] }),
 
-	// Notes
-	notes: text("notes"),
-	createdAt: timestamp("created_at", { withTimezone: true })
-		.defaultNow()
-		.notNull(),
-});
+		// Notes
+		notes: text("notes"),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(t) => [
+		index("idx_inspections_hive_date").on(t.hiveId, t.inspectionDate.desc()),
+	],
+);
 
 export const InspectionInsert = snakeToCamel(createInsertSchema(inspections));
 export const InspectionSelect = createSelectSchema(inspections);
