@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ApiaryInsert } from "@/lib/schema";
 
 export default function NewApiaryPage() {
 	const router = useRouter();
@@ -17,10 +18,20 @@ export default function NewApiaryPage() {
 		setLoading(true);
 
 		try {
+			const validated = ApiaryInsert.safeParse({
+				name,
+				notes: notes || undefined,
+			});
+			if (!validated.success) {
+				setError(validated.error.issues.map((i) => i.message).join("; "));
+				setLoading(false);
+				return;
+			}
+
 			const res = await fetch("/api/apiaries", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name, notes: notes || undefined }),
+				body: JSON.stringify(validated.data),
 			});
 
 			if (!res.ok) {

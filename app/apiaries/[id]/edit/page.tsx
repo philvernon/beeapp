@@ -4,6 +4,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ApiaryUpdate } from "@/lib/schema";
 
 export default function EditApiaryPage({
 	params,
@@ -36,10 +37,20 @@ export default function EditApiaryPage({
 		setLoading(true);
 
 		try {
+			const validated = ApiaryUpdate.safeParse({
+				name,
+				notes: notes || undefined,
+			});
+			if (!validated.success) {
+				setError(validated.error.issues.map((i) => i.message).join("; "));
+				setLoading(false);
+				return;
+			}
+
 			const res = await fetch(`/api/apiaries/${id}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name, notes: notes || undefined }),
+				body: JSON.stringify(validated.data),
 			});
 
 			if (!res.ok) {

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
+import { HiveInsert } from "@/lib/schema";
 
 function NewHiveForm() {
 	const router = useRouter();
@@ -38,16 +39,23 @@ function NewHiveForm() {
 		setLoading(true);
 
 		try {
+			const validated = HiveInsert.safeParse({
+				apiaryId,
+				name,
+				queenBreed: queenBreed || null,
+				queenClipped,
+				notes: notes || undefined,
+			});
+			if (!validated.success) {
+				setError(validated.error.issues.map((i) => i.message).join("; "));
+				setLoading(false);
+				return;
+			}
+
 			const res = await fetch("/api/hives", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					apiary_id: apiaryId,
-					name,
-					queen_breed: queenBreed || null,
-					queen_clipped: queenClipped,
-					notes: notes || undefined,
-				}),
+				body: JSON.stringify(validated.data),
 			});
 
 			if (!res.ok) {

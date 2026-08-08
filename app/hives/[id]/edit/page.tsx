@@ -4,6 +4,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { HiveUpdate } from "@/lib/schema";
 
 export default function EditHivePage({
 	params,
@@ -51,16 +52,23 @@ export default function EditHivePage({
 		setLoading(true);
 
 		try {
+			const validated = HiveUpdate.safeParse({
+				apiaryId,
+				name,
+				queenBreed: queenBreed || null,
+				queenClipped,
+				notes: notes || undefined,
+			});
+			if (!validated.success) {
+				setError(validated.error.issues.map((i) => i.message).join("; "));
+				setLoading(false);
+				return;
+			}
+
 			const res = await fetch(`/api/hives/${id}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					apiary_id: apiaryId,
-					name,
-					queen_breed: queenBreed || null,
-					queen_clipped: queenClipped,
-					notes: notes || undefined,
-				}),
+				body: JSON.stringify(validated.data),
 			});
 
 			if (!res.ok) {

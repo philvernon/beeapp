@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
+	InspectionInsert,
 	queenColourLabels,
 	varroaLevelLabels,
 	weatherConditionLabels,
@@ -92,10 +93,21 @@ export default function NewInspectionPage({
 		};
 
 		try {
+			const validated = InspectionInsert.safeParse(body);
+			if (!validated.success) {
+				setError(
+					validated.error.issues
+						.map((i) => `${i.path.join(".")}: ${i.message}`)
+						.join("; "),
+				);
+				setLoading(false);
+				return;
+			}
+
 			const res = await fetch("/api/inspections", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(body),
+				body: JSON.stringify(validated.data),
 			});
 
 			if (!res.ok) {
