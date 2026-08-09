@@ -154,6 +154,19 @@ export const InspectionInsert = snakeToCamel(createInsertSchema(inspections));
 export const InspectionSelect = createSelectSchema(inspections);
 export const InspectionUpdate = snakeToCamel(
 	createUpdateSchema(inspections, {
+		queenColour: (schema) => schema.nullable(),
+		queenCellsFound: (schema) => schema.nullable(),
+		broodFrameCount: (schema) => schema.nullable(),
+		storeFrames: (schema) => schema.nullable(),
+		roomFrames: (schema) => schema.nullable(),
+		varroaLevel: (schema) => schema.nullable(),
+		varroaCount: (schema) => schema.nullable(),
+		temperamentScore: (schema) => schema.nullable(),
+		feedLitresLightSyrup: (schema) => schema.nullable(),
+		feedLitresHeavySyrup: (schema) => schema.nullable(),
+		supersChange: (schema) => schema.nullable(),
+		weatherTemperatureC: (schema) => schema.nullable(),
+		weatherCondition: (schema) => schema.nullable(),
 		notes: (schema) => schema.nullable(),
 	}).partial(),
 );
