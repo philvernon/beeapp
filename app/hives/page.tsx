@@ -1,15 +1,11 @@
 import Link from "next/link";
-import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-import { getHives, getInspections } from "@/lib/data";
+import { getHives } from "@/lib/data";
 
 export async function HiveList() {
-	const [hives, inspections] = await Promise.all([
-		getHives(),
-		getInspections(),
-	]);
+	const hives = await getHives();
 
 	if (hives.length === 0) {
 		return (
@@ -46,7 +42,7 @@ export async function HiveList() {
 						<p className="text-xs text-secondary mt-1">Queen: {h.queenBreed}</p>
 					)}
 					<p className="text-xs text-secondary mt-2">
-						{inspections.filter((i) => i.hiveId === h.id).length} inspections
+						{h.inspectionCount ?? 0} inspection{h.inspectionCount === 1 ? "" : "s"}
 					</p>
 				</Link>
 			))}
@@ -66,9 +62,7 @@ export default async function HivesPage() {
 					Manage apiaries →
 				</Link>
 			</div>
-			<Suspense fallback={<p className="text-secondary">Loading…</p>}>
-				<HiveList />
-			</Suspense>
+			<HiveList />
 		</div>
 	);
 }

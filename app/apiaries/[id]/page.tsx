@@ -82,7 +82,9 @@ export default async function ApiaryDetailPage({
 									Queen: {hive.queenBreed}
 								</p>
 							)}
-							<p className="text-xs text-secondary mt-2">0 inspections</p>
+							<p className="text-xs text-secondary mt-2">
+						{hive.inspectionCount ?? 0} inspection{hive.inspectionCount === 1 ? "" : "s"}
+					</p>
 						</Link>
 					))}
 				</div>

@@ -1,6 +1,24 @@
 import { db } from "./db";
 import { apiaries, hives, inspections } from "./schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, count, inArray } from "drizzle-orm";
+
+// ── Inspection counts (aggregate) ─────────────────────────
+
+export async function getInspectionCounts(hiveIds: string[]) {
+	if (hiveIds.length === 0) return new Map<string, number>();
+
+	const batchRows = await db
+		.select({ hiveId: inspections.hiveId, count: count().as("c") })
+		.from(inspections)
+		.where(inArray(inspections.hiveId, hiveIds))
+		.groupBy(inspections.hiveId);
+
+	const map = new Map<string, number>();
+	for (const row of batchRows) {
+		map.set(row.hiveId, Number(row.count));
+	}
+	return map;
+}
 
 // ── Apiaries ──────────────────────────────────────────────
 
@@ -40,7 +58,15 @@ export async function getApiaryWithHives(id: string) {
 		apiaryName: row.apiaries?.name ?? null,
 	}));
 
-	return { ...apiary, hives: hiveList };
+	const hiveIds = hiveList.map((h: typeof hiveList[number]) => h.id);
+	const counts = await getInspectionCounts(hiveIds);
+
+	const hiveListWithCounts = hiveList.map((hive) => ({
+		...hive,
+		inspectionCount: counts.get(hive.id) ?? 0,
+	}));
+
+	return { ...apiary, hives: hiveListWithCounts };
 }
 
 // ── Hives ─────────────────────────────────────────────────
@@ -51,9 +77,13 @@ export async function getHives() {
 		.from(hives)
 		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 
+	const hiveIds = rows.map((r) => r.hives?.id).filter(Boolean) as string[];
+	const counts = await getInspectionCounts(hiveIds);
+
 	return rows.map((row) => ({
 		...row.hives,
 		apiaryName: row.apiaries?.name ?? null,
+		inspectionCount: row.hives?.id ? counts.get(row.hives.id) ?? 0 : 0,
 	}));
 }
 
@@ -66,9 +96,11 @@ export async function getHive(id: string) {
 		.limit(1);
 
 	if (row.length === 0) return null;
+	const hiveId = row[0].hives?.id;
 	return {
 		...row[0].hives,
 		apiaryName: row[0].apiaries?.name ?? null,
+		inspectionCount: hiveId ? (await getInspectionCounts([hiveId])).get(hiveId) ?? 0 : 0,
 	};
 }
 

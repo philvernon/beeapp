@@ -116,7 +116,7 @@ Drizzle's `numeric(...)` fields generate string-valued Zod fields. The schema ac
 
 **Resolution:** Changed decimal form fields (`feedLitresLightSyrup`, `feedLitresHeavySyrup`, `supersChange`, `weatherTemperatureC`) from `number | ""` state to plain string state. Removed `parseFloat()` coercion in `onChange` handlers — the `<input type="number">` element already provides string values. Replaced `Number(...)` calls in the submit body with direct string passthrough (`field || null`). This aligns with Drizzle's `numeric` Zod schema which expects decimal strings (e.g., `"1.5"`) rather than JS numbers. Empty inputs correctly resolve to `null`. Consumer types in `hives/[id]/page.tsx` already expect `string | null`, confirming the contract is consistent.
 
-## 3. Medium: update schemas allow immutable/invalid fields
+## 3. Medium: update schemas allow immutable/invalid fields ✅ FIXED
 
 `HiveUpdate` and `InspectionUpdate` include `id`, and their PUT handlers pass all validated properties into `.set(...)`. A request can therefore mutate a row's primary key.
 
@@ -130,9 +130,11 @@ Drizzle's `numeric(...)` fields generate string-valued Zod fields. The schema ac
 - Apply the same immutable-field policy consistently to apiaries, hives, and inspections.
 - Return 400-level validation responses for invalid payloads rather than reaching PostgreSQL.
 
-## 4. Medium: hardcoded inspection counts
+**Resolution:** Added `.omit({ id: true, createdAt: true })` to `ApiaryUpdate`, `HiveUpdate`, and `InspectionUpdate` schemas. Removed `apiaryId: nullable` override from `HiveUpdate` so the NOT NULL constraint is preserved. Added explicit `apiaryId === null` guard in hive PUT handler and `hiveId === null` guard in inspection PUT handler, both returning 400.
 
-These pages always display `0 inspections`:
+## 4. Medium: hardcoded inspection counts ✅ FIXED
+
+These pages always displayed `0 inspections`:
 
 - `app/apiaries/[id]/page.tsx`
 - `app/hives/page.tsx`
@@ -142,6 +144,8 @@ These pages always display `0 inspections`:
 - Return or derive the actual inspection count through the shared read layer.
 - Prefer an efficient aggregate query rather than one query per hive.
 - If a count is not available, omit it rather than rendering known-false data.
+
+**Resolution:** Added `getInspectionCounts(hiveIds)` to `lib/data.ts` — a single SQL `GROUP BY hive_id COUNT(*)` query that returns a `Map<hiveId, count>`. Both `getApiaryWithHives()` and `getHives()` now call this once per batch of hive IDs and attach `inspectionCount` to each hive object. `app/apiaries/[id]/page.tsx` renders the real count instead of hardcoded `0`. `app/hives/page.tsx` was simplified: removed the client-side filter over all inspections (and the unused `getInspections` import + `Suspense` wrapper), now uses the server-side `inspectionCount` directly from `getHives()`.
 
 ## 5. Repository cleanup: review artifacts and changelog deletion
 
