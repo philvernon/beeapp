@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
 import { HiveInsert } from "@/lib/schema";
+import { safeJsonFetch } from "@/lib/fetch";
 
 function NewHiveForm() {
 	const router = useRouter();
@@ -20,13 +21,29 @@ function NewHiveForm() {
 	const [queenClipped, setQueenClipped] = useState(false);
 	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
+	const [fetchError, setFetchError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		fetch("/api/apiaries")
-			.then((r) => r.json())
-			.then(setApiaries)
-			.catch(() => {});
+		let cancelled = false;
+
+		async function load() {
+			const result = await safeJsonFetch("/api/apiaries");
+			if (cancelled) return;
+
+			if (result.error) {
+				setFetchError(result.error);
+				return;
+			}
+
+			const apiaries = result.data as Array<{ id: string; name: string }>;
+			if (apiaries) setApiaries(apiaries);
+		}
+
+		load();
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -80,6 +97,12 @@ function NewHiveForm() {
 				← Back to Hives
 			</Link>
 			<h1 className="text-2xl font-bold text-primary mb-6">New Hive</h1>
+
+			{fetchError && (
+				<div className="mb-4 border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
+					Failed to load data: {fetchError}
+				</div>
+			)}
 
 			{error && (
 				<div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">

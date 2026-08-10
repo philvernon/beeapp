@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApiaryUpdate } from "@/lib/schema";
+import { safeJsonFetch } from "@/lib/fetch";
 
 export default function EditApiaryPage({
 	params,
@@ -16,19 +17,36 @@ export default function EditApiaryPage({
 	const [name, setName] = useState("");
 	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
+	const [fetchError, setFetchError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		fetch(`/api/apiaries/${id}`)
-			.then((r) => r.json())
-			.then((data) => {
-				if (data?.error) {
-					router.push("/apiaries");
-					return;
-				}
-				setName(data.name);
-				setNotes(data.notes || "");
-			});
+		let cancelled = false;
+
+		async function load() {
+			const result = await safeJsonFetch(`/api/apiaries/${id}`);
+			if (cancelled) return;
+
+			if (result.error) {
+				setFetchError(result.error);
+				return;
+			}
+
+			const data = result.data as Record<string, unknown> | null;
+			if (data?.error) {
+				router.push("/apiaries");
+				return;
+			}
+			if (data && typeof data === "object") {
+				setName((data.name as string) || "");
+				setNotes((data.notes as string) || "");
+			}
+		}
+
+		load();
+		return () => {
+			cancelled = true;
+		};
 	}, [id, router]);
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -75,6 +93,12 @@ export default function EditApiaryPage({
 				← Back to Apiary
 			</Link>
 			<h1 className="text-2xl font-bold text-primary mb-6">Edit Apiary</h1>
+
+			{fetchError && (
+				<div className="mb-4 border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
+					Failed to load data: {fetchError}
+				</div>
+			)}
 
 			{error && (
 				<div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">

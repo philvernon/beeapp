@@ -207,7 +207,7 @@ This would split schema history across two directories.
 
 **Resolution:** All GET route handlers delegate to shared query functions in `lib/data.ts`. Added `import "server-only"` to prevent client bundle leakage. Consolidated duplicated query builders into private helpers (`buildHiveQuery`, `buildInspectionQuery`) with shared flatteners (`flattenHive`, `flattenInspection`). Merged `getHivesByApiaryId` into parameterized `getHives({ apiaryId? })`. Merged inspection list branches into `getInspections({ hiveId? })`. Added dedicated `getInspection(id)` for O(1) single-record lookups instead of loading all inspections. Made `getInspectionCounts` internal (unexported). Route handlers retain HTTP concerns (status codes, JSON serialization, error responses) while the query layer handles all SQL construction and result shaping.
 
-## 8. Client fetch failures are silently swallowed
+## 8. Client fetch failures are silently swallowed ✅ FIXED
 
 Known examples include:
 
@@ -218,10 +218,15 @@ Some chains use `.catch(() => {})`, and several parse JSON without first checkin
 
 ### Required outcome
 
-- Check `response.ok` before parsing success data.
-- Handle non-JSON error responses safely.
-- Display a useful error or fallback state.
-- Do not leave empty catches.
+- Check `response.ok` on every client fetch.
+- Safely handle JSON, text, and empty error responses.
+- Replace empty catches with visible error states.
+- Do not render forms with partially initialized data after failed initial GETs.
+- Apply this consistently to every client fetch page, not only the examples above.
+- A small shared `getErrorMessage(response, fallback)` helper is acceptable.
+- Defer runtime HTTP response-schema validation and broader transport contracts to issue #7.
+
+**Resolution:** Created `lib/fetch.ts` with `safeJsonFetch()` — a client-side fetch wrapper that checks `response.ok` before parsing JSON, extracts error messages from JSON/text responses, and handles network errors gracefully. Applied it to all four client pages with initial GETs: `app/hives/[id]/edit/page.tsx`, `app/hives/new/page.tsx`, `app/apiaries/[id]/edit/page.tsx`, and `app/hives/[id]/new-inspection/page.tsx`. Each page now shows a visible red error banner when data fails to load, uses cancellation guards (`let cancelled`) to prevent state updates after unmount, and does not render forms with partially initialized data. Removed all `.catch(() => {})` patterns and unchecked `response.json()` calls.
 
 # Implementation order
 

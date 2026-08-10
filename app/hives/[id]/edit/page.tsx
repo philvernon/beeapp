@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HiveUpdate } from "@/lib/schema";
+import { safeJsonFetch } from "@/lib/fetch";
 
 export default function EditHivePage({
 	params,
@@ -23,27 +24,54 @@ export default function EditHivePage({
 	const [queenClipped, setQueenClipped] = useState(false);
 	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
+	const [fetchError, setFetchError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		Promise.all([
-			fetch("/api/apiaries")
-				.then((r) => r.json())
-				.then(setApiaries),
-			fetch(`/api/hives/${id}`)
-				.then((r) => r.json())
-				.then((data) => {
-					if (data?.error) {
-						router.push("/hives");
-						return;
-					}
-					setApiaryId(data.apiaryId);
-					setName(data.name);
-					setQueenBreed(data.queenBreed || "");
-					setQueenClipped(data.queenClipped ?? false);
-					setNotes(data.notes || "");
-				}),
-		]).catch(() => {});
+		let cancelled = false;
+
+		async function load() {
+			const [apiariesResult, hiveResult] = await Promise.all([
+				safeJsonFetch("/api/apiaries"),
+				safeJsonFetch(`/api/hives/${id}`),
+			]);
+
+			if (cancelled) return;
+
+			if (apiariesResult.error) {
+				setFetchError(apiariesResult.error);
+				return;
+			}
+
+			if (hiveResult.error) {
+				setFetchError(hiveResult.error);
+				return;
+			}
+
+			const apiaries = apiariesResult.data as Array<{
+				id: string;
+				name: string;
+			}>;
+			const hive = hiveResult.data as Record<string, unknown> | null;
+
+			if (apiaries) setApiaries(apiaries);
+			if (hive?.error) {
+				router.push("/hives");
+				return;
+			}
+			if (hive && typeof hive === "object") {
+				setApiaryId((hive.apiaryId as string) || "");
+				setName((hive.name as string) || "");
+				setQueenBreed((hive.queenBreed as string) || "");
+				setQueenClipped((hive.queenClipped as boolean) ?? false);
+				setNotes((hive.notes as string) || "");
+			}
+		}
+
+		load();
+		return () => {
+			cancelled = true;
+		};
 	}, [id, router]);
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -93,6 +121,12 @@ export default function EditHivePage({
 				← Back to Hive
 			</Link>
 			<h1 className="text-2xl font-bold text-primary mb-6">Edit Hive</h1>
+
+			{fetchError && (
+				<div className="mb-4 border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
+					Failed to load data: {fetchError}
+				</div>
+			)}
 
 			{error && (
 				<div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">
