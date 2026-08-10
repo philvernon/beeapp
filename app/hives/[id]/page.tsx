@@ -43,7 +43,7 @@ export default async function HiveDetailPage({
 
 	if (!hive) notFound();
 
-	const inspections = await getInspections(id);
+	const inspections = await getInspections({ hiveId: id });
 
 	return (
 		<div>

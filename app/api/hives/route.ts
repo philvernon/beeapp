@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getHives, getHivesByApiaryId } from "@/lib/data";
+import { getHives } from "@/lib/data";
 import { db, HiveInsert } from "@/lib/db";
 import { hives } from "@/lib/schema";
 
@@ -9,9 +9,9 @@ export async function GET(req: Request) {
 		const url = new URL(req.url);
 		const apiaryId = url.searchParams.get("apiary_id");
 
-		const result = apiaryId
-			? await getHivesByApiaryId(apiaryId)
-			: await getHives();
+		const result = await getHives(
+			apiaryId ? { apiaryId } : undefined,
+		);
 
 		return NextResponse.json(result);
 	} catch (err) {

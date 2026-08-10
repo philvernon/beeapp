@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
-import { getInspections } from "@/lib/data";
+import { getInspection } from "@/lib/data";
 import { db, InspectionUpdate } from "@/lib/db";
 import { inspections } from "@/lib/schema";
 
@@ -12,8 +12,7 @@ export async function GET(
 	try {
 		const { id } = await params;
 
-		const all = await getInspections();
-		const result = all.find((i) => i.id === id);
+		const result = await getInspection(id);
 
 		if (!result) {
 			return NextResponse.json(

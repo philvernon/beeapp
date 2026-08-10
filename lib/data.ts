@@ -1,10 +1,59 @@
+import "server-only";
+
 import { db } from "./db";
 import { apiaries, hives, inspections } from "./schema";
-import { asc, count, eq, inArray } from "drizzle-orm";
+import { asc, count, eq, inArray, type SQL } from "drizzle-orm";
+
+// ── Helpers ───────────────────────────────────────────────
+
+function buildHiveQuery(where?: SQL<unknown>) {
+	if (where) {
+		return db
+			.select()
+			.from(hives)
+			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+			.where(where);
+	}
+	return db
+		.select()
+		.from(hives)
+		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
+}
+
+function flattenHive(row: { hives: typeof hives.$inferSelect; apiaries: typeof apiaries.$inferSelect | null }) {
+	return {
+		...row.hives,
+		apiaryName: row.apiaries?.name ?? null,
+	};
+}
+
+function buildInspectionQuery(where?: SQL<unknown>) {
+	if (where) {
+		return db
+			.select()
+			.from(inspections)
+			.leftJoin(hives, eq(inspections.hiveId, hives.id))
+			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+			.where(where);
+	}
+	return db
+		.select()
+		.from(inspections)
+		.leftJoin(hives, eq(inspections.hiveId, hives.id))
+		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
+}
+
+function flattenInspection(row: { inspections: typeof inspections.$inferSelect; hives: typeof hives.$inferSelect | null; apiaries: typeof apiaries.$inferSelect | null }) {
+	return {
+		...row.inspections,
+		hiveName: row.hives?.name ?? null,
+		apiaryName: row.apiaries?.name ?? null,
+	};
+}
 
 // ── Inspection counts (aggregate) ─────────────────────────
 
-export async function getInspectionCounts(hiveIds: string[]) {
+async function getInspectionCounts(hiveIds: string[]) {
 	if (hiveIds.length === 0) return new Map<string, number>();
 
 	const batchRows = await db
@@ -45,18 +94,9 @@ export async function getApiaryWithHives(id: string) {
 	if (apiaryResult.length === 0) return null;
 
 	const apiary = apiaryResult[0];
-	const hiveRows = await db
-		.select()
-		.from(hives)
-		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-		.where(eq(hives.apiaryId, id))
-		.orderBy(asc(hives.createdAt));
+	const hiveRows = await buildHiveQuery(eq(hives.apiaryId, id)).orderBy(asc(hives.createdAt));
 
-	// Flatten join into single object per hive
-	const hiveList = hiveRows.map((row) => ({
-		...row.hives,
-		apiaryName: row.apiaries?.name ?? null,
-	}));
+	const hiveList = hiveRows.map(flattenHive);
 
 	const hiveIds = hiveList.map((h: (typeof hiveList)[number]) => h.id);
 	const counts = await getInspectionCounts(hiveIds);
@@ -71,35 +111,16 @@ export async function getApiaryWithHives(id: string) {
 
 // ── Hives ─────────────────────────────────────────────────
 
-export async function getHivesByApiaryId(apiaryId: string) {
-	const rows = await db
-		.select()
-		.from(hives)
-		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-		.where(eq(hives.apiaryId, apiaryId));
+export async function getHives(options?: { apiaryId?: string }) {
+	const rows = await buildHiveQuery(
+		options?.apiaryId ? eq(hives.apiaryId, options.apiaryId) : undefined,
+	);
 
 	const hiveIds = rows.map((r) => r.hives?.id).filter(Boolean) as string[];
 	const counts = await getInspectionCounts(hiveIds);
 
 	return rows.map((row) => ({
-		...row.hives,
-		apiaryName: row.apiaries?.name ?? null,
-		inspectionCount: row.hives?.id ? (counts.get(row.hives.id) ?? 0) : 0,
-	}));
-}
-
-export async function getHives() {
-	const rows = await db
-		.select()
-		.from(hives)
-		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
-
-	const hiveIds = rows.map((r) => r.hives?.id).filter(Boolean) as string[];
-	const counts = await getInspectionCounts(hiveIds);
-
-	return rows.map((row) => ({
-		...row.hives,
-		apiaryName: row.apiaries?.name ?? null,
+		...flattenHive(row),
 		inspectionCount: row.hives?.id ? (counts.get(row.hives.id) ?? 0) : 0,
 	}));
 }
@@ -115,8 +136,7 @@ export async function getHive(id: string) {
 	if (row.length === 0) return null;
 	const hiveId = row[0].hives?.id;
 	return {
-		...row[0].hives,
-		apiaryName: row[0].apiaries?.name ?? null,
+		...flattenHive(row[0]),
 		inspectionCount: hiveId
 			? ((await getInspectionCounts([hiveId])).get(hiveId) ?? 0)
 			: 0,
@@ -125,23 +145,16 @@ export async function getHive(id: string) {
 
 // ── Inspections ───────────────────────────────────────────
 
-export async function getInspections(hiveId?: string) {
-	const rows = hiveId
-		? await db
-				.select()
-				.from(inspections)
-				.leftJoin(hives, eq(inspections.hiveId, hives.id))
-				.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-				.where(eq(inspections.hiveId, hiveId))
-		: await db
-				.select()
-				.from(inspections)
-				.leftJoin(hives, eq(inspections.hiveId, hives.id))
-				.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
+export async function getInspection(id: string) {
+	const rows = await buildInspectionQuery(eq(inspections.id, id)).limit(1);
+	if (rows.length === 0) return null;
+	return flattenInspection(rows[0]);
+}
 
-	return rows.map((row) => ({
-		...row.inspections,
-		hiveName: row.hives?.name ?? null,
-		apiaryName: row.apiaries?.name ?? null,
-	}));
+export async function getInspections(options?: { hiveId?: string }) {
+	const rows = await buildInspectionQuery(
+		options?.hiveId ? eq(inspections.hiveId, options.hiveId) : undefined,
+	);
+
+	return rows.map(flattenInspection);
 }

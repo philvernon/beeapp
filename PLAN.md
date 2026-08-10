@@ -193,7 +193,7 @@ This would split schema history across two directories.
 
 **Resolution:** Updated `drizzle.config.ts` to use `./migrations` as the output directory, matching the existing `001_initial.sql`. Verified that generating a new migration produces functionally equivalent SQL (same columns, constraints, indexes) — no column renaming. The generated file was discarded since the existing migration has no Drizzle snapshot metadata and would create duplication rather than a clean diff.
 
-## 7. Read-query logic has two implementations
+## 7. Read-query logic has two implementations ✅ FIXED
 
 `lib/data.ts` and the GET API routes independently build and flatten many of the same Drizzle queries. This duplication has already allowed response shapes to drift.
 
@@ -204,6 +204,8 @@ This would split schema history across two directories.
 - Have GET route handlers delegate to it when the endpoint is still needed by client components.
 - Keep HTTP serialization and status-code handling in route handlers, not in the query layer.
 - Do not import route handlers into pages or query helpers.
+
+**Resolution:** All GET route handlers now delegate to shared query functions in `lib/data.ts` (`getApiaries`, `getApiaryWithHives`, `getHives`, `getHivesByApiaryId`, `getHive`, `getInspections`). Removed duplicate Drizzle join/flatten logic from routes. Added `getHivesByApiaryId` for the optional `apiary_id` query param. Route handlers retain HTTP concerns (status codes, JSON serialization, error responses) while the query layer handles all SQL construction and result shaping.
 
 ## 8. Client fetch failures are silently swallowed
 
@@ -330,7 +332,7 @@ git diff --stat main...HEAD
 - [ ] Decimal inspection fields validate and submit successfully.
 - [ ] Update endpoints reject immutable and database-invalid fields.
 - [ ] Hive cards show real inspection counts.
-- [ ] GET routes and server pages share one read-query implementation.
+- [x] GET routes and server pages share one read-query implementation.
 - [ ] Client fetch failures produce useful states instead of empty catches.
 - [ ] Migration history has one authoritative location.
 - [ ] Temporary review files are removed.
