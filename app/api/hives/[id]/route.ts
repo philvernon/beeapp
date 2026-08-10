@@ -24,7 +24,7 @@ export async function GET(
     const hiveRow = result[0];
     const hiveWithApiary = {
       ...hiveRow.hives,
-      apiary_name: hiveRow.apiaries?.name ?? null,
+      apiaryName: hiveRow.apiaries?.name ?? null,
     };
 
     const inspectionsResult = await db.select({ count: sql<number>`count(*)` })
@@ -33,7 +33,7 @@ export async function GET(
 
     return NextResponse.json({
       ...hiveWithApiary,
-      inspection_count: Number(inspectionsResult[0]?.count ?? 0),
+      inspectionCount: Number(inspectionsResult[0]?.count ?? 0),
     });
   } catch (err) {
     console.error('GET /api/hives/:id error:', err);

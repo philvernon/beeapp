@@ -24,8 +24,8 @@ export async function GET(req: Request) {
 		// Flatten the joins into a single object per inspection
 		const flattened = result.map((row) => ({
 			...row.inspections,
-			hive_name: row.hives?.name ?? null,
-			apiary_name: row.apiaries?.name ?? null,
+			hiveName: row.hives?.name ?? null,
+			apiaryName: row.apiaries?.name ?? null,
 		}));
 
 		return NextResponse.json(flattened);

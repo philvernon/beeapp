@@ -3,10 +3,13 @@ import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-import { getHives } from "@/lib/data";
+import { getHives, getInspections } from "@/lib/data";
 
 export async function HiveList() {
-	const hives = await getHives();
+	const [hives, inspections] = await Promise.all([
+		getHives(),
+		getInspections(),
+	]);
 
 	if (hives.length === 0) {
 		return (
@@ -38,11 +41,13 @@ export async function HiveList() {
 							</span>
 						)}
 					</div>
-					<p className="text-sm text-secondary mt-1">{h.apiary_name}</p>
+					<p className="text-sm text-secondary mt-1">{h.apiaryName}</p>
 					{h.queenBreed && (
 						<p className="text-xs text-secondary mt-1">Queen: {h.queenBreed}</p>
 					)}
-					<p className="text-xs text-secondary mt-2">0 inspections</p>
+					<p className="text-xs text-secondary mt-2">
+						{inspections.filter((i) => i.hiveId === h.id).length} inspections
+					</p>
 				</Link>
 			))}
 		</div>

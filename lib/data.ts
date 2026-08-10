@@ -34,10 +34,10 @@ export async function getApiaryWithHives(id: string) {
 		.where(eq(hives.apiaryId, id))
 		.orderBy(asc(hives.createdAt));
 
-	// Flatten join into single object per hive (matching the API route shape)
+	// Flatten join into single object per hive
 	const hiveList = hiveRows.map((row) => ({
 		...row.hives,
-		apiary_name: row.apiaries?.name ?? null,
+		apiaryName: row.apiaries?.name ?? null,
 	}));
 
 	return { ...apiary, hives: hiveList };
@@ -53,7 +53,7 @@ export async function getHives() {
 
 	return rows.map((row) => ({
 		...row.hives,
-		apiary_name: row.apiaries?.name ?? null,
+		apiaryName: row.apiaries?.name ?? null,
 	}));
 }
 
@@ -68,7 +68,7 @@ export async function getHive(id: string) {
 	if (row.length === 0) return null;
 	return {
 		...row[0].hives,
-		apiary_name: row[0].apiaries?.name ?? null,
+		apiaryName: row[0].apiaries?.name ?? null,
 	};
 }
 
@@ -90,7 +90,7 @@ export async function getInspections(hiveId?: string) {
 
 	return rows.map((row) => ({
 		...row.inspections,
-		hive_name: row.hives?.name ?? null,
-		apiary_name: row.apiaries?.name ?? null,
+		hiveName: row.hives?.name ?? null,
+		apiaryName: row.apiaries?.name ?? null,
 	}));
 }

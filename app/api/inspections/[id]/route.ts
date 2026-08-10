@@ -29,8 +29,8 @@ export async function GET(
 		const row = result[0];
 		return NextResponse.json({
 			...row.inspections,
-			hive_name: row.hives?.name ?? null,
-			apiary_name: row.apiaries?.name ?? null,
+			hiveName: row.hives?.name ?? null,
+			apiaryName: row.apiaries?.name ?? null,
 		});
 	} catch (err) {
 		console.error("GET /api/inspections/:id error:", err);

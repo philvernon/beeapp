@@ -22,7 +22,7 @@ export async function GET(req: Request) {
 		// Flatten the left join into a single object per hive
 		const flattened = result.map((row) => ({
 			...row.hives,
-			apiary_name: row.apiaries?.name ?? null,
+			apiaryName: row.apiaries?.name ?? null,
 		}));
 
 		return NextResponse.json(flattened);
