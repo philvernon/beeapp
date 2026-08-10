@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
+import { getInspections } from "@/lib/data";
 import { db, InspectionInsert } from "@/lib/db";
-import { inspections, hives, apiaries } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { inspections } from "@/lib/schema";
 
 // GET /api/inspections — list inspections (filter by hive_id)
 export async function GET(req: Request) {
@@ -9,26 +9,8 @@ export async function GET(req: Request) {
 		const url = new URL(req.url);
 		const hiveId = url.searchParams.get("hive_id");
 
-		const result = hiveId
-			? await db
-					.select()
-					.from(inspections)
-					.leftJoin(hives, eq(inspections.hiveId, hives.id))
-					.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-					.where(eq(inspections.hiveId, hiveId))
-			: await db
-					.select()
-					.from(inspections)
-					.leftJoin(hives, eq(inspections.hiveId, hives.id))
-					.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
-		// Flatten the joins into a single object per inspection
-		const flattened = result.map((row) => ({
-			...row.inspections,
-			hiveName: row.hives?.name ?? null,
-			apiaryName: row.apiaries?.name ?? null,
-		}));
-
-		return NextResponse.json(flattened);
+		const result = await getInspections(hiveId ?? undefined);
+		return NextResponse.json(result);
 	} catch (err) {
 		console.error("GET /api/inspections error:", err);
 		return NextResponse.json(

@@ -1,31 +1,19 @@
 import { NextResponse } from "next/server";
+import { getHives, getHivesByApiaryId } from "@/lib/data";
 import { db, HiveInsert } from "@/lib/db";
-import { hives, apiaries } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { hives } from "@/lib/schema";
 
-// GET /api/hives — list all hives (with apiary name)
+// GET /api/hives — list all hives (with apiary name and inspection count)
 export async function GET(req: Request) {
 	try {
 		const url = new URL(req.url);
 		const apiaryId = url.searchParams.get("apiary_id");
 
 		const result = apiaryId
-			? await db
-					.select()
-					.from(hives)
-					.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-					.where(eq(hives.apiaryId, apiaryId))
-			: await db
-					.select()
-					.from(hives)
-					.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
-		// Flatten the left join into a single object per hive
-		const flattened = result.map((row) => ({
-			...row.hives,
-			apiaryName: row.apiaries?.name ?? null,
-		}));
+			? await getHivesByApiaryId(apiaryId)
+			: await getHives();
 
-		return NextResponse.json(flattened);
+		return NextResponse.json(result);
 	} catch (err) {
 		console.error("GET /api/hives error:", err);
 		return NextResponse.json(

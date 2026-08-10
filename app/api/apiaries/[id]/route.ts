@@ -1,28 +1,27 @@
-import { NextResponse } from 'next/server';
-import { eq, asc } from 'drizzle-orm';
-import { db, ApiaryUpdate } from '@/lib/db';
-import { apiaries, hives } from '@/lib/schema';
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { getApiaryWithHives } from "@/lib/data";
+import { db, ApiaryUpdate } from "@/lib/db";
+import { apiaries, hives } from "@/lib/schema";
 
 // GET /api/apiaries/:id — single apiary with hives
 export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
+	_req: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
+	try {
+		const { id } = await params;
 
-    const apiaryResult = await db.select().from(apiaries).where(eq(apiaries.id, id)).limit(1);
-    if (apiaryResult.length === 0) {
-      return NextResponse.json({ error: 'Apiary not found' }, { status: 404 });
-    }
+		const result = await getApiaryWithHives(id);
+		if (!result) {
+			return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
+		}
 
-    const hivesResult = await db.select().from(hives).where(eq(hives.apiaryId, id)).orderBy(asc(hives.createdAt));
-
-    return NextResponse.json({ ...apiaryResult[0], hives: hivesResult });
-  } catch (err) {
-    console.error('GET /api/apiaries/:id error:', err);
-    return NextResponse.json({ error: 'Failed to fetch apiary' }, { status: 500 });
-  }
+		return NextResponse.json(result);
+	} catch (err) {
+		console.error("GET /api/apiaries/:id error:", err);
+		return NextResponse.json({ error: "Failed to fetch apiary" }, { status: 500 });
+	}
 }
 
 // PUT /api/apiaries/:id — update apiary

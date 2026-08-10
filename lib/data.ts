@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { apiaries, hives, inspections } from "./schema";
-import { eq, asc, count, inArray } from "drizzle-orm";
+import { asc, count, eq, inArray } from "drizzle-orm";
 
 // ── Inspection counts (aggregate) ─────────────────────────
 
@@ -58,7 +58,7 @@ export async function getApiaryWithHives(id: string) {
 		apiaryName: row.apiaries?.name ?? null,
 	}));
 
-	const hiveIds = hiveList.map((h: typeof hiveList[number]) => h.id);
+	const hiveIds = hiveList.map((h: (typeof hiveList)[number]) => h.id);
 	const counts = await getInspectionCounts(hiveIds);
 
 	const hiveListWithCounts = hiveList.map((hive) => ({
@@ -70,6 +70,23 @@ export async function getApiaryWithHives(id: string) {
 }
 
 // ── Hives ─────────────────────────────────────────────────
+
+export async function getHivesByApiaryId(apiaryId: string) {
+	const rows = await db
+		.select()
+		.from(hives)
+		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+		.where(eq(hives.apiaryId, apiaryId));
+
+	const hiveIds = rows.map((r) => r.hives?.id).filter(Boolean) as string[];
+	const counts = await getInspectionCounts(hiveIds);
+
+	return rows.map((row) => ({
+		...row.hives,
+		apiaryName: row.apiaries?.name ?? null,
+		inspectionCount: row.hives?.id ? (counts.get(row.hives.id) ?? 0) : 0,
+	}));
+}
 
 export async function getHives() {
 	const rows = await db
@@ -83,7 +100,7 @@ export async function getHives() {
 	return rows.map((row) => ({
 		...row.hives,
 		apiaryName: row.apiaries?.name ?? null,
-		inspectionCount: row.hives?.id ? counts.get(row.hives.id) ?? 0 : 0,
+		inspectionCount: row.hives?.id ? (counts.get(row.hives.id) ?? 0) : 0,
 	}));
 }
 
@@ -100,7 +117,9 @@ export async function getHive(id: string) {
 	return {
 		...row[0].hives,
 		apiaryName: row[0].apiaries?.name ?? null,
-		inspectionCount: hiveId ? (await getInspectionCounts([hiveId])).get(hiveId) ?? 0 : 0,
+		inspectionCount: hiveId
+			? ((await getInspectionCounts([hiveId])).get(hiveId) ?? 0)
+			: 0,
 	};
 }
 
@@ -109,16 +128,16 @@ export async function getHive(id: string) {
 export async function getInspections(hiveId?: string) {
 	const rows = hiveId
 		? await db
-			.select()
-			.from(inspections)
-			.leftJoin(hives, eq(inspections.hiveId, hives.id))
-			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-			.where(eq(inspections.hiveId, hiveId))
+				.select()
+				.from(inspections)
+				.leftJoin(hives, eq(inspections.hiveId, hives.id))
+				.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+				.where(eq(inspections.hiveId, hiveId))
 		: await db
-			.select()
-			.from(inspections)
-			.leftJoin(hives, eq(inspections.hiveId, hives.id))
-			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
+				.select()
+				.from(inspections)
+				.leftJoin(hives, eq(inspections.hiveId, hives.id))
+				.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 
 	return rows.map((row) => ({
 		...row.inspections,

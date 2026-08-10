@@ -1,15 +1,16 @@
-import { NextResponse } from 'next/server';
-import { db, ApiaryInsert } from '@/lib/db';
-import { apiaries } from '@/lib/schema';
+import { NextResponse } from "next/server";
+import { getApiaries } from "@/lib/data";
+import { db, ApiaryInsert } from "@/lib/db";
+import { apiaries } from "@/lib/schema";
 
 // GET /api/apiaries — list all apiaries
 export async function GET() {
 	try {
-		const result = await db.select().from(apiaries).orderBy(apiaries.createdAt);
+		const result = await getApiaries();
 		return NextResponse.json(result);
 	} catch (err) {
-		console.error('GET /api/apiaries error:', err);
-		return NextResponse.json({ error: 'Failed to fetch apiaries' }, { status: 500 });
+		console.error("GET /api/apiaries error:", err);
+		return NextResponse.json({ error: "Failed to fetch apiaries" }, { status: 500 });
 	}
 }
 
