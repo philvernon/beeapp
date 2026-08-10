@@ -43,10 +43,10 @@ export default function NewInspectionPage({
 	const [varroaLevel, setVarroaLevel] = useState<string>("");
 	const [varroaCount, setVarroaCount] = useState<number | "">("");
 	const [temperament, setTemperament] = useState<number | "">("");
-	const [feedLight, setFeedLight] = useState<number | "">("");
-	const [feedHeavy, setFeedHeavy] = useState<number | "">("");
-	const [supersChange, setSupersChange] = useState<number | "">("");
-	const [weatherTemp, setWeatherTemp] = useState<number | "">("");
+	const [feedLight, setFeedLight] = useState("");
+	const [feedHeavy, setFeedHeavy] = useState("");
+	const [supersChange, setSupersChange] = useState("");
+	const [weatherTemp, setWeatherTemp] = useState("");
 	const [weatherCondition, setWeatherCondition] = useState<string>("");
 	const [notes, setNotes] = useState("");
 
@@ -84,10 +84,10 @@ export default function NewInspectionPage({
 			varroaLevel: varroaLevel || null,
 			varroaCount: varroaCount === "" ? null : varroaCount,
 			temperamentScore: temperament === "" ? null : temperament,
-			feedLitresLightSyrup: feedLight === "" ? null : Number(feedLight),
-			feedLitresHeavySyrup: feedHeavy === "" ? null : Number(feedHeavy),
-			supersChange: supersChange === "" ? null : Number(supersChange),
-			weatherTemperatureC: weatherTemp === "" ? null : Number(weatherTemp),
+			feedLitresLightSyrup: feedLight || null,
+			feedLitresHeavySyrup: feedHeavy || null,
+			supersChange: supersChange || null,
+			weatherTemperatureC: weatherTemp || null,
 			weatherCondition: weatherCondition || null,
 			notes: notes || undefined,
 		};
@@ -455,11 +455,7 @@ export default function NewInspectionPage({
 								step="0.25"
 								min="0"
 								value={feedLight}
-								onChange={(e) =>
-									setFeedLight(
-										e.target.value === "" ? "" : parseFloat(e.target.value),
-									)
-								}
+								onChange={(e) => setFeedLight(e.target.value)}
 								placeholder="—"
 								className={inputClass}
 							/>
@@ -471,11 +467,7 @@ export default function NewInspectionPage({
 								step="0.25"
 								min="0"
 								value={feedHeavy}
-								onChange={(e) =>
-									setFeedHeavy(
-										e.target.value === "" ? "" : parseFloat(e.target.value),
-									)
-								}
+								onChange={(e) => setFeedHeavy(e.target.value)}
 								placeholder="—"
 								className={inputClass}
 							/>
@@ -496,11 +488,7 @@ export default function NewInspectionPage({
 							type="number"
 							step="0.5"
 							value={supersChange}
-							onChange={(e) =>
-								setSupersChange(
-									e.target.value === "" ? "" : parseFloat(e.target.value),
-								)
-							}
+							onChange={(e) => setSupersChange(e.target.value)}
 							placeholder="—"
 							className={inputClass}
 						/>
@@ -519,11 +507,7 @@ export default function NewInspectionPage({
 								type="number"
 								step="0.1"
 								value={weatherTemp}
-								onChange={(e) =>
-									setWeatherTemp(
-										e.target.value === "" ? "" : parseFloat(e.target.value),
-									)
-								}
+								onChange={(e) => setWeatherTemp(e.target.value)}
 								placeholder="—"
 								className={inputClass}
 							/>

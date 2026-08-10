@@ -64,7 +64,7 @@ These checks do not catch the runtime data-contract problems below.
 
 # Findings to resolve
 
-## 1. High: analytics/data-layer joined-field casing mismatch
+## 1. High: analytics/data-layer joined-field casing mismatch ✅ FIXED
 
 `app/analytics/page.tsx` reads `apiaryName` and `hiveName`, while the API routes and `lib/data.ts` manually create `apiary_name` and `hive_name`. Drizzle's casing option does not rename manually-created object properties. The analytics page therefore renders blank joined names.
 
@@ -92,7 +92,9 @@ Search the whole application for old aliases before declaring this complete:
 git grep -nE 'apiary_name|hive_name|inspection_count|apiaryName|hiveName|inspectionCount' -- app lib
 ```
 
-## 2. High: decimal inspection fields fail client validation
+**Resolution:** All joined fields standardized to camelCase (`apiaryName`, `hiveName`, `inspectionCount`) across `lib/data.ts`, all API routes, and all consumers. Analytics page rewritten to call shared data layer directly via `Promise.all([getApiaries(), getHives(), getInspections()])`. Removed `NEXT_PUBLIC_APP_URL` dependency, all handwritten domain interfaces, and the server-to-itself HTTP fetches. Added `force-dynamic` export for DB-backed rendering.
+
+## 2. High: decimal inspection fields fail client validation ✅ FIXED
 
 In `app/hives/[id]/new-inspection/page.tsx`, the values for:
 
@@ -111,6 +113,8 @@ Drizzle's `numeric(...)` fields generate string-valued Zod fields. The schema ac
 - Preserve `null`/empty-input behavior.
 - Do not use a TypeScript cast to silence the mismatch.
 - Add focused coverage for empty, valid decimal, invalid decimal, and boundary values.
+
+**Resolution:** Changed decimal form fields (`feedLitresLightSyrup`, `feedLitresHeavySyrup`, `supersChange`, `weatherTemperatureC`) from `number | ""` state to plain string state. Removed `parseFloat()` coercion in `onChange` handlers — the `<input type="number">` element already provides string values. Replaced `Number(...)` calls in the submit body with direct string passthrough (`field || null`). This aligns with Drizzle's `numeric` Zod schema which expects decimal strings (e.g., `"1.5"`) rather than JS numbers. Empty inputs correctly resolve to `null`. Consumer types in `hives/[id]/page.tsx` already expect `string | null`, confirming the contract is consistent.
 
 ## 3. Medium: update schemas allow immutable/invalid fields
 
