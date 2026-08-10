@@ -147,7 +147,7 @@ These pages always displayed `0 inspections`:
 
 **Resolution:** Added `getInspectionCounts(hiveIds)` to `lib/data.ts` — a single SQL `GROUP BY hive_id COUNT(*)` query that returns a `Map<hiveId, count>`. Both `getApiaryWithHives()` and `getHives()` now call this once per batch of hive IDs and attach `inspectionCount` to each hive object. `app/apiaries/[id]/page.tsx` renders the real count instead of hardcoded `0`. `app/hives/page.tsx` was simplified: removed the client-side filter over all inspections (and the unused `getInspections` import + `Suspense` wrapper), now uses the server-side `inspectionCount` directly from `getHives()`.
 
-## 5. Repository cleanup: review artifacts and changelog deletion
+## 5. Repository cleanup: review artifacts and changelog deletion ✅ FIXED
 
 The branch currently adds temporary review documents:
 
@@ -165,7 +165,9 @@ The branch also deletes `CHANGELOG.md` without an explanation.
 - Restore `CHANGELOG.md` unless its deletion is explicitly intended and documented.
 - Keep `PLAN.md` until all work is complete; whether it remains in the final PR is a maintainer decision.
 
-## 6. Migration output path is inconsistent
+**Resolution:** Removed `PRREVIEW.md`, `PRREVIEW2.md`, and `PRREVIEW3.md` (444 lines of temporary review documents). Restored `CHANGELOG.md` from the initial release commit (`8ebfaf5`) since its deletion was not intentional.
+
+## 6. Migration output path is inconsistent ✅ FIXED
 
 The existing migration is:
 
@@ -188,6 +190,8 @@ This would split schema history across two directories.
 - Do not blindly generate and commit a baseline migration: the existing SQL migration has no Drizzle snapshot metadata, so generation may treat the schema as new rather than produce an empty diff.
 - Inspect generated SQL before committing anything.
 - Confirm this PR does not accidentally rename physical snake_case columns.
+
+**Resolution:** Updated `drizzle.config.ts` to use `./migrations` as the output directory, matching the existing `001_initial.sql`. Verified that generating a new migration produces functionally equivalent SQL (same columns, constraints, indexes) — no column renaming. The generated file was discarded since the existing migration has no Drizzle snapshot metadata and would create duplication rather than a clean diff.
 
 ## 7. Read-query logic has two implementations
 
