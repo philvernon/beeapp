@@ -20,7 +20,10 @@ function buildHiveQuery(where?: SQL<unknown>) {
 		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 }
 
-function flattenHive(row: { hives: typeof hives.$inferSelect; apiaries: typeof apiaries.$inferSelect | null }) {
+function flattenHive(row: {
+	hives: typeof hives.$inferSelect;
+	apiaries: typeof apiaries.$inferSelect | null;
+}) {
 	return {
 		...row.hives,
 		apiaryName: row.apiaries?.name ?? null,
@@ -43,7 +46,11 @@ function buildInspectionQuery(where?: SQL<unknown>) {
 		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
 }
 
-function flattenInspection(row: { inspections: typeof inspections.$inferSelect; hives: typeof hives.$inferSelect | null; apiaries: typeof apiaries.$inferSelect | null }) {
+function flattenInspection(row: {
+	inspections: typeof inspections.$inferSelect;
+	hives: typeof hives.$inferSelect | null;
+	apiaries: typeof apiaries.$inferSelect | null;
+}) {
 	return {
 		...row.inspections,
 		hiveName: row.hives?.name ?? null,
@@ -94,7 +101,9 @@ export async function getApiaryWithHives(id: string) {
 	if (apiaryResult.length === 0) return null;
 
 	const apiary = apiaryResult[0];
-	const hiveRows = await buildHiveQuery(eq(hives.apiaryId, id)).orderBy(asc(hives.createdAt));
+	const hiveRows = await buildHiveQuery(eq(hives.apiaryId, id)).orderBy(
+		asc(hives.createdAt),
+	);
 
 	const hiveList = hiveRows.map(flattenHive);
 
@@ -126,17 +135,12 @@ export async function getHives(options?: { apiaryId?: string }) {
 }
 
 export async function getHive(id: string) {
-	const row = await db
-		.select()
-		.from(hives)
-		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-		.where(eq(hives.id, id))
-		.limit(1);
+	const rows = await buildHiveQuery(eq(hives.id, id)).limit(1);
+	if (rows.length === 0) return null;
 
-	if (row.length === 0) return null;
-	const hiveId = row[0].hives?.id;
+	const hiveId = rows[0].hives?.id;
 	return {
-		...flattenHive(row[0]),
+		...flattenHive(rows[0]),
 		inspectionCount: hiveId
 			? ((await getInspectionCounts([hiveId])).get(hiveId) ?? 0)
 			: 0,
