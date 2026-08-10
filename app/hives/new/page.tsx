@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
 import { HiveInsert } from "@/lib/schema";
-import { safeJsonFetch } from "@/lib/fetch";
+import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
 
 function NewHiveForm() {
 	const router = useRouter();
@@ -76,8 +76,7 @@ function NewHiveForm() {
 			});
 
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || "Failed to create hive");
+				throw new Error(await getErrorMessage(res, "Failed to create hive"));
 			}
 
 			router.push(`/apiaries/${apiaryId}`);
@@ -110,7 +109,8 @@ function NewHiveForm() {
 				</div>
 			)}
 
-			<form onSubmit={handleSubmit} className="space-y-4">
+			{!fetchError && (
+				<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label
 						htmlFor="apiary"
@@ -214,6 +214,7 @@ function NewHiveForm() {
 					</Link>
 				</div>
 			</form>
+			)}
 		</div>
 	);
 }

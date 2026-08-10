@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HiveUpdate } from "@/lib/schema";
-import { safeJsonFetch } from "@/lib/fetch";
+import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
 
 export default function EditHivePage({
 	params,
@@ -100,8 +100,7 @@ export default function EditHivePage({
 			});
 
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || "Failed to update");
+				throw new Error(await getErrorMessage(res, "Failed to update"));
 			}
 
 			router.push(`/hives/${id}`);
@@ -134,7 +133,8 @@ export default function EditHivePage({
 				</div>
 			)}
 
-			<form onSubmit={handleSubmit} className="space-y-4">
+			{!fetchError && (
+				<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label
 						htmlFor="apiary"
@@ -236,6 +236,7 @@ export default function EditHivePage({
 					</Link>
 				</div>
 			</form>
+			)}
 		</div>
 	);
 }

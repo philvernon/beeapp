@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApiaryInsert } from "@/lib/schema";
+import { getErrorMessage } from "@/lib/fetch";
 
 export default function NewApiaryPage() {
 	const router = useRouter();
@@ -35,8 +36,7 @@ export default function NewApiaryPage() {
 			});
 
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || "Failed to create apiary");
+				throw new Error(await getErrorMessage(res, "Failed to create apiary"));
 			}
 
 			router.push("/apiaries");

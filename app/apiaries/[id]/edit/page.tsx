@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApiaryUpdate } from "@/lib/schema";
-import { safeJsonFetch } from "@/lib/fetch";
+import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
 
 export default function EditApiaryPage({
 	params,
@@ -72,8 +72,7 @@ export default function EditApiaryPage({
 			});
 
 			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.error || "Failed to update");
+				throw new Error(await getErrorMessage(res, "Failed to update"));
 			}
 
 			router.push(`/apiaries/${id}`);
@@ -106,7 +105,8 @@ export default function EditApiaryPage({
 				</div>
 			)}
 
-			<form onSubmit={handleSubmit} className="space-y-4">
+			{!fetchError && (
+				<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label
 						htmlFor="name"
@@ -154,6 +154,7 @@ export default function EditApiaryPage({
 					</Link>
 				</div>
 			</form>
+			)}
 		</div>
 	);
 }

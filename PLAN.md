@@ -226,7 +226,7 @@ Some chains use `.catch(() => {})`, and several parse JSON without first checkin
 - A small shared `getErrorMessage(response, fallback)` helper is acceptable.
 - Defer runtime HTTP response-schema validation and broader transport contracts to issue #7.
 
-**Resolution:** Created `lib/fetch.ts` with `safeJsonFetch()` — a client-side fetch wrapper that checks `response.ok` before parsing JSON, extracts error messages from JSON/text responses, and handles network errors gracefully. Applied it to all four client pages with initial GETs: `app/hives/[id]/edit/page.tsx`, `app/hives/new/page.tsx`, `app/apiaries/[id]/edit/page.tsx`, and `app/hives/[id]/new-inspection/page.tsx`. Each page now shows a visible red error banner when data fails to load, uses cancellation guards (`let cancelled`) to prevent state updates after unmount, and does not render forms with partially initialized data. Removed all `.catch(() => {})` patterns and unchecked `response.json()` calls.
+**Resolution:** Created `lib/fetch.ts` with `safeJsonFetch()` for initial GETs and `getErrorMessage()` for mutation error handling. Applied to all four client pages with initial GETs: `app/hives/[id]/edit/page.tsx`, `app/hives/new/page.tsx`, `app/apiaries/[id]/edit/page.tsx`, and `app/hives/[id]/new-inspection/page.tsx`. Each page shows a visible red error banner on fetch failure, uses cancellation guards to prevent state updates after unmount, and conditionally renders the form only after successful initialization (`{!fetchError && <form>}`). Mutation POST/PUT handlers use `getErrorMessage()` instead of direct `res.json()` to safely handle text/empty error responses. Removed all `.catch(() => {})` patterns and unchecked `response.json()` calls.
 
 # Implementation order
 

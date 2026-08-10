@@ -10,7 +10,7 @@ import {
 	varroaLevelLabels,
 	weatherConditionLabels,
 } from "@/lib/schema";
-import { safeJsonFetch } from "@/lib/fetch";
+import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
 
 export default function NewInspectionPage({
 	params,
@@ -129,11 +129,8 @@ export default function NewInspectionPage({
 			});
 
 			if (!res.ok) {
-				const data = await res.json();
 				throw new Error(
-					data.error ||
-						data.details?.[0]?.message ||
-						"Failed to save inspection",
+					await getErrorMessage(res, "Failed to save inspection"),
 				);
 			}
 
@@ -174,7 +171,8 @@ export default function NewInspectionPage({
 				</div>
 			)}
 
-			<form onSubmit={handleSubmit} className="space-y-6">
+			{!fetchError && (
+				<form onSubmit={handleSubmit} className="space-y-6">
 				{/* Date */}
 				<div>
 					<label htmlFor="date" className={labelClass}>
@@ -586,6 +584,7 @@ export default function NewInspectionPage({
 					</Link>
 				</div>
 			</form>
+			)}
 		</div>
 	);
 }
