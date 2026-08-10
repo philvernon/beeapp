@@ -22,6 +22,7 @@ function NewHiveForm() {
 	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [fetchError, setFetchError] = useState<string | null>(null);
+	const [initialized, setInitialized] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -37,7 +38,8 @@ function NewHiveForm() {
 			}
 
 			const apiaries = result.data as Array<{ id: string; name: string }>;
-			if (apiaries) setApiaries(apiaries);
+			setApiaries(apiaries as Array<{ id: string; name: string }>);
+			setInitialized(true);
 		}
 
 		load();
@@ -109,7 +111,7 @@ function NewHiveForm() {
 				</div>
 			)}
 
-			{!fetchError && (
+			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label

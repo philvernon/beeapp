@@ -18,6 +18,7 @@ export default function EditApiaryPage({
 	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [fetchError, setFetchError] = useState<string | null>(null);
+	const [initialized, setInitialized] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -41,6 +42,7 @@ export default function EditApiaryPage({
 				setName((data.name as string) || "");
 				setNotes((data.notes as string) || "");
 			}
+			setInitialized(true);
 		}
 
 		load();
@@ -105,7 +107,7 @@ export default function EditApiaryPage({
 				</div>
 			)}
 
-			{!fetchError && (
+			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label

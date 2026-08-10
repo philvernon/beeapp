@@ -26,6 +26,7 @@ export default function NewInspectionPage({
 	);
 	const [error, setError] = useState<string | null>(null);
 	const [fetchError, setFetchError] = useState<string | null>(null);
+	const [initialized, setInitialized] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	// Inspection fields
@@ -70,6 +71,7 @@ export default function NewInspectionPage({
 			} else {
 				router.push("/hives");
 			}
+			setInitialized(true);
 		}
 
 		load();
@@ -171,7 +173,7 @@ export default function NewInspectionPage({
 				</div>
 			)}
 
-			{!fetchError && (
+			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-6">
 				{/* Date */}
 				<div>

@@ -25,6 +25,7 @@ export default function EditHivePage({
 	const [notes, setNotes] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [fetchError, setFetchError] = useState<string | null>(null);
+	const [initialized, setInitialized] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -54,7 +55,7 @@ export default function EditHivePage({
 			}>;
 			const hive = hiveResult.data as Record<string, unknown> | null;
 
-			if (apiaries) setApiaries(apiaries);
+			setApiaries(apiaries);
 			if (hive?.error) {
 				router.push("/hives");
 				return;
@@ -66,6 +67,7 @@ export default function EditHivePage({
 				setQueenClipped((hive.queenClipped as boolean) ?? false);
 				setNotes((hive.notes as string) || "");
 			}
+			setInitialized(true);
 		}
 
 		load();
@@ -133,7 +135,7 @@ export default function EditHivePage({
 				</div>
 			)}
 
-			{!fetchError && (
+			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label
