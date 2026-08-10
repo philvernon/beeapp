@@ -37,10 +37,10 @@ export default function EditHivePage({
 						router.push("/hives");
 						return;
 					}
-					setApiaryId(data.apiary_id);
+					setApiaryId(data.apiaryId);
 					setName(data.name);
-					setQueenBreed(data.queen_breed || "");
-					setQueenClipped(data.queen_clipped ?? false);
+					setQueenBreed(data.queenBreed || "");
+					setQueenClipped(data.queenClipped ?? false);
 					setNotes(data.notes || "");
 				}),
 		]).catch(() => {});

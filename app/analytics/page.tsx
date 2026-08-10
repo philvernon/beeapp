@@ -4,65 +4,65 @@ interface Apiary {
   id: string;
   name: string;
   notes?: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 interface Hive {
   id: string;
-  apiary_id: string;
+  apiaryId: string;
   name: string;
-  queen_breed?: string | null;
-  queen_clipped: boolean;
+  queenBreed?: string | null;
+  queenClipped: boolean;
   notes?: string | null;
-  apiary_name?: string | null;
+  apiaryName?: string | null;
 }
 
 interface Inspection {
   id: string;
-  hive_id: string;
-  inspection_date: string;
-  queen_seen: boolean;
-  queen_colour?: string | null;
-  queen_cells_found?: number | null;
-  queen_cells_removed: boolean;
-  eggs_seen: boolean;
-  brood_pattern_ok: boolean;
-  brood_frame_count?: number | null;
-  store_frames?: number | null;
-  room_frames?: number | null;
-  health_ok: boolean;
-  chalk_brood_suspected: boolean;
-  efb_suspected: boolean;
-  afb_suspected: boolean;
-  varroa_level?: string | null;
-  varroa_count?: number | null;
-  temperament_score?: number | null;
-  feed_litres_light_syrup?: number | null;
-  feed_litres_heavy_syrup?: number | null;
-  supers_change?: number | null;
-  weather_temperature_c?: number | null;
-  weather_condition?: string | null;
+  hiveId: string;
+  inspectionDate: string;
+  queenSeen: boolean;
+  queenColour?: string | null;
+  queenCellsFound?: number | null;
+  queenCellsRemoved: boolean;
+  eggsSeen: boolean;
+  broodPatternOk: boolean;
+  broodFrameCount?: number | null;
+  storeFrames?: number | null;
+  roomFrames?: number | null;
+  healthOk: boolean;
+  chalkBroodSuspected: boolean;
+  efbSuspected: boolean;
+  afbSuspected: boolean;
+  varroaLevel?: string | null;
+  varroaCount?: number | null;
+  temperamentScore?: number | null;
+  feedLitresLightSyrup?: number | null;
+  feedLitresHeavySyrup?: number | null;
+  supersChange?: number | null;
+  weatherTemperatureC?: number | null;
+  weatherCondition?: string | null;
   notes?: string | null;
-  hive_name?: string | null;
-  apiary_name?: string | null;
+  hiveName?: string | null;
+  apiaryName?: string | null;
 }
 
 interface HiveStat {
   id: string;
   name: string;
-  apiary_name?: string | null;
+  apiaryName?: string | null;
   inspectionCount: number;
   lastInspection: string;
 }
 
 interface RecentInspection {
   id: string;
-  hive_id: string;
+  hiveId: string;
   date: string;
-  hive_name?: string | null;
-  apiary_name?: string | null;
-  queen_seen: boolean;
-  health_ok: boolean;
+  hiveName?: string | null;
+  apiaryName?: string | null;
+  queenSeen: boolean;
+  healthOk: boolean;
 }
 
 async function getAnalyticsData(): Promise<{
@@ -98,25 +98,25 @@ async function getAnalyticsData(): Promise<{
   const totalApiaries = apiaries.length;
 
   // Queen seen rate
-  const queenSeenCount = inspections.filter((i: Inspection) => i.queen_seen).length;
+  const queenSeenCount = inspections.filter((i: Inspection) => i.queenSeen).length;
   const queenSeenRate = totalInspections > 0 ? Math.round((queenSeenCount / totalInspections) * 100) : 0;
 
   // Eggs seen rate (proxy for healthy laying queen)
-  const eggsSeenCount = inspections.filter((i: Inspection) => i.eggs_seen).length;
+  const eggsSeenCount = inspections.filter((i: Inspection) => i.eggsSeen).length;
   const eggsRate = totalInspections > 0 ? Math.round((eggsSeenCount / totalInspections) * 100) : 0;
 
   // Health rate
-  const healthOkCount = inspections.filter((i: Inspection) => i.health_ok).length;
+  const healthOkCount = inspections.filter((i: Inspection) => i.healthOk).length;
   const healthRate = totalInspections > 0 ? Math.round((healthOkCount / totalInspections) * 100) : 0;
 
   // Varroa levels
-  const varroaLow = inspections.filter((i: Inspection) => i.varroa_level === 'l').length;
-  const varroaMed = inspections.filter((i: Inspection) => i.varroa_level === 'm').length;
-  const varroaHigh = inspections.filter((i: Inspection) => i.varroa_level === 'h').length;
+  const varroaLow = inspections.filter((i: Inspection) => i.varroaLevel === 'l').length;
+  const varroaMed = inspections.filter((i: Inspection) => i.varroaLevel === 'm').length;
+  const varroaHigh = inspections.filter((i: Inspection) => i.varroaLevel === 'h').length;
 
   // Average brood frames
   const broodCounts = inspections
-    .map((i: Inspection) => i.brood_frame_count)
+    .map((i: Inspection) => i.broodFrameCount)
     .filter((n: number | null | undefined): n is number => n != null && n > 0);
   const avgBroodFrames = broodCounts.length > 0
     ? Math.round(broodCounts.reduce((a: number, b: number) => a + b, 0) / broodCounts.length * 10) / 10
@@ -124,7 +124,7 @@ async function getAnalyticsData(): Promise<{
 
   // Average store frames
   const storeCounts = inspections
-    .map((i: Inspection) => i.store_frames)
+    .map((i: Inspection) => i.storeFrames)
     .filter((n: number | null | undefined): n is number => n != null && n > 0);
   const avgStoreFrames = storeCounts.length > 0
     ? Math.round(storeCounts.reduce((a: number, b: number) => a + b, 0) / storeCounts.length * 10) / 10
@@ -132,7 +132,7 @@ async function getAnalyticsData(): Promise<{
 
   // Average temperament
   const tempScores = inspections
-    .map((i: Inspection) => i.temperament_score)
+    .map((i: Inspection) => i.temperamentScore)
     .filter((n: number | null | undefined): n is number => n != null);
   const avgTemperament = tempScores.length > 0
     ? Math.round(tempScores.reduce((a: number, b: number) => a + b, 0) / tempScores.length * 10) / 10
@@ -140,14 +140,14 @@ async function getAnalyticsData(): Promise<{
 
   // Per-hive inspection counts
   const hiveStats: HiveStat[] = hives.map((h: Hive) => {
-    const hiveInspections = inspections.filter((i: Inspection) => i.hive_id === h.id);
+    const hiveInspections = inspections.filter((i: Inspection) => i.hiveId === h.id);
     return {
       id: h.id,
       name: h.name,
-      apiary_name: h.apiary_name,
+      apiaryName: h.apiaryName,
       inspectionCount: hiveInspections.length,
       lastInspection: hiveInspections.length > 0
-        ? new Date(hiveInspections[0].inspection_date).toLocaleDateString('en-GB')
+        ? new Date(hiveInspections[0].inspectionDate).toLocaleDateString('en-GB')
         : '—',
     };
   }).sort((a: HiveStat, b: HiveStat) => b.inspectionCount - a.inspectionCount);
@@ -155,7 +155,7 @@ async function getAnalyticsData(): Promise<{
   // Recent inspections (last 10)
   const recentInspections: RecentInspection[] = inspections.slice(0, 10).map((i: Inspection) => ({
     ...i,
-    date: new Date(i.inspection_date + 'T00:00:00').toLocaleDateString('en-GB', {
+    date: new Date(i.inspectionDate + 'T00:00:00').toLocaleDateString('en-GB', {
       day: 'numeric', month: 'short', year: 'numeric',
     }),
   }));
@@ -264,7 +264,7 @@ export default async function AnalyticsPage() {
               <Link key={h.id} href={`/hives/${h.id}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
                 <div>
                   <p className="text-sm font-medium text-primary">{h.name}</p>
-                  <p className="text-xs text-secondary">{h.apiary_name}</p>
+                  <p className="text-xs text-secondary">{h.apiaryName}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-primary">{h.inspectionCount}</p>
@@ -286,14 +286,14 @@ export default async function AnalyticsPage() {
         ) : (
           <div className="divide-y divide-primary/10">
             {data.recentInspections.map((i: RecentInspection) => (
-              <Link key={i.id} href={`/hives/${i.hive_id}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
+              <Link key={i.id} href={`/hives/${i.hiveId}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
                 <div>
                   <p className="text-sm font-medium text-primary">{i.date}</p>
-                  <p className="text-xs text-secondary">{i.hive_name} ({i.apiary_name})</p>
+                  <p className="text-xs text-secondary">{i.hiveName} ({i.apiaryName})</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {i.queen_seen && <span className="text-xs bg-zinc-100 text-secondary px-2 py-0.5">Queen ✓</span>}
-                  {i.health_ok === false && <span className="text-xs border border-primary/30 text-primary px-2 py-0.5">Issues</span>}
+                  {i.queenSeen && <span className="text-xs bg-zinc-100 text-secondary px-2 py-0.5">Queen ✓</span>}
+                  {i.healthOk === false && <span className="text-xs border border-primary/30 text-primary px-2 py-0.5">Issues</span>}
                 </div>
               </Link>
             ))}
