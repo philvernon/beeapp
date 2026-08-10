@@ -109,53 +109,53 @@ export default function EditApiaryPage({
 
 			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-4">
-				<div>
-					<label
-						htmlFor="name"
-						className="block text-sm font-medium text-primary mb-1"
-					>
-						Name *
-					</label>
-					<input
-						id="name"
-						type="text"
-						required
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
-					/>
-				</div>
-				<div>
-					<label
-						htmlFor="notes"
-						className="block text-sm font-medium text-primary mb-1"
-					>
-						Notes
-					</label>
-					<textarea
-						id="notes"
-						value={notes}
-						onChange={(e) => setNotes(e.target.value)}
-						rows={3}
-						className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
-					/>
-				</div>
-				<div className="flex gap-3 pt-2">
-					<button
-						type="submit"
-						disabled={loading}
-						className="bg-accent px-4 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors"
-					>
-						{loading ? "Saving…" : "Save Changes"}
-					</button>
-					<Link
-						href={`/apiaries/${id}`}
-						className="text-sm text-secondary hover:text-primary/70 py-2"
-					>
-						Cancel
-					</Link>
-				</div>
-			</form>
+					<div>
+						<label
+							htmlFor="name"
+							className="block text-sm font-medium text-primary mb-1"
+						>
+							Name *
+						</label>
+						<input
+							id="name"
+							type="text"
+							required
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
+						/>
+					</div>
+					<div>
+						<label
+							htmlFor="notes"
+							className="block text-sm font-medium text-primary mb-1"
+						>
+							Notes
+						</label>
+						<textarea
+							id="notes"
+							value={notes}
+							onChange={(e) => setNotes(e.target.value)}
+							rows={3}
+							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
+						/>
+					</div>
+					<div className="flex gap-3 pt-2">
+						<button
+							type="submit"
+							disabled={loading}
+							className="bg-accent px-4 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors"
+						>
+							{loading ? "Saving…" : "Save Changes"}
+						</button>
+						<Link
+							href={`/apiaries/${id}`}
+							className="text-sm text-secondary hover:text-primary/70 py-2"
+						>
+							Cancel
+						</Link>
+					</div>
+				</form>
 			)}
 		</div>
 	);
