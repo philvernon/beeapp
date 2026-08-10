@@ -67,6 +67,14 @@ export async function PUT(
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
+    // Reject apiaryId: null (column is NOT NULL)
+    if (updates.apiaryId === null) {
+      return NextResponse.json(
+        { error: 'apiaryId cannot be null' },
+        { status: 400 }
+      );
+    }
+
     const result = await db.update(hives)
       .set(updates)
       .where(eq(hives.id, id))
