@@ -205,7 +205,7 @@ This would split schema history across two directories.
 - Keep HTTP serialization and status-code handling in route handlers, not in the query layer.
 - Do not import route handlers into pages or query helpers.
 
-**Resolution:** All GET route handlers now delegate to shared query functions in `lib/data.ts` (`getApiaries`, `getApiaryWithHives`, `getHives`, `getHivesByApiaryId`, `getHive`, `getInspections`). Removed duplicate Drizzle join/flatten logic from routes. Added `getHivesByApiaryId` for the optional `apiary_id` query param. Route handlers retain HTTP concerns (status codes, JSON serialization, error responses) while the query layer handles all SQL construction and result shaping.
+**Resolution:** All GET route handlers delegate to shared query functions in `lib/data.ts`. Added `import "server-only"` to prevent client bundle leakage. Consolidated duplicated query builders into private helpers (`buildHiveQuery`, `buildInspectionQuery`) with shared flatteners (`flattenHive`, `flattenInspection`). Merged `getHivesByApiaryId` into parameterized `getHives({ apiaryId? })`. Merged inspection list branches into `getInspections({ hiveId? })`. Added dedicated `getInspection(id)` for O(1) single-record lookups instead of loading all inspections. Made `getInspectionCounts` internal (unexported). Route handlers retain HTTP concerns (status codes, JSON serialization, error responses) while the query layer handles all SQL construction and result shaping.
 
 ## 8. Client fetch failures are silently swallowed
 

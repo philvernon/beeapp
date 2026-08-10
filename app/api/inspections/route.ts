@@ -9,9 +9,7 @@ export async function GET(req: Request) {
 		const url = new URL(req.url);
 		const hiveId = url.searchParams.get("hive_id");
 
-		const result = await getInspections(
-			hiveId ? { hiveId } : undefined,
-		);
+		const result = await getInspections(hiveId ? { hiveId } : undefined);
 		return NextResponse.json(result);
 	} catch (err) {
 		console.error("GET /api/inspections error:", err);

@@ -27,11 +27,11 @@ export const apiaries = pgTable("apiaries", {
 
 export const ApiaryInsert = createInsertSchema(apiaries);
 export const ApiarySelect = createSelectSchema(apiaries);
-export const ApiaryUpdate = createUpdateSchema(apiaries,
-	{
-		notes: (schema) => schema.nullable(),
-	},
-).omit({ id: true, createdAt: true }).partial();
+export const ApiaryUpdate = createUpdateSchema(apiaries, {
+	notes: (schema) => schema.nullable(),
+})
+	.omit({ id: true, createdAt: true })
+	.partial();
 
 // ── Hives ─────────────────────────────────────────────────
 export const hives = pgTable(
@@ -57,7 +57,9 @@ export const HiveSelect = createSelectSchema(hives);
 export const HiveUpdate = createUpdateSchema(hives, {
 	queenBreed: (schema) => schema.nullable(),
 	notes: (schema) => schema.nullable(),
-}).omit({ id: true, createdAt: true }).partial();
+})
+	.omit({ id: true, createdAt: true })
+	.partial();
 
 // ── Inspections ───────────────────────────────────────────
 export const inspections = pgTable(
@@ -147,7 +149,9 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
 	weatherTemperatureC: (schema) => schema.nullable(),
 	weatherCondition: (schema) => schema.nullable(),
 	notes: (schema) => schema.nullable(),
-}).omit({ id: true, createdAt: true }).partial();
+})
+	.omit({ id: true, createdAt: true })
+	.partial();
 
 // ── Enum helpers (for UI dropdowns) ───────────────────────
 export const queenColours = ["W", "Y", "R", "G", "B"] as const;

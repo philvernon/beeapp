@@ -42,7 +42,8 @@ export async function HiveList() {
 						<p className="text-xs text-secondary mt-1">Queen: {h.queenBreed}</p>
 					)}
 					<p className="text-xs text-secondary mt-2">
-						{h.inspectionCount ?? 0} inspection{h.inspectionCount === 1 ? "" : "s"}
+						{h.inspectionCount ?? 0} inspection
+						{h.inspectionCount === 1 ? "" : "s"}
 					</p>
 				</Link>
 			))}

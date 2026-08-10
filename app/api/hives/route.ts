@@ -9,9 +9,7 @@ export async function GET(req: Request) {
 		const url = new URL(req.url);
 		const apiaryId = url.searchParams.get("apiary_id");
 
-		const result = await getHives(
-			apiaryId ? { apiaryId } : undefined,
-		);
+		const result = await getHives(apiaryId ? { apiaryId } : undefined);
 
 		return NextResponse.json(result);
 	} catch (err) {

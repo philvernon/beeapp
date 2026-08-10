@@ -83,8 +83,9 @@ export default async function ApiaryDetailPage({
 								</p>
 							)}
 							<p className="text-xs text-secondary mt-2">
-						{hive.inspectionCount ?? 0} inspection{hive.inspectionCount === 1 ? "" : "s"}
-					</p>
+								{hive.inspectionCount ?? 0} inspection
+								{hive.inspectionCount === 1 ? "" : "s"}
+							</p>
 						</Link>
 					))}
 				</div>

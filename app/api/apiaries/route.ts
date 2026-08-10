@@ -10,7 +10,10 @@ export async function GET() {
 		return NextResponse.json(result);
 	} catch (err) {
 		console.error("GET /api/apiaries error:", err);
-		return NextResponse.json({ error: "Failed to fetch apiaries" }, { status: 500 });
+		return NextResponse.json(
+			{ error: "Failed to fetch apiaries" },
+			{ status: 500 },
+		);
 	}
 }
 
@@ -21,18 +24,24 @@ export async function POST(req: Request) {
 		const validated = ApiaryInsert.safeParse(body);
 		if (!validated.success) {
 			return NextResponse.json(
-				{ error: 'Validation failed', details: validated.error.issues },
-				{ status: 400 }
+				{ error: "Validation failed", details: validated.error.issues },
+				{ status: 400 },
 			);
 		}
 
-		const result = await db.insert(apiaries).values({
-			name: validated.data.name,
-			notes: validated.data.notes ?? null,
-		}).returning();
+		const result = await db
+			.insert(apiaries)
+			.values({
+				name: validated.data.name,
+				notes: validated.data.notes ?? null,
+			})
+			.returning();
 		return NextResponse.json(result[0], { status: 201 });
 	} catch (err) {
-		console.error('POST /api/apiaries error:', err);
-		return NextResponse.json({ error: 'Failed to create apiary' }, { status: 500 });
+		console.error("POST /api/apiaries error:", err);
+		return NextResponse.json(
+			{ error: "Failed to create apiary" },
+			{ status: 500 },
+		);
 	}
 }
