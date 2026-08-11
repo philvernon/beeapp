@@ -125,7 +125,9 @@ export default async function AnalyticsPage() {
               <span className="text-sm text-secondary">High</span>
               <span className="font-medium text-primary">{varroaHigh}</span>
             </div>
-            <div className="w-full bg-zinc-100 h-2" style={{ width: `${totalInspections > 0 ? (varroaHigh / totalInspections) * 100 : 0}%` }} />
+            <div className="w-full bg-zinc-100 h-2">
+              <div className="bg-primary/40 h-2" style={{ width: `${totalInspections > 0 ? (varroaHigh / totalInspections) * 100 : 0}%` }} />
+            </div>
           </div>
         </div>
 
