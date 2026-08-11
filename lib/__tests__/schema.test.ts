@@ -24,11 +24,9 @@ describe("ApiaryInsert", () => {
 		expect(result.success).toBe(false);
 	});
 
-	it("accepts empty string name (schema has no min constraint)", () => {
-		// The generated schema does not enforce non-empty names.
-		// This is a known gap — the test documents current behavior.
+	it("rejects empty string name", () => {
 		const result = ApiaryInsert.safeParse({ name: "" });
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 
 	it("accepts notes when provided", () => {
@@ -51,9 +49,9 @@ describe("ApiaryUpdate", () => {
 		expect(result.success).toBe(true);
 	});
 
-	it("accepts empty string name (no min constraint)", () => {
+	it("rejects empty string name", () => {
 		const result = ApiaryUpdate.safeParse({ name: "" });
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 });
 
@@ -127,67 +125,65 @@ describe("InspectionInsert", () => {
 		expect(result.success).toBe(false);
 	});
 
-	it("accepts temperamentScore 0 (no range constraint in generated schema)", () => {
-		// The generated schema does not enforce 1-10 range.
-		// This is a known gap — the test documents current behavior.
+	it("rejects temperamentScore outside 1-10 range", () => {
 		const result = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			temperamentScore: 0,
 		});
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 
 		const result2 = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			temperamentScore: 11,
 		});
-		expect(result2.success).toBe(true);
+		expect(result2.success).toBe(false);
 	});
 
-	it("accepts negative queenCellsFound (no non-negative constraint in generated schema)", () => {
+	it("rejects negative queenCellsFound", () => {
 		const result = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			queenCellsFound: -1,
 		});
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 
-	it("accepts negative storeFrames (no non-negative constraint in generated schema)", () => {
+	it("rejects negative storeFrames", () => {
 		const result = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			storeFrames: -1,
 		});
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 
-	it("accepts negative broodFrameCount (no non-negative constraint in generated schema)", () => {
+	it("rejects negative broodFrameCount", () => {
 		const result = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			broodFrameCount: -1,
 		});
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 
-	it("accepts negative roomFrames (no non-negative constraint in generated schema)", () => {
+	it("rejects negative roomFrames", () => {
 		const result = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			roomFrames: -1,
 		});
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 
-	it("accepts negative varroaCount (no non-negative constraint in generated schema)", () => {
+	it("rejects negative varroaCount", () => {
 		const result = InspectionInsert.safeParse({
 			hiveId: UUID,
 			inspectionDate: "2025-03-01",
 			varroaCount: -1,
 		});
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
 	});
 
 	it("does not apply .default() values in Zod v4 safeParse (defaults enforced at DB layer)", () => {

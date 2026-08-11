@@ -25,13 +25,20 @@ export const apiaries = pgTable("apiaries", {
 		.notNull(),
 });
 
-export const ApiaryInsert = createInsertSchema(apiaries);
+export const ApiaryInsert = createInsertSchema(apiaries).refine(
+	(val) => val.name.trim().length > 0,
+	{ message: "Name must not be empty", path: ["name"] },
+);
 export const ApiarySelect = createSelectSchema(apiaries);
 export const ApiaryUpdate = createUpdateSchema(apiaries, {
 	notes: (schema) => schema.nullable(),
 })
 	.omit({ id: true, createdAt: true })
-	.partial();
+	.partial()
+	.refine(
+	(val) => !("name" in val) || val.name === undefined || val.name.trim().length > 0,
+	{ message: "Name must not be empty", path: ["name"] },
+);
 
 // ── Hives ─────────────────────────────────────────────────
 export const hives = pgTable(
@@ -52,7 +59,10 @@ export const hives = pgTable(
 	(t) => [index("idx_hives_apiary_id").on(t.apiaryId)],
 );
 
-export const HiveInsert = createInsertSchema(hives);
+export const HiveInsert = createInsertSchema(hives).refine(
+	(val) => val.name.trim().length > 0,
+	{ message: "Name must not be empty", path: ["name"] },
+);
 export const HiveSelect = createSelectSchema(hives);
 export const HiveUpdate = createUpdateSchema(hives, {
 	queenBreed: (schema) => schema.nullable(),
@@ -132,7 +142,25 @@ export const inspections = pgTable(
 	],
 );
 
-export const InspectionInsert = createInsertSchema(inspections);
+export const InspectionInsert = createInsertSchema(inspections).refine(
+	(val) => val.temperamentScore == null || (val.temperamentScore >= 1 && val.temperamentScore <= 10),
+	{ message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] },
+).refine(
+	(val) => val.queenCellsFound == null || val.queenCellsFound >= 0,
+	{ message: "Queen cells found must not be negative", path: ["queenCellsFound"] },
+).refine(
+	(val) => val.storeFrames == null || val.storeFrames >= 0,
+	{ message: "Store frames must not be negative", path: ["storeFrames"] },
+).refine(
+	(val) => val.broodFrameCount == null || val.broodFrameCount >= 0,
+	{ message: "Brood frame count must not be negative", path: ["broodFrameCount"] },
+).refine(
+	(val) => val.roomFrames == null || val.roomFrames >= 0,
+	{ message: "Room frames must not be negative", path: ["roomFrames"] },
+).refine(
+	(val) => val.varroaCount == null || val.varroaCount >= 0,
+	{ message: "Varroa count must not be negative", path: ["varroaCount"] },
+);
 export const InspectionSelect = createSelectSchema(inspections);
 export const InspectionUpdate = createUpdateSchema(inspections, {
 	queenColour: (schema) => schema.nullable(),

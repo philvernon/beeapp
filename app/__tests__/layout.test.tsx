@@ -5,7 +5,7 @@ import RootLayout from "../layout";
 describe("RootLayout", () => {
 	it("renders nav with Beehive Tracker title", () => {
 		render(
-			<RootLayout children={<div>Content</div>}>
+			<RootLayout params={Promise.resolve({})}>
 				<div>Content</div>
 			</RootLayout>,
 		);
@@ -14,7 +14,7 @@ describe("RootLayout", () => {
 
 	it("links to apiaries, hives, and analytics in nav", () => {
 		render(
-			<RootLayout children={<div>Content</div>}>
+			<RootLayout params={Promise.resolve({})}>
 				<div>Content</div>
 			</RootLayout>,
 		);
@@ -28,7 +28,7 @@ describe("RootLayout", () => {
 
 	it("renders children in main element", () => {
 		render(
-			<RootLayout children={<div data-testid="child">Child content</div>}>
+			<RootLayout params={Promise.resolve({})}>
 				<div data-testid="child">Child content</div>
 			</RootLayout>,
 		);
@@ -37,7 +37,7 @@ describe("RootLayout", () => {
 
 	it("has correct html lang attribute", () => {
 		render(
-			<RootLayout children={<div>Content</div>}>
+			<RootLayout params={Promise.resolve({})}>
 				<div>Content</div>
 			</RootLayout>,
 		);
@@ -46,7 +46,7 @@ describe("RootLayout", () => {
 
 	it("renders metadata title", () => {
 		render(
-			<RootLayout children={<div>Content</div>}>
+			<RootLayout params={Promise.resolve({})}>
 				<div>Content</div>
 			</RootLayout>,
 		);

@@ -165,7 +165,7 @@ describe("PUT /api/apiaries/:id", () => {
 		});
 
 		await handlers.PUT(req, mockParams(TEST_ID));
-		expect((capturedUpdates?.name as string) ?? "").toBe("Spaced");
+		expect(((capturedUpdates ?? {}) as Record<string, unknown>)["name"] as string).toBe("Spaced");
 	});
 
 	it("returns 404 when apiary not found (update returns empty)", async () => {

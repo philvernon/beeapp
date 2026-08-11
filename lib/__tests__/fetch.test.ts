@@ -1,9 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { getErrorMessage, safeJsonFetch } from "../fetch";
-
 describe("getErrorMessage", () => {
 	it("returns empty string when response.ok is true", async () => {
-		const response = new Response(null, { status: 200, ok: true });
+		const response = new Response(null, { status: 200 });
 		expect(await getErrorMessage(response)).toBe("");
 	});
 
@@ -11,7 +10,6 @@ describe("getErrorMessage", () => {
 		const body = JSON.stringify({ error: "Something went wrong" });
 		const response = new Response(body, {
 			status: 500,
-			ok: false,
 			headers: { "content-type": "application/json" },
 		});
 		expect(await getErrorMessage(response)).toBe("Something went wrong");
@@ -20,7 +18,6 @@ describe("getErrorMessage", () => {
 	it("falls back to plain text body when content-type is not JSON", async () => {
 		const response = new Response("Bad request", {
 			status: 400,
-			ok: false,
 			headers: { "content-type": "text/plain" },
 		});
 		expect(await getErrorMessage(response)).toBe("Bad request");
@@ -29,18 +26,15 @@ describe("getErrorMessage", () => {
 	it("uses fallback string when body is empty/unparseable", async () => {
 		const response = new Response("", {
 			status: 500,
-			ok: false,
 			headers: { "content-type": "application/json" },
 		});
 		expect(await getErrorMessage(response, "Fallback error")).toBe(
 			"Fallback error",
 		);
 	});
-
 	it("uses default fallback when body is empty and no custom fallback provided", async () => {
 		const response = new Response("", {
 			status: 500,
-			ok: false,
 			headers: { "content-type": "application/json" },
 		});
 		expect(await getErrorMessage(response)).toBe(
