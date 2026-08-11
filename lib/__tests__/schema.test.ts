@@ -29,6 +29,11 @@ describe("ApiaryInsert", () => {
 		expect(result.success).toBe(false);
 	});
 
+	it("rejects whitespace-only name", () => {
+		const result = ApiaryInsert.safeParse({ name: "   " });
+		expect(result.success).toBe(false);
+	});
+
 	it("accepts notes when provided", () => {
 		const result = ApiaryInsert.safeParse({
 			name: "Test",
@@ -53,6 +58,11 @@ describe("ApiaryUpdate", () => {
 		const result = ApiaryUpdate.safeParse({ name: "" });
 		expect(result.success).toBe(false);
 	});
+
+	it("rejects whitespace-only name", () => {
+		const result = ApiaryUpdate.safeParse({ name: "   " });
+		expect(result.success).toBe(false);
+	});
 });
 
 describe("HiveInsert", () => {
@@ -71,6 +81,11 @@ describe("HiveInsert", () => {
 
 	it("rejects missing name", () => {
 		const result = HiveInsert.safeParse({ apiaryId: UUID });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects whitespace-only name", () => {
+		const result = HiveInsert.safeParse({ apiaryId: UUID, name: "   " });
 		expect(result.success).toBe(false);
 	});
 
@@ -98,6 +113,11 @@ describe("HiveUpdate", () => {
 
 	it("rejects apiaryId: null (NOT NULL constraint)", () => {
 		const result = HiveUpdate.safeParse({ apiaryId: null });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects whitespace-only name", () => {
+		const result = HiveUpdate.safeParse({ name: "   " });
 		expect(result.success).toBe(false);
 	});
 });
@@ -215,6 +235,47 @@ describe("InspectionUpdate", () => {
 			varroaLevel: null,
 		});
 		expect(result.success).toBe(true);
+	});
+	it("rejects temperamentScore of 0", () => {
+		const result = InspectionUpdate.safeParse({ temperamentScore: 0 });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects temperamentScore of 11", () => {
+		const result = InspectionUpdate.safeParse({ temperamentScore: 11 });
+		expect(result.success).toBe(false);
+	});
+
+	it("accepts valid temperamentScore boundary values", () => {
+		const r1 = InspectionUpdate.safeParse({ temperamentScore: 1 });
+		const r2 = InspectionUpdate.safeParse({ temperamentScore: 10 });
+		expect(r1.success).toBe(true);
+		expect(r2.success).toBe(true);
+	});
+
+	it("rejects negative queenCellsFound", () => {
+		const result = InspectionUpdate.safeParse({ queenCellsFound: -1 });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects negative broodFrameCount", () => {
+		const result = InspectionUpdate.safeParse({ broodFrameCount: -1 });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects negative storeFrames", () => {
+		const result = InspectionUpdate.safeParse({ storeFrames: -1 });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects negative roomFrames", () => {
+		const result = InspectionUpdate.safeParse({ roomFrames: -1 });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects negative varroaCount", () => {
+		const result = InspectionUpdate.safeParse({ varroaCount: -1 });
+		expect(result.success).toBe(false);
 	});
 });
 

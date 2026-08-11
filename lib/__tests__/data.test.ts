@@ -85,10 +85,13 @@ describe("getApiaries", () => {
 	});
 
 	it("returns all apiaries ordered by createdAt", async () => {
+		const builder = createBuilder([mockApiary]);
+		mockDb.select.mockReturnValue(builder);
 		const { getApiaries } = await import("../data");
 		const result = await getApiaries();
 		expect(result).toEqual([mockApiary]);
 		expect(mockDb.select).toHaveBeenCalled();
+		expect(builder.orderBy).toHaveBeenCalled();
 	});
 });
 
@@ -119,13 +122,14 @@ describe("getApiaryWithHives", () => {
 
 	it("returns apiary with hives and inspection counts", async () => {
 		let callNum = 0;
+		const hiveBuilder = createBuilder([{ hives: mockHive, apiaries: mockApiary }]);
 		mockDb.select.mockImplementation(() => {
 			callNum++;
 			if (callNum === 1) {
 				return createBuilder([mockApiary]);
 			}
 			if (callNum === 2) {
-				return createBuilder([{ hives: mockHive, apiaries: mockApiary }]);
+				return hiveBuilder;
 			}
 			// inspection counts
 			return createBuilder([{ hiveId: TEST_HIVE_ID, count: "1" }]);
@@ -137,6 +141,7 @@ describe("getApiaryWithHives", () => {
 		expect(result).toBeDefined();
 		expect((result as { name?: string; hives?: unknown[] })?.name).toBe("Garden Apiary");
 		expect(Array.isArray((result as { name?: string; hives?: unknown[] })?.hives)).toBe(true);
+		expect(hiveBuilder.orderBy).toHaveBeenCalled();
 	});
 
 	it("returns null when apiary not found", async () => {
