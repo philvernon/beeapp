@@ -135,8 +135,8 @@ describe("getApiaryWithHives", () => {
 		const result = await getApiaryWithHives(TEST_APIARY_ID);
 
 		expect(result).toBeDefined();
-		expect((result as any)?.name).toBe("Garden Apiary");
-		expect(Array.isArray((result as any)?.hives)).toBe(true);
+		expect((result as { name?: string; hives?: unknown[] })?.name).toBe("Garden Apiary");
+		expect(Array.isArray((result as { name?: string; hives?: unknown[] })?.hives)).toBe(true);
 	});
 
 	it("returns null when apiary not found", async () => {
@@ -160,14 +160,16 @@ describe("getHives", () => {
 		const { getHives } = await import("../data");
 		const result = await getHives();
 		expect(Array.isArray(result)).toBe(true);
-		expect((result as any)[0].name).toBe("Colony Alpha");
-		expect((result as any)[0].apiaryName).toBe("Garden Apiary");
+		expect((result as Array<{ name?: string; apiaryName?: string }>)[0].name).toBe("Colony Alpha");
+		expect((result as Array<{ name?: string; apiaryName?: string }>)[0].apiaryName).toBe("Garden Apiary");
 	});
 
 	it("filters by apiaryId when provided", async () => {
+		const builder = createBuilder([{ hives: mockHive, apiaries: mockApiary }]);
+		mockDb.select.mockReturnValue(builder);
 		const { getHives } = await import("../data");
 		await getHives({ apiaryId: TEST_APIARY_ID });
-		expect(mockDb.select).toHaveBeenCalled();
+		expect(builder.where).toHaveBeenCalled();
 	});
 
 	it("returns empty array when no hives match", async () => {
@@ -190,8 +192,8 @@ describe("getHive", () => {
 		const { getHive } = await import("../data");
 		const result = await getHive(TEST_HIVE_ID);
 		expect(result).toBeDefined();
-		expect((result as any)?.name).toBe("Colony Alpha");
-		expect((result as any)?.apiaryName).toBe("Garden Apiary");
+		expect((result as { name?: string; apiaryName?: string } | null)?.name).toBe("Colony Alpha");
+		expect((result as { name?: string; apiaryName?: string } | null)?.apiaryName).toBe("Garden Apiary");
 	});
 
 	it("returns null when hive not found", async () => {
@@ -216,8 +218,8 @@ describe("getInspection", () => {
 		const { getInspection } = await import("../data");
 		const result = await getInspection(TEST_INSPECTION_ID);
 		expect(result).toBeDefined();
-		expect((result as any)?.hiveName).toBe("Colony Alpha");
-		expect((result as any)?.apiaryName).toBe("Garden Apiary");
+		expect((result as { hiveName?: string; apiaryName?: string } | null)?.hiveName).toBe("Colony Alpha");
+		expect((result as { hiveName?: string; apiaryName?: string } | null)?.apiaryName).toBe("Garden Apiary");
 	});
 
 	it("returns null when inspection not found", async () => {
@@ -239,16 +241,25 @@ describe("getInspections", () => {
 	});
 
 	it("returns all inspections ordered by date descending", async () => {
+		const builder = createBuilder([
+			{ inspections: mockInspection, hives: mockHive, apiaries: mockApiary },
+		]);
+		mockDb.select.mockReturnValue(builder);
 		const { getInspections } = await import("../data");
 		const result = await getInspections();
 		expect(Array.isArray(result)).toBe(true);
-		expect((result as any[])[0].hiveName).toBe("Colony Alpha");
+		expect((result as Array<{ hiveName?: string }>)[0].hiveName).toBe("Colony Alpha");
+		expect(builder.orderBy).toHaveBeenCalled();
 	});
 
 	it("filters by hiveId when provided", async () => {
+		const builder = createBuilder([
+			{ inspections: mockInspection, hives: mockHive, apiaries: mockApiary },
+		]);
+		mockDb.select.mockReturnValue(builder);
 		const { getInspections } = await import("../data");
 		await getInspections({ hiveId: TEST_HIVE_ID });
-		expect(mockDb.select).toHaveBeenCalled();
+		expect(builder.where).toHaveBeenCalled();
 	});
 
 	it("returns empty array when no inspections match", async () => {
