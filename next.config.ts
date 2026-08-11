@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Remove standalone for dev — dynamic routes need Node.js server
-  // Re-add output: 'standalone' when deploying to Docker
+	// Remove standalone for dev — dynamic routes need Node.js server
+	// Re-add output: 'standalone' when deploying to Docker
+	output: "standalone"
 };
 
 export default nextConfig;
