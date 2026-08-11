@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "./db";
 import { apiaries, hives, inspections } from "./schema";
-import { asc, count, eq, inArray, type SQL } from "drizzle-orm";
+import { asc, count, desc, eq, inArray, type SQL } from "drizzle-orm";
 
 // ── Helpers ───────────────────────────────────────────────
 
@@ -31,19 +31,27 @@ function flattenHive(row: {
 }
 
 function buildInspectionQuery(where?: SQL<unknown>) {
+	const ordering = [
+		desc(inspections.inspectionDate),
+		desc(inspections.createdAt),
+		desc(inspections.id),
+	];
+
 	if (where) {
 		return db
 			.select()
 			.from(inspections)
 			.leftJoin(hives, eq(inspections.hiveId, hives.id))
 			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-			.where(where);
+			.where(where)
+			.orderBy(...ordering);
 	}
 	return db
 		.select()
 		.from(inspections)
 		.leftJoin(hives, eq(inspections.hiveId, hives.id))
-		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id));
+		.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
+		.orderBy(...ordering);
 }
 
 function flattenInspection(row: {

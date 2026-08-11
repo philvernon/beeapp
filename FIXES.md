@@ -2,7 +2,7 @@
 
 Follow-up issues discovered while reviewing the remediation commits for `PLAN.md`.
 
-## 1. Make inspection ordering deterministic
+## 1. Make inspection ordering deterministic (Fixed)
 
 `lib/data.ts#getInspections()` does not specify an order, but analytics assumes the first inspection is the latest:
 
