@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getApiaries, getHives, getInspections } from '@/lib/data';
 import { StatCard } from './stat-card';
 
+export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const [apiaries, hives, inspections] = await Promise.all([

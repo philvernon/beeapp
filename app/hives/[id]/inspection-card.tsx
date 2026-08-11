@@ -1,5 +1,3 @@
-"use client";
-
 interface InspectionRow {
 	id: string;
 	hiveId: string;

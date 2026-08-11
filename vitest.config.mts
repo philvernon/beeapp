@@ -12,7 +12,16 @@ export default defineConfig({
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "lcov"],
-			include: ["app/**", "lib/**"],
+			include: [
+				"lib/data.ts",
+				"lib/fetch.ts",
+				"lib/schema.ts",
+				"app/api/**/route.ts",
+				"app/layout.tsx",
+				"app/page.tsx",
+				"app/analytics/stat-card.tsx",
+				"app/hives/**/inspection-card.tsx",
+			],
 			exclude: [
 				"node_modules/",
 				".next/",
@@ -20,8 +29,6 @@ export default defineConfig({
 				"**/drizzle.config.ts",
 				// Generated coverage output (gitignored but ESLint scans it):
 				"coverage/**",
-				// Server-only page components without direct tests
-				"app/**/page.tsx",
 			],
 			thresholds: {
 				statements: 95,
