@@ -69,7 +69,15 @@ export const HiveUpdate = createUpdateSchema(hives, {
 	notes: (schema) => schema.nullable(),
 })
 	.omit({ id: true, createdAt: true })
-	.partial();
+	.partial()
+	.refine(
+	(val) => !("name" in val) || val.name === undefined || val.name.trim().length > 0,
+	{ message: "Name must not be empty", path: ["name"] },
+)
+	.refine(
+	(val) => !("apiaryId" in val) || val.apiaryId !== null,
+	{ message: "Apiary ID is required", path: ["apiaryId"] },
+);
 
 // ── Inspections ───────────────────────────────────────────
 export const inspections = pgTable(
@@ -141,45 +149,69 @@ export const inspections = pgTable(
 		index("idx_inspections_hive_date").on(t.hiveId, t.inspectionDate.desc()),
 	],
 );
+// Shared numeric invariants for inspections (insert + update)
+type InspectionValue = {
+	temperamentScore?: number | null;
+	queenCellsFound?: number | null;
+	storeFrames?: number | null;
+	broodFrameCount?: number | null;
+	roomFrames?: number | null;
+	varroaCount?: number | null;
+};
 
-export const InspectionInsert = createInsertSchema(inspections).refine(
-	(val) => val.temperamentScore == null || (val.temperamentScore >= 1 && val.temperamentScore <= 10),
-	{ message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] },
-).refine(
-	(val) => val.queenCellsFound == null || val.queenCellsFound >= 0,
-	{ message: "Queen cells found must not be negative", path: ["queenCellsFound"] },
-).refine(
-	(val) => val.storeFrames == null || val.storeFrames >= 0,
-	{ message: "Store frames must not be negative", path: ["storeFrames"] },
-).refine(
-	(val) => val.broodFrameCount == null || val.broodFrameCount >= 0,
-	{ message: "Brood frame count must not be negative", path: ["broodFrameCount"] },
-).refine(
-	(val) => val.roomFrames == null || val.roomFrames >= 0,
-	{ message: "Room frames must not be negative", path: ["roomFrames"] },
-).refine(
-	(val) => val.varroaCount == null || val.varroaCount >= 0,
-	{ message: "Varroa count must not be negative", path: ["varroaCount"] },
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function inspectionNumericInvariants(schema: any) {
+	return schema
+		.refine(
+			(val: InspectionValue) => val.temperamentScore == null || (val.temperamentScore >= 1 && val.temperamentScore <= 10),
+			{ message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] },
+		)
+		.refine(
+			(val: InspectionValue) => val.queenCellsFound == null || val.queenCellsFound >= 0,
+			{ message: "Queen cells found must not be negative", path: ["queenCellsFound"] },
+		)
+		.refine(
+			(val: InspectionValue) => val.storeFrames == null || val.storeFrames >= 0,
+			{ message: "Store frames must not be negative", path: ["storeFrames"] },
+		)
+		.refine(
+			(val: InspectionValue) => val.broodFrameCount == null || val.broodFrameCount >= 0,
+			{ message: "Brood frame count must not be negative", path: ["broodFrameCount"] },
+		)
+		.refine(
+			(val: InspectionValue) => val.roomFrames == null || val.roomFrames >= 0,
+			{ message: "Room frames must not be negative", path: ["roomFrames"] },
+		)
+		.refine(
+			(val: InspectionValue) => val.varroaCount == null || val.varroaCount >= 0,
+			{ message: "Varroa count must not be negative", path: ["varroaCount"] },
+		);
+}
+
+export const InspectionInsert = inspectionNumericInvariants(
+	createInsertSchema(inspections),
 );
 export const InspectionSelect = createSelectSchema(inspections);
-export const InspectionUpdate = createUpdateSchema(inspections, {
-	queenColour: (schema) => schema.nullable(),
-	queenCellsFound: (schema) => schema.nullable(),
-	broodFrameCount: (schema) => schema.nullable(),
-	storeFrames: (schema) => schema.nullable(),
-	roomFrames: (schema) => schema.nullable(),
-	varroaLevel: (schema) => schema.nullable(),
-	varroaCount: (schema) => schema.nullable(),
-	temperamentScore: (schema) => schema.nullable(),
-	feedLitresLightSyrup: (schema) => schema.nullable(),
-	feedLitresHeavySyrup: (schema) => schema.nullable(),
-	supersChange: (schema) => schema.nullable(),
-	weatherTemperatureC: (schema) => schema.nullable(),
-	weatherCondition: (schema) => schema.nullable(),
-	notes: (schema) => schema.nullable(),
-})
-	.omit({ id: true, createdAt: true })
-	.partial();
+export const InspectionUpdate = inspectionNumericInvariants(
+	createUpdateSchema(inspections, {
+		queenColour: (schema) => schema.nullable(),
+		queenCellsFound: (schema) => schema.nullable(),
+		broodFrameCount: (schema) => schema.nullable(),
+		storeFrames: (schema) => schema.nullable(),
+		roomFrames: (schema) => schema.nullable(),
+		varroaLevel: (schema) => schema.nullable(),
+		varroaCount: (schema) => schema.nullable(),
+		temperamentScore: (schema) => schema.nullable(),
+		feedLitresLightSyrup: (schema) => schema.nullable(),
+		feedLitresHeavySyrup: (schema) => schema.nullable(),
+		supersChange: (schema) => schema.nullable(),
+		weatherTemperatureC: (schema) => schema.nullable(),
+		weatherCondition: (schema) => schema.nullable(),
+		notes: (schema) => schema.nullable(),
+	})
+		.omit({ id: true, createdAt: true })
+		.partial(),
+);
 
 // ── Enum helpers (for UI dropdowns) ───────────────────────
 export const queenColours = ["W", "Y", "R", "G", "B"] as const;
