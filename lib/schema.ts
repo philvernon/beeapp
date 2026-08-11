@@ -9,11 +9,8 @@ import {
 	date,
 	index,
 } from "drizzle-orm/pg-core";
-import {
-	createInsertSchema,
-	createSelectSchema,
-	createUpdateSchema,
-} from "drizzle-zod";
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
+import { z } from "zod";
 
 // ── Apiaries ──────────────────────────────────────────────
 export const apiaries = pgTable("apiaries", {
@@ -150,68 +147,58 @@ export const inspections = pgTable(
 	],
 );
 // Shared numeric invariants for inspections (insert + update)
-type InspectionValue = {
-	temperamentScore?: number | null;
-	queenCellsFound?: number | null;
-	storeFrames?: number | null;
-	broodFrameCount?: number | null;
-	roomFrames?: number | null;
-	varroaCount?: number | null;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function inspectionNumericInvariants(schema: any) {
-	return schema
-		.refine(
-			(val: InspectionValue) => val.temperamentScore == null || (val.temperamentScore >= 1 && val.temperamentScore <= 10),
-			{ message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] },
-		)
-		.refine(
-			(val: InspectionValue) => val.queenCellsFound == null || val.queenCellsFound >= 0,
-			{ message: "Queen cells found must not be negative", path: ["queenCellsFound"] },
-		)
-		.refine(
-			(val: InspectionValue) => val.storeFrames == null || val.storeFrames >= 0,
-			{ message: "Store frames must not be negative", path: ["storeFrames"] },
-		)
-		.refine(
-			(val: InspectionValue) => val.broodFrameCount == null || val.broodFrameCount >= 0,
-			{ message: "Brood frame count must not be negative", path: ["broodFrameCount"] },
-		)
-		.refine(
-			(val: InspectionValue) => val.roomFrames == null || val.roomFrames >= 0,
-			{ message: "Room frames must not be negative", path: ["roomFrames"] },
-		)
-		.refine(
-			(val: InspectionValue) => val.varroaCount == null || val.varroaCount >= 0,
-			{ message: "Varroa count must not be negative", path: ["varroaCount"] },
-		);
+function inspectionNumericInvariants(
+	val: {
+		temperamentScore?: number | null;
+		queenCellsFound?: number | null;
+		storeFrames?: number | null;
+		broodFrameCount?: number | null;
+		roomFrames?: number | null;
+		varroaCount?: number | null;
+	},
+	ctx: z.RefinementCtx,
+) {
+	if (val.temperamentScore != null && (val.temperamentScore < 1 || val.temperamentScore > 10)) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] });
+	}
+	if (val.queenCellsFound != null && val.queenCellsFound < 0) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Queen cells found must not be negative", path: ["queenCellsFound"] });
+	}
+	if (val.storeFrames != null && val.storeFrames < 0) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Store frames must not be negative", path: ["storeFrames"] });
+	}
+	if (val.broodFrameCount != null && val.broodFrameCount < 0) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Brood frame count must not be negative", path: ["broodFrameCount"] });
+	}
+	if (val.roomFrames != null && val.roomFrames < 0) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Room frames must not be negative", path: ["roomFrames"] });
+	}
+	if (val.varroaCount != null && val.varroaCount < 0) {
+		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Varroa count must not be negative", path: ["varroaCount"] });
+	}
 }
 
-export const InspectionInsert = inspectionNumericInvariants(
-	createInsertSchema(inspections),
-);
+export const InspectionInsert = createInsertSchema(inspections).superRefine(inspectionNumericInvariants);
 export const InspectionSelect = createSelectSchema(inspections);
-export const InspectionUpdate = inspectionNumericInvariants(
-	createUpdateSchema(inspections, {
-		queenColour: (schema) => schema.nullable(),
-		queenCellsFound: (schema) => schema.nullable(),
-		broodFrameCount: (schema) => schema.nullable(),
-		storeFrames: (schema) => schema.nullable(),
-		roomFrames: (schema) => schema.nullable(),
-		varroaLevel: (schema) => schema.nullable(),
-		varroaCount: (schema) => schema.nullable(),
-		temperamentScore: (schema) => schema.nullable(),
-		feedLitresLightSyrup: (schema) => schema.nullable(),
-		feedLitresHeavySyrup: (schema) => schema.nullable(),
-		supersChange: (schema) => schema.nullable(),
-		weatherTemperatureC: (schema) => schema.nullable(),
-		weatherCondition: (schema) => schema.nullable(),
-		notes: (schema) => schema.nullable(),
-	})
-		.omit({ id: true, createdAt: true })
-		.partial(),
-);
+export const InspectionUpdate = createUpdateSchema(inspections, {
+	queenColour: (schema) => schema.nullable(),
+	queenCellsFound: (schema) => schema.nullable(),
+	broodFrameCount: (schema) => schema.nullable(),
+	storeFrames: (schema) => schema.nullable(),
+	roomFrames: (schema) => schema.nullable(),
+	varroaLevel: (schema) => schema.nullable(),
+	varroaCount: (schema) => schema.nullable(),
+	temperamentScore: (schema) => schema.nullable(),
+	feedLitresLightSyrup: (schema) => schema.nullable(),
+	feedLitresHeavySyrup: (schema) => schema.nullable(),
+	supersChange: (schema) => schema.nullable(),
+	weatherTemperatureC: (schema) => schema.nullable(),
+	weatherCondition: (schema) => schema.nullable(),
+	notes: (schema) => schema.nullable(),
+})
+	.omit({ id: true, createdAt: true })
+	.partial()
+	.superRefine(inspectionNumericInvariants);
 
 // ── Enum helpers (for UI dropdowns) ───────────────────────
 export const queenColours = ["W", "Y", "R", "G", "B"] as const;
