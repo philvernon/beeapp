@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Drizzle instance with schema for type-safe queries
-export const db = drizzle(pool, { schema });
+export const db = drizzle(pool, { schema, casing: 'snake_case' });
 
 // Re-export schema and Zod schemas for convenience
 export { schema };

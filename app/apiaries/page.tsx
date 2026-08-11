@@ -11,7 +11,6 @@ export async function ApiaryList() {
 	if (apiaries.length === 0) {
 		return (
 			<div className="text-center py-16">
-				hi
 				<p className="text-secondary mb-4">No apiaries yet</p>
 				<Link
 					href="/apiaries/new"

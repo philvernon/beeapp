@@ -14,23 +14,6 @@ import {
 	createSelectSchema,
 	createUpdateSchema,
 } from "drizzle-zod";
-import z from "zod";
-
-// Helper: accept snake_case keys and transform to camelCase for Drizzle.
-// This lets client pages keep sending snake_case while the API layer works in camelCase.
-function snakeToCamel<T extends z.ZodType>(
-	schema: T,
-): ReturnType<typeof schema.transform<z.output<T>>> {
-	return schema.transform((val) => {
-		if (typeof val !== "object" || val === null) return val;
-		const result: Record<string, unknown> = {};
-		for (const [key, value] of Object.entries(val)) {
-			const camel = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
-			result[camel] = value;
-		}
-		return result as z.output<T>;
-	});
-}
 
 // ── Apiaries ──────────────────────────────────────────────
 export const apiaries = pgTable("apiaries", {
@@ -42,13 +25,13 @@ export const apiaries = pgTable("apiaries", {
 		.notNull(),
 });
 
-export const ApiaryInsert = snakeToCamel(createInsertSchema(apiaries));
+export const ApiaryInsert = createInsertSchema(apiaries);
 export const ApiarySelect = createSelectSchema(apiaries);
-export const ApiaryUpdate = snakeToCamel(
-	createUpdateSchema(apiaries, {
-		notes: (schema) => schema.nullable(),
-	}).partial(),
-);
+export const ApiaryUpdate = createUpdateSchema(apiaries, {
+	notes: (schema) => schema.nullable(),
+})
+	.omit({ id: true, createdAt: true })
+	.partial();
 
 // ── Hives ─────────────────────────────────────────────────
 export const hives = pgTable(
@@ -69,15 +52,14 @@ export const hives = pgTable(
 	(t) => [index("idx_hives_apiary_id").on(t.apiaryId)],
 );
 
-export const HiveInsert = snakeToCamel(createInsertSchema(hives));
+export const HiveInsert = createInsertSchema(hives);
 export const HiveSelect = createSelectSchema(hives);
-export const HiveUpdate = snakeToCamel(
-	createUpdateSchema(hives, {
-		apiaryId: (schema) => schema.nullable(),
-		queenBreed: (schema) => schema.nullable(),
-		notes: (schema) => schema.nullable(),
-	}).partial(),
-);
+export const HiveUpdate = createUpdateSchema(hives, {
+	queenBreed: (schema) => schema.nullable(),
+	notes: (schema) => schema.nullable(),
+})
+	.omit({ id: true, createdAt: true })
+	.partial();
 
 // ── Inspections ───────────────────────────────────────────
 export const inspections = pgTable(
@@ -150,13 +132,26 @@ export const inspections = pgTable(
 	],
 );
 
-export const InspectionInsert = snakeToCamel(createInsertSchema(inspections));
+export const InspectionInsert = createInsertSchema(inspections);
 export const InspectionSelect = createSelectSchema(inspections);
-export const InspectionUpdate = snakeToCamel(
-	createUpdateSchema(inspections, {
-		notes: (schema) => schema.nullable(),
-	}).partial(),
-);
+export const InspectionUpdate = createUpdateSchema(inspections, {
+	queenColour: (schema) => schema.nullable(),
+	queenCellsFound: (schema) => schema.nullable(),
+	broodFrameCount: (schema) => schema.nullable(),
+	storeFrames: (schema) => schema.nullable(),
+	roomFrames: (schema) => schema.nullable(),
+	varroaLevel: (schema) => schema.nullable(),
+	varroaCount: (schema) => schema.nullable(),
+	temperamentScore: (schema) => schema.nullable(),
+	feedLitresLightSyrup: (schema) => schema.nullable(),
+	feedLitresHeavySyrup: (schema) => schema.nullable(),
+	supersChange: (schema) => schema.nullable(),
+	weatherTemperatureC: (schema) => schema.nullable(),
+	weatherCondition: (schema) => schema.nullable(),
+	notes: (schema) => schema.nullable(),
+})
+	.omit({ id: true, createdAt: true })
+	.partial();
 
 // ── Enum helpers (for UI dropdowns) ───────────────────────
 export const queenColours = ["W", "Y", "R", "G", "B"] as const;

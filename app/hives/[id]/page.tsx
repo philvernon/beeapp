@@ -29,8 +29,8 @@ interface InspectionRow {
 	weatherCondition?: string | null;
 	notes?: string | null;
 	createdAt: Date;
-	hive_name?: string | null;
-	apiary_name?: string | null;
+	hiveName?: string | null;
+	apiaryName?: string | null;
 }
 
 export default async function HiveDetailPage({
@@ -43,7 +43,7 @@ export default async function HiveDetailPage({
 
 	if (!hive) notFound();
 
-	const inspections = await getInspections(id);
+	const inspections = await getInspections({ hiveId: id });
 
 	return (
 		<div>
@@ -76,7 +76,7 @@ export default async function HiveDetailPage({
 				<div className="flex items-start justify-between">
 					<div>
 						<h1 className="text-2xl font-bold text-primary">{hive.name}</h1>
-						<p className="text-sm text-secondary mt-1">{hive.apiary_name}</p>
+						<p className="text-sm text-secondary mt-1">{hive.apiaryName}</p>
 					</div>
 					{hive.queenClipped && (
 						<span className="text-xs bg-zinc-100 text-secondary px-3 py-1 font-medium">

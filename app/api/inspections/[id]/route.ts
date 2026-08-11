@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import { getInspection } from "@/lib/data";
 import { db, InspectionUpdate } from "@/lib/db";
-import { inspections, hives, apiaries } from "@/lib/schema";
+import { inspections } from "@/lib/schema";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
@@ -11,27 +12,16 @@ export async function GET(
 	try {
 		const { id } = await params;
 
-		const result = await db
-			.select()
-			.from(inspections)
-			.leftJoin(hives, eq(inspections.hiveId, hives.id))
-			.leftJoin(apiaries, eq(hives.apiaryId, apiaries.id))
-			.where(eq(inspections.id, id))
-			.limit(1);
+		const result = await getInspection(id);
 
-		if (result.length === 0) {
+		if (!result) {
 			return NextResponse.json(
 				{ error: "Inspection not found" },
 				{ status: 404 },
 			);
 		}
 
-		const row = result[0];
-		return NextResponse.json({
-			...row.inspections,
-			hive_name: row.hives?.name ?? null,
-			apiary_name: row.apiaries?.name ?? null,
-		});
+		return NextResponse.json(result);
 	} catch (err) {
 		console.error("GET /api/inspections/:id error:", err);
 		return NextResponse.json(
@@ -66,6 +56,14 @@ export async function PUT(
 		if (Object.keys(updates).length === 0) {
 			return NextResponse.json(
 				{ error: "No fields to update" },
+				{ status: 400 },
+			);
+		}
+
+		// Reject hiveId: null (column is NOT NULL)
+		if (updates.hiveId === null) {
+			return NextResponse.json(
+				{ error: "hiveId cannot be null" },
 				{ status: 400 },
 			);
 		}

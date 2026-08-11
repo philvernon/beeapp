@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -38,11 +37,14 @@ export async function HiveList() {
 							</span>
 						)}
 					</div>
-					<p className="text-sm text-secondary mt-1">{h.apiary_name}</p>
+					<p className="text-sm text-secondary mt-1">{h.apiaryName}</p>
 					{h.queenBreed && (
 						<p className="text-xs text-secondary mt-1">Queen: {h.queenBreed}</p>
 					)}
-					<p className="text-xs text-secondary mt-2">0 inspections</p>
+					<p className="text-xs text-secondary mt-2">
+						{h.inspectionCount ?? 0} inspection
+						{h.inspectionCount === 1 ? "" : "s"}
+					</p>
 				</Link>
 			))}
 		</div>
@@ -61,9 +63,7 @@ export default async function HivesPage() {
 					Manage apiaries →
 				</Link>
 			</div>
-			<Suspense fallback={<p className="text-secondary">Loading…</p>}>
-				<HiveList />
-			</Suspense>
+			<HiveList />
 		</div>
 	);
 }
