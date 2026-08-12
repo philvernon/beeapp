@@ -1,7 +1,7 @@
+import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getInspections } from "@/lib/data";
-import { db, InspectionInsert } from "@/lib/db";
-import { inspections } from "@/lib/schema";
+import { inspections, InspectionInsert } from "@/lib/schema";
 
 // GET /api/inspections — list inspections (filter by hive_id)
 export async function GET(req: Request) {

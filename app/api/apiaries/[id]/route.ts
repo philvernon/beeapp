@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { getApiaryWithHives } from "@/lib/data";
-import { db, ApiaryUpdate } from "@/lib/db";
-import { apiaries, hives } from "@/lib/schema";
+import { db } from "@/lib/db";
+import { apiaries, hives, ApiaryUpdate } from "@/lib/schema";
 
 // GET /api/apiaries/:id — single apiary with hives
 export async function GET(

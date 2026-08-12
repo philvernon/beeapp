@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { getHive } from "@/lib/data";
-import { db, HiveUpdate } from "@/lib/db";
-import { hives } from "@/lib/schema";
+import { db } from "@/lib/db";
+import { hives, HiveUpdate } from "@/lib/schema";
 
 // GET /api/hives/:id — single hive with apiary name and inspection count
 export async function GET(

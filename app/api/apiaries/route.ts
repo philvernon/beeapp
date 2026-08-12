@@ -1,7 +1,7 @@
+import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getApiaries } from "@/lib/data";
-import { db, ApiaryInsert } from "@/lib/db";
-import { apiaries } from "@/lib/schema";
+import { apiaries, ApiaryInsert } from "@/lib/schema";
 
 // GET /api/apiaries — list all apiaries
 export async function GET() {
