@@ -89,6 +89,11 @@ describe("HiveInsert", () => {
 		expect(result.success).toBe(false);
 	});
 
+	it("rejects empty string name", () => {
+		const result = HiveInsert.safeParse({ apiaryId: UUID, name: "" });
+		expect(result.success).toBe(false);
+	});
+
 	it("accepts optional queen fields", () => {
 		const result = HiveInsert.safeParse({
 			apiaryId: UUID,
@@ -118,6 +123,11 @@ describe("HiveUpdate", () => {
 
 	it("rejects whitespace-only name", () => {
 		const result = HiveUpdate.safeParse({ name: "   " });
+		expect(result.success).toBe(false);
+	});
+
+	it("rejects empty string name", () => {
+		const result = HiveUpdate.safeParse({ name: "" });
 		expect(result.success).toBe(false);
 	});
 });
@@ -159,6 +169,13 @@ describe("InspectionInsert", () => {
 			temperamentScore: 11,
 		});
 		expect(result2.success).toBe(false);
+	});
+
+	it("accepts valid temperamentScore boundary values", () => {
+		const r1 = InspectionInsert.safeParse({ hiveId: UUID, inspectionDate: "2025-03-01", temperamentScore: 1 });
+		const r2 = InspectionInsert.safeParse({ hiveId: UUID, inspectionDate: "2025-03-01", temperamentScore: 10 });
+		expect(r1.success).toBe(true);
+		expect(r2.success).toBe(true);
 	});
 
 	it("rejects negative queenCellsFound", () => {
@@ -276,6 +293,18 @@ describe("InspectionUpdate", () => {
 	it("rejects negative varroaCount", () => {
 		const result = InspectionUpdate.safeParse({ varroaCount: -1 });
 		expect(result.success).toBe(false);
+	});
+
+	it("accepts null for all nullable numeric fields", () => {
+		const result = InspectionUpdate.safeParse({
+			temperamentScore: null,
+			queenCellsFound: null,
+			storeFrames: null,
+			broodFrameCount: null,
+			roomFrames: null,
+			varroaCount: null,
+		});
+		expect(result.success).toBe(true);
 	});
 });
 
