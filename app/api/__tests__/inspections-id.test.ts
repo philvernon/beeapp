@@ -9,9 +9,9 @@ function mockParams(id: string) {
 }
 
 const mocks = vi.hoisted(() => ({
-  dbUpdate: vi.fn(),
-  dbDelete: vi.fn(),
-  getInspection: vi.fn(),
+	dbUpdate: vi.fn(),
+	dbDelete: vi.fn(),
+	getInspection: vi.fn(),
 }));
 
 vi.mock("@/lib/data", () => ({
@@ -111,6 +111,7 @@ describe("PUT /api/inspections/:id", () => {
 		expect(response.status).toBe(400);
 		const body = await response.json();
 		expect(body.error).toBe("Validation failed");
+		expect(mocks.dbUpdate).not.toHaveBeenCalled();
 	});
 
 	it("returns 400 when no fields to update", async () => {
@@ -123,6 +124,7 @@ describe("PUT /api/inspections/:id", () => {
 		const response = await handlers.PUT(req, mockParams(TEST_ID));
 		const body = await response.json();
 		expect(body.error).toBe("No fields to update");
+		expect(mocks.dbUpdate).not.toHaveBeenCalled();
 	});
 	it("returns 400 when hiveId is null", async () => {
 		const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
@@ -135,6 +137,7 @@ describe("PUT /api/inspections/:id", () => {
 		expect(response.status).toBe(400);
 		const body = await response.json();
 		expect(body.error).toBe("Validation failed");
+		expect(mocks.dbUpdate).not.toHaveBeenCalled();
 	});
 
 	it("returns 404 when not found (update returns empty)", async () => {

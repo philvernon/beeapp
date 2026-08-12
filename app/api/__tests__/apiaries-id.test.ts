@@ -9,10 +9,10 @@ function mockParams(id: string) {
 }
 
 const mocks = vi.hoisted(() => ({
-  dbUpdate: vi.fn(),
-  dbDelete: vi.fn(),
-  dbSelect: vi.fn(),
-  getApiaryWithHives: vi.fn(),
+	dbUpdate: vi.fn(),
+	dbDelete: vi.fn(),
+	dbSelect: vi.fn(),
+	getApiaryWithHives: vi.fn(),
 }));
 
 vi.mock("@/lib/data", () => ({
@@ -109,6 +109,7 @@ describe("PUT /api/apiaries/:id", () => {
 		expect(response.status).toBe(400);
 		const body = await response.json();
 		expect(body.error).toBe("Validation failed");
+		expect(mocks.dbUpdate).not.toHaveBeenCalled();
 	});
 
 	it("returns 400 when no fields to update (empty body)", async () => {
@@ -122,6 +123,8 @@ describe("PUT /api/apiaries/:id", () => {
 		expect(response.status).toBe(400);
 		const body = await response.json();
 		expect(body.error).toBe("No fields to update");
+		expect(mocks.dbUpdate).not.toHaveBeenCalled();
+
 	});
 
 	it("trims name before saving", async () => {
