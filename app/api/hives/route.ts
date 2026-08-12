@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 				apiaryId: validated.data.apiaryId,
 				name: validated.data.name,
 				queenBreed: validated.data.queenBreed ?? null,
-				queenClipped: validated.data.queenClipped ?? false,
+				queenClipped: validated.data.queenClipped ?? null,
 				notes: validated.data.notes ?? null,
 			})
 			.returning();
