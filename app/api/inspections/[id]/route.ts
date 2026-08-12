@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { getInspection } from "@/lib/data";
-import { db, InspectionUpdate } from "@/lib/db";
-import { inspections } from "@/lib/schema";
+import { db } from "@/lib/db";
+import { inspections, InspectionUpdate } from "@/lib/schema";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(

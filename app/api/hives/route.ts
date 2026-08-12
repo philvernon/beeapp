@@ -1,7 +1,7 @@
+import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getHives } from "@/lib/data";
-import { db, HiveInsert } from "@/lib/db";
-import { hives } from "@/lib/schema";
+import { hives, HiveInsert } from "@/lib/schema";
 
 // GET /api/hives — list all hives (with apiary name and inspection count)
 export async function GET(req: Request) {
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 				apiaryId: validated.data.apiaryId,
 				name: validated.data.name,
 				queenBreed: validated.data.queenBreed ?? null,
-				queenClipped: validated.data.queenClipped ?? false,
+				queenClipped: validated.data.queenClipped ?? null,
 				notes: validated.data.notes ?? null,
 			})
 			.returning();
