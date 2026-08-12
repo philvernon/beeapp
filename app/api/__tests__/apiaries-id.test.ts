@@ -8,24 +8,22 @@ function mockParams(id: string) {
 	return { params: Promise.resolve({ id }) };
 }
 
-const mockGetApiaryWithHives = vi.fn();
-const mockDbUpdate = vi.fn();
-const mockDbDelete = vi.fn();
-const mockDbSelect = vi.fn();
-const mockApiaryUpdateSafeParse = vi.fn();
+const mocks = vi.hoisted(() => ({
+  dbUpdate: vi.fn(),
+  dbDelete: vi.fn(),
+  dbSelect: vi.fn(),
+  getApiaryWithHives: vi.fn(),
+}));
 
 vi.mock("@/lib/data", () => ({
-	getApiaryWithHives: (...args: unknown[]) => mockGetApiaryWithHives(...args),
+	getApiaryWithHives: (...args: unknown[]) => mocks.getApiaryWithHives(...args),
 }));
 
 vi.mock("@/lib/db", () => ({
 	db: {
-		update: (...args: unknown[]) => mockDbUpdate(...args),
-		delete: (...args: unknown[]) => mockDbDelete(...args),
-		select: (...args: unknown[]) => mockDbSelect(...args),
-	},
-	ApiaryUpdate: {
-		safeParse: (...args: unknown[]) => mockApiaryUpdateSafeParse(...args),
+		update: (...args: unknown[]) => mocks.dbUpdate(...args),
+		delete: (...args: unknown[]) => mocks.dbDelete(...args),
+		select: (...args: unknown[]) => mocks.dbSelect(...args),
 	},
 }));
 
@@ -40,7 +38,7 @@ describe("GET /api/apiaries/:id", () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it("returns 200 with apiary + hives + inspection counts", async () => {
-		mockGetApiaryWithHives.mockResolvedValue({
+		mocks.getApiaryWithHives.mockResolvedValue({
 			...TEST_APIARY,
 			hives: [],
 		});
@@ -53,7 +51,7 @@ describe("GET /api/apiaries/:id", () => {
 	});
 
 	it("returns 404 when apiary not found", async () => {
-		mockGetApiaryWithHives.mockResolvedValue(null);
+		mocks.getApiaryWithHives.mockResolvedValue(null);
 
 		const response = await handlers.GET(
 			{} as Request,
@@ -65,7 +63,7 @@ describe("GET /api/apiaries/:id", () => {
 	});
 
 	it("returns 500 on error", async () => {
-		mockGetApiaryWithHives.mockRejectedValue(new Error("DB error"));
+		mocks.getApiaryWithHives.mockRejectedValue(new Error("DB error"));
 
 		const response = await handlers.GET(
 			{} as Request,
@@ -79,12 +77,8 @@ describe("PUT /api/apiaries/:id", () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it("returns 200 with updated apiary", async () => {
-		mockApiaryUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "Updated Apiary" },
-		});
 		const updatedRow = { ...TEST_APIARY, name: "Updated Apiary" };
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
 					returning: vi.fn().mockResolvedValue([updatedRow]),
@@ -104,12 +98,7 @@ describe("PUT /api/apiaries/:id", () => {
 		expect(body.name).toBe("Updated Apiary");
 	});
 
-	it("returns 400 when validation fails", async () => {
-		mockApiaryUpdateSafeParse.mockReturnValue({
-			success: false,
-			error: { issues: [{ path: ["name"], message: "Too small" }] },
-		});
-
+	it("returns 400 when name is empty string", async () => {
 		const req = new Request("http://localhost/api/apiaries/" + TEST_ID, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
@@ -123,11 +112,6 @@ describe("PUT /api/apiaries/:id", () => {
 	});
 
 	it("returns 400 when no fields to update (empty body)", async () => {
-		mockApiaryUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: {},
-		});
-
 		const req = new Request("http://localhost/api/apiaries/" + TEST_ID, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
@@ -142,12 +126,8 @@ describe("PUT /api/apiaries/:id", () => {
 
 	it("trims name before saving", async () => {
 		let capturedUpdates: Record<string, unknown> | null = null;
-		mockApiaryUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "  Spaced  " },
-		});
 		const updatedRow = { ...TEST_APIARY, name: "Spaced" };
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockImplementation((updates: Record<string, unknown>) => {
 				capturedUpdates = updates;
 				return {
@@ -165,15 +145,11 @@ describe("PUT /api/apiaries/:id", () => {
 		});
 
 		await handlers.PUT(req, mockParams(TEST_ID));
-		expect(((capturedUpdates ?? {}) as Record<string, unknown>)["name"] as string).toBe("Spaced");
+		expect((capturedUpdates as unknown as Record<string, unknown>)["name"]).toBe("Spaced");
 	});
 
 	it("returns 404 when apiary not found (update returns empty)", async () => {
-		mockApiaryUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "Updated" },
-		});
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
 					returning: vi.fn().mockResolvedValue([]),
@@ -192,11 +168,7 @@ describe("PUT /api/apiaries/:id", () => {
 	});
 
 	it("returns 500 on error", async () => {
-		mockApiaryUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "Updated" },
-		});
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
 					returning: vi.fn().mockRejectedValue(new Error("DB error")),
@@ -219,13 +191,13 @@ describe("DELETE /api/apiaries/:id", () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it("returns 200 with success + deleted apiary when no hives exist", async () => {
-		mockDbSelect.mockReturnValue({
+		mocks.dbSelect.mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue([]),
 			}),
 		});
 
-		mockDbDelete.mockReturnValue({
+		mocks.dbDelete.mockReturnValue({
 			where: vi.fn().mockReturnValue({
 				returning: vi.fn().mockResolvedValue([TEST_APIARY]),
 			}),
@@ -241,7 +213,7 @@ describe("DELETE /api/apiaries/:id", () => {
 	});
 
 	it("returns 409 when hives exist in apiary", async () => {
-		mockDbSelect.mockReturnValue({
+		mocks.dbSelect.mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue([{ id: "hive-1" }]),
 			}),
@@ -257,13 +229,13 @@ describe("DELETE /api/apiaries/:id", () => {
 	});
 
 	it("returns 404 when apiary not found", async () => {
-		mockDbSelect.mockReturnValue({
+		mocks.dbSelect.mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue([]),
 			}),
 		});
 
-		mockDbDelete.mockReturnValue({
+		mocks.dbDelete.mockReturnValue({
 			where: vi.fn().mockReturnValue({
 				returning: vi.fn().mockResolvedValue([]),
 			}),
@@ -277,13 +249,13 @@ describe("DELETE /api/apiaries/:id", () => {
 	});
 
 	it("returns 500 on error", async () => {
-		mockDbSelect.mockReturnValue({
+		mocks.dbSelect.mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue([]),
 			}),
 		});
 
-		mockDbDelete.mockReturnValue({
+		mocks.dbDelete.mockReturnValue({
 			where: vi.fn().mockReturnValue({
 				returning: vi.fn().mockRejectedValue(new Error("DB error")),
 			}),

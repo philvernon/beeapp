@@ -8,22 +8,20 @@ function mockParams(id: string) {
 	return { params: Promise.resolve({ id }) };
 }
 
-const mockGetHive = vi.fn();
-const mockDbUpdate = vi.fn();
-const mockDbDelete = vi.fn();
-const mockHiveUpdateSafeParse = vi.fn();
+const mocks = vi.hoisted(() => ({
+  dbUpdate: vi.fn(),
+  dbDelete: vi.fn(),
+  getHive: vi.fn(),
+}));
 
 vi.mock("@/lib/data", () => ({
-	getHive: (...args: unknown[]) => mockGetHive(...args),
+	getHive: (...args: unknown[]) => mocks.getHive(...args),
 }));
 
 vi.mock("@/lib/db", () => ({
 	db: {
-		update: (...args: unknown[]) => mockDbUpdate(...args),
-		delete: (...args: unknown[]) => mockDbDelete(...args),
-	},
-	HiveUpdate: {
-		safeParse: (...args: unknown[]) => mockHiveUpdateSafeParse(...args),
+		update: (...args: unknown[]) => mocks.dbUpdate(...args),
+		delete: (...args: unknown[]) => mocks.dbDelete(...args),
 	},
 }));
 
@@ -42,7 +40,7 @@ describe("GET /api/hives/:id", () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it("returns 200 with hive data", async () => {
-		mockGetHive.mockResolvedValue(TEST_HIVE);
+		mocks.getHive.mockResolvedValue(TEST_HIVE);
 
 		const response = await handlers.GET(
 			{} as Request,
@@ -52,7 +50,7 @@ describe("GET /api/hives/:id", () => {
 	});
 
 	it("returns 404 when hive not found", async () => {
-		mockGetHive.mockResolvedValue(null);
+		mocks.getHive.mockResolvedValue(null);
 
 		const response = await handlers.GET(
 			{} as Request,
@@ -64,7 +62,7 @@ describe("GET /api/hives/:id", () => {
 	});
 
 	it("returns 500 on error", async () => {
-		mockGetHive.mockRejectedValue(new Error("DB error"));
+		mocks.getHive.mockRejectedValue(new Error("DB error"));
 
 		const response = await handlers.GET(
 			{} as Request,
@@ -78,12 +76,8 @@ describe("PUT /api/hives/:id", () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it("returns 200 with updated hive", async () => {
-		mockHiveUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "Updated Colony" },
-		});
 		const updatedRow = { ...TEST_HIVE, name: "Updated Colony" };
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
 					returning: vi.fn().mockResolvedValue([updatedRow]),
@@ -103,12 +97,7 @@ describe("PUT /api/hives/:id", () => {
 		expect(body.name).toBe("Updated Colony");
 	});
 
-	it("returns 400 when validation fails", async () => {
-		mockHiveUpdateSafeParse.mockReturnValue({
-			success: false,
-			error: { issues: [{ path: ["name"], message: "Too small" }] },
-		});
-
+	it("returns 400 when name is empty string", async () => {
 		const req = new Request("http://localhost/api/hives/" + TEST_ID, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
@@ -122,11 +111,6 @@ describe("PUT /api/hives/:id", () => {
 	});
 
 	it("returns 400 when no fields to update (empty body)", async () => {
-		mockHiveUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: {},
-		});
-
 		const req = new Request("http://localhost/api/hives/" + TEST_ID, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
@@ -140,11 +124,6 @@ describe("PUT /api/hives/:id", () => {
 	});
 
 	it("returns 400 when apiaryId is null", async () => {
-		mockHiveUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { apiaryId: null },
-		});
-
 		const req = new Request("http://localhost/api/hives/" + TEST_ID, {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
@@ -154,15 +133,11 @@ describe("PUT /api/hives/:id", () => {
 		const response = await handlers.PUT(req, mockParams(TEST_ID));
 		expect(response.status).toBe(400);
 		const body = await response.json();
-		expect(body.error).toBe("apiaryId cannot be null");
+		expect(body.error).toBe("Validation failed");
 	});
 
 	it("returns 404 when hive not found (update returns empty)", async () => {
-		mockHiveUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "Updated" },
-		});
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
 					returning: vi.fn().mockResolvedValue([]),
@@ -181,11 +156,7 @@ describe("PUT /api/hives/:id", () => {
 	});
 
 	it("returns 500 on error", async () => {
-		mockHiveUpdateSafeParse.mockReturnValue({
-			success: true,
-			data: { name: "Updated" },
-		});
-		mockDbUpdate.mockReturnValue({
+		mocks.dbUpdate.mockReturnValue({
 			set: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
 					returning: vi.fn().mockRejectedValue(new Error("DB error")),
@@ -208,7 +179,7 @@ describe("DELETE /api/hives/:id", () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it("returns 200 with success + deleted hive", async () => {
-		mockDbDelete.mockReturnValue({
+		mocks.dbDelete.mockReturnValue({
 			where: vi.fn().mockReturnValue({
 				returning: vi.fn().mockResolvedValue([TEST_HIVE]),
 			}),
@@ -224,7 +195,7 @@ describe("DELETE /api/hives/:id", () => {
 	});
 
 	it("returns 404 when hive not found", async () => {
-		mockDbDelete.mockReturnValue({
+		mocks.dbDelete.mockReturnValue({
 			where: vi.fn().mockReturnValue({
 				returning: vi.fn().mockResolvedValue([]),
 			}),
@@ -238,7 +209,7 @@ describe("DELETE /api/hives/:id", () => {
 	});
 
 	it("returns 500 on error", async () => {
-		mockDbDelete.mockReturnValue({
+		mocks.dbDelete.mockReturnValue({
 			where: vi.fn().mockReturnValue({
 				returning: vi.fn().mockRejectedValue(new Error("DB error")),
 			}),
