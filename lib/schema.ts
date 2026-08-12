@@ -159,22 +159,22 @@ function inspectionNumericInvariants(
 	ctx: z.RefinementCtx,
 ) {
 	if (val.temperamentScore != null && (val.temperamentScore < 1 || val.temperamentScore > 10)) {
-		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] });
+		ctx.addIssue({ code: "custom", message: "Temperament score must be between 1 and 10", path: ["temperamentScore"] });
 	}
 	if (val.queenCellsFound != null && val.queenCellsFound < 0) {
-		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Queen cells found must not be negative", path: ["queenCellsFound"] });
+		ctx.addIssue({ code: "custom", message: "Queen cells found must not be negative", path: ["queenCellsFound"] });
 	}
 	if (val.storeFrames != null && val.storeFrames < 0) {
-		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Store frames must not be negative", path: ["storeFrames"] });
+		ctx.addIssue({ code: "custom", message: "Store frames must not be negative", path: ["storeFrames"] });
 	}
 	if (val.broodFrameCount != null && val.broodFrameCount < 0) {
-		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Brood frame count must not be negative", path: ["broodFrameCount"] });
+		ctx.addIssue({ code: "custom", message: "Brood frame count must not be negative", path: ["broodFrameCount"] });
 	}
 	if (val.roomFrames != null && val.roomFrames < 0) {
-		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Room frames must not be negative", path: ["roomFrames"] });
+		ctx.addIssue({ code: "custom", message: "Room frames must not be negative", path: ["roomFrames"] });
 	}
 	if (val.varroaCount != null && val.varroaCount < 0) {
-		ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Varroa count must not be negative", path: ["varroaCount"] });
+		ctx.addIssue({ code: "custom", message: "Varroa count must not be negative", path: ["varroaCount"] });
 	}
 }
 
