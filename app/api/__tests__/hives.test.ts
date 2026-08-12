@@ -93,7 +93,6 @@ describe("POST /api/hives", () => {
 				apiaryId: TEST_HIVE.apiaryId,
 				name: TEST_HIVE.name,
 				queenBreed: null,
-				queenClipped: null,
 				notes: null
 			}),
 		});
