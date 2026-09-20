@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { getApiaries, getHives, getInspections } from '@/lib/data';
 import { StatCard } from './stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress, ProgressIndicator } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 export const dynamic = "force-dynamic";
 
@@ -101,27 +104,27 @@ export default async function AnalyticsPage() {
             <CardTitle>Varroa Levels</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Low</span>
-                <span className="font-medium text-foreground">{varroaLow}</span>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">Low</span>
+                  <span className="font-medium text-foreground">{varroaLow}</span>
+                </div>
+                <Progress value={totalInspections > 0 ? (varroaLow / totalInspections) * 100 : 0} className="h-2"><ProgressIndicator className="bg-primary" /></Progress>
               </div>
-              <div className="w-full bg-muted h-2">
-                <div className="bg-primary h-2" style={{ width: `${totalInspections > 0 ? (varroaLow / totalInspections) * 100 : 0}%` }} />
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">Medium</span>
+                  <span className="font-medium text-foreground">{varroaMed}</span>
+                </div>
+                <Progress value={totalInspections > 0 ? (varroaMed / totalInspections) * 100 : 0} className="h-2"><ProgressIndicator className="bg-primary" /></Progress>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Medium</span>
-                <span className="font-medium text-foreground">{varroaMed}</span>
-              </div>
-              <div className="w-full bg-muted h-2">
-                <div className="bg-primary h-2" style={{ width: `${totalInspections > 0 ? (varroaMed / totalInspections) * 100 : 0}%` }} />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">High</span>
-                <span className="font-medium text-foreground">{varroaHigh}</span>
-              </div>
-              <div className="w-full bg-muted h-2">
-                <div className="bg-destructive h-2" style={{ width: `${totalInspections > 0 ? (varroaHigh / totalInspections) * 100 : 0}%` }} />
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">High</span>
+                  <span className="font-medium text-foreground">{varroaHigh}</span>
+                </div>
+                <Progress value={totalInspections > 0 ? (varroaHigh / totalInspections) * 100 : 0} className="h-2"><ProgressIndicator className="bg-destructive" /></Progress>
               </div>
             </div>
           </CardContent>
@@ -166,18 +169,21 @@ export default async function AnalyticsPage() {
           {hiveStats.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-5">No hives to show. <Link href="/apiaries" className="text-primary hover:underline">Create an apiary</Link> to get started.</p>
           ) : (
-            <div className="divide-y divide-border">
-              {hiveStats.map((h) => (
-                <Link key={h.id} href={`/hives/${h.id}`} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{h.name}</p>
-                    <p className="text-xs text-muted-foreground">{h.apiaryName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-foreground">{h.inspectionCount}</p>
-                    <p className="text-xs text-muted-foreground">last: {h.lastInspection}</p>
-                  </div>
-                </Link>
+            <div>
+              {hiveStats.map((h, idx) => (
+                <div key={h.id}>
+                  {idx > 0 && <Separator />}
+                  <Link href={`/hives/${h.id}`} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{h.name}</p>
+                      <p className="text-xs text-muted-foreground">{h.apiaryName}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-foreground">{h.inspectionCount}</p>
+                      <p className="text-xs text-muted-foreground">last: {h.lastInspection}</p>
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}
@@ -193,18 +199,21 @@ export default async function AnalyticsPage() {
           {recentInspections.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-5">No inspections yet.</p>
           ) : (
-            <div className="divide-y divide-border">
-              {recentInspections.map((i) => (
-                <Link key={i.id} href={`/hives/${i.hiveId}`} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{i.date}</p>
-                    <p className="text-xs text-muted-foreground">{i.hiveName} ({i.apiaryName})</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {i.queenSeen && <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 font-medium">Queen ✓</span>}
-                    {i.healthOk === false && <span className="text-xs border border-border text-foreground px-2 py-0.5 font-medium">Issues</span>}
-                  </div>
-                </Link>
+            <div>
+              {recentInspections.map((i, idx) => (
+                <div key={i.id}>
+                  {idx > 0 && <Separator />}
+                  <Link href={`/hives/${i.hiveId}`} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{i.date}</p>
+                      <p className="text-xs text-muted-foreground">{i.hiveName} ({i.apiaryName})</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {i.queenSeen && <Badge variant="secondary">Queen ✓</Badge>}
+                      {i.healthOk === false && <Badge variant="outline">Issues</Badge>}
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}

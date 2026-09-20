@@ -8,8 +8,10 @@ import { HiveUpdate } from "@/lib/schema";
 import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function EditHivePage({
 	params,
@@ -118,15 +120,15 @@ export default function EditHivePage({
 			<h1 className="text-2xl font-bold text-foreground mb-6">Edit Hive</h1>
 
 			{fetchError && (
-				<div className="mb-4 border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive rounded-none">
-					Failed to load data: {fetchError}
-				</div>
+				<Alert variant="destructive" className="mb-4">
+					<AlertDescription>Failed to load data: {fetchError}</AlertDescription>
+				</Alert>
 			)}
 
 			{error && (
-				<div className="mb-4 border border-border bg-muted px-4 py-3 text-sm text-foreground rounded-none">
-					{error}
-				</div>
+				<Alert className="mb-4">
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
 			)}
 
 			{initialized && !fetchError && (
@@ -187,12 +189,10 @@ export default function EditHivePage({
 						<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
 							Notes
 						</label>
-						<textarea
+						<Textarea
 							id="notes"
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
-							rows={3}
-							className="w-full border border-input bg-transparent px-2.5 py-1.5 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-[60px]"
 						/>
 					</div>
 

@@ -7,6 +7,8 @@ import { ApiaryInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function NewApiaryPage() {
 	const router = useRouter();
@@ -57,9 +59,9 @@ export default function NewApiaryPage() {
 			<h1 className="text-2xl font-bold text-foreground mb-6">New Apiary</h1>
 
 			{error && (
-				<div className="mb-4 border border-border bg-muted px-4 py-3 text-sm text-foreground rounded-none">
-					{error}
-				</div>
+				<Alert className="mb-4">
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
 			)}
 
 			<form onSubmit={handleSubmit} className="space-y-4">
@@ -81,12 +83,10 @@ export default function NewApiaryPage() {
 					<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
 						Notes
 					</label>
-					<textarea
+					<Textarea
 						id="notes"
 						value={notes}
 						onChange={(e) => setNotes(e.target.value)}
-						rows={3}
-						className="w-full border border-input bg-transparent px-2.5 py-1.5 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-[60px]"
 					/>
 				</div>
 

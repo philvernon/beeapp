@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { ButtonLink } from "@/components/ui/button-link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -57,9 +58,7 @@ export default async function ApiariesPage() {
 		<div>
 			<div className="flex items-center justify-between mb-6">
 				<h1 className="text-2xl font-bold text-foreground">Apiaries</h1>
-				<Link href="/apiaries/new" className="inline-flex items-center bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 text-sm font-medium transition-colors rounded-none">
-					+ New Apiary
-				</Link>
+				<ButtonLink href="/apiaries/new" size="sm">+ New Apiary</ButtonLink>
 			</div>
 			<Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
 				<ApiaryList />

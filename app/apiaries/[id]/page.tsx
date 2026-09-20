@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ButtonLink } from "@/components/ui/button-link";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getApiaryWithHives } from "@/lib/data";
 
 export default async function ApiaryDetailPage({
@@ -22,18 +25,8 @@ export default async function ApiaryDetailPage({
 					← Back to Apiaries
 				</Link>
 				<div className="flex gap-2">
-					<Link
-						href={`/apiaries/${id}/edit`}
-						className="border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted rounded-none transition-colors"
-					>
-						Edit
-					</Link>
-					<Link
-						href={`/hives/new?apiary_id=${id}`}
-						className="bg-primary text-primary-foreground hover:bg-primary/80 px-3 py-1.5 text-sm font-medium rounded-none transition-colors"
-					>
-						+ New Hive
-					</Link>
+					<ButtonLink variant="outline" size="sm" href={`/apiaries/${id}/edit`}>Edit</ButtonLink>
+					<ButtonLink size="sm" href={`/hives/new?apiary_id=${id}`}>+ New Hive</ButtonLink>
 				</div>
 			</div>
 
@@ -67,24 +60,28 @@ export default async function ApiaryDetailPage({
 						<Link
 							key={hive.id}
 							href={`/hives/${hive.id}`}
-							className="block border border-border bg-card p-4 hover:border-border/80 transition-colors"
+							className="block"
 						>
-							<div className="flex items-center justify-between">
-								<span className="font-medium text-foreground">{hive.name}</span>
-								{hive.queenClipped && (
-									<span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 font-medium rounded-none">
-										Clipped
-									</span>
-								)}
-							</div>
-							{hive.queenBreed && (
-								<p className="text-sm text-muted-foreground mt-1">
-									Queen: {hive.queenBreed}
-								</p>
-							)}
-							<p className="text-xs text-muted-foreground mt-2">
-								{hive.inspectionCount ?? 0} inspection{hive.inspectionCount === 1 ? "" : "s"}
-							</p>
+							<Card className="group hover:shadow-sm transition-shadow">
+								<CardHeader className="pb-2">
+									<div className="flex items-center justify-between">
+										<CardTitle className="text-sm font-medium">{hive.name}</CardTitle>
+										{hive.queenClipped && (
+											<Badge variant="secondary">Clipped</Badge>
+										)}
+									</div>
+								</CardHeader>
+								<CardContent>
+									{hive.queenBreed && (
+										<p className="text-sm text-muted-foreground mt-1">
+											Queen: {hive.queenBreed}
+										</p>
+									)}
+									<p className="text-xs text-muted-foreground mt-2">
+										{hive.inspectionCount ?? 0} inspection{hive.inspectionCount === 1 ? "" : "s"}
+									</p>
+								</CardContent>
+							</Card>
 						</Link>
 					))}
 				</div>

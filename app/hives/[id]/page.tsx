@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ButtonLink } from "@/components/ui/button-link";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getHive, getInspections } from "@/lib/data";
 import { InspectionCard } from "./inspection-card";
 
@@ -23,59 +27,52 @@ export default async function HiveDetailPage({
 					← Back to Hives
 				</Link>
 				<div className="flex gap-2">
-					<Link
-						href={`/hives/${id}/edit`}
-						className="inline-flex items-center border border-border bg-background hover:bg-muted text-foreground px-3 py-1.5 text-sm font-medium rounded-none transition-colors"
-					>
-						Edit Hive
-					</Link>
-					<Link
-						href={`/hives/${id}/new-inspection`}
-						className="inline-flex items-center bg-primary text-primary-foreground hover:bg-primary/80 px-3 py-1.5 text-sm font-medium rounded-none transition-colors"
-					>
-						+ New Inspection
-					</Link>
+					<ButtonLink variant="outline" size="sm" href={`/hives/${id}/edit`}>Edit Hive</ButtonLink>
+					<ButtonLink size="sm" href={`/hives/${id}/new-inspection`}>+ New Inspection</ButtonLink>
 				</div>
 			</div>
 
 			{/* Hive Info */}
-			<div className="border border-border bg-card p-6 shadow-sm mb-8">
-				<div className="flex items-start justify-between">
-					<div>
-						<h1 className="text-2xl font-bold text-foreground">{hive.name}</h1>
-						<p className="text-sm text-muted-foreground mt-1">{hive.apiaryName}</p>
+			<Card className="mb-8">
+				<CardHeader className="pb-3">
+					<div className="flex items-start justify-between">
+						<div>
+							<CardTitle className="text-xl">{hive.name}</CardTitle>
+							<p className="text-sm text-muted-foreground mt-1">{hive.apiaryName}</p>
+						</div>
+						{hive.queenClipped && (
+							<Badge variant="secondary">Queen Clipped</Badge>
+						)}
 					</div>
-					{hive.queenClipped && (
-						<span className="text-xs bg-muted text-muted-foreground px-3 py-1 font-medium rounded-none">
-							Queen Clipped
-						</span>
-					)}
-				</div>
-				<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-border">
-					{hive.queenBreed && (
+				</CardHeader>
+				<Separator />
+				<CardContent className="pt-4">
+					<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+						{hive.queenBreed && (
+							<div>
+								<p className="text-xs text-muted-foreground uppercase tracking-wide">
+									Queen Breed
+								</p>
+								<p className="text-sm font-medium mt-1 text-foreground">{hive.queenBreed}</p>
+							</div>
+						)}
 						<div>
 							<p className="text-xs text-muted-foreground uppercase tracking-wide">
-								Queen Breed
+								Inspections
 							</p>
-							<p className="text-sm font-medium mt-1 text-foreground">{hive.queenBreed}</p>
+							<p className="text-sm font-medium mt-1 text-foreground">{inspections.length}</p>
 						</div>
-					)}
-					<div>
-						<p className="text-xs text-muted-foreground uppercase tracking-wide">
-							Inspections
-						</p>
-						<p className="text-sm font-medium mt-1 text-foreground">{inspections.length}</p>
+						{hive.notes && (
+							<div className="col-span-2">
+								<p className="text-xs text-muted-foreground uppercase tracking-wide">
+									Notes
+								</p>
+								<p className="text-sm mt-1 text-foreground">{hive.notes}</p>
+							</div>
+						)}
 					</div>
-					{hive.notes && (
-						<div className="col-span-2">
-							<p className="text-xs text-muted-foreground uppercase tracking-wide">
-								Notes
-							</p>
-							<p className="text-sm mt-1 text-foreground">{hive.notes}</p>
-						</div>
-					)}
-				</div>
-			</div>
+				</CardContent>
+			</Card>
 
 			{/* Inspections */}
 			<h2 className="text-lg font-semibold text-foreground mb-3">

@@ -4,7 +4,7 @@ export function StatCard({ label, value, sub }: { label: string; value: string |
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-xs font-normal">{label}</CardTitle>
+        <CardTitle className="text-xs font-normal text-muted-foreground">{label}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-2xl font-bold text-foreground">{value}</p>
