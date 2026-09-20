@@ -452,7 +452,8 @@ export function InspectionForm({ hiveId, onSuccess }: InspectionFormProps) {
         const formBody = {
           hiveId,
           inspectionDate: new Date().toISOString().split("T")[0],
-        }
+          ...parsed.data,
+        } as Record<string, unknown>;
 
         const validated = InspectionInsert.safeParse(formBody);
         if (!validated.success) {
