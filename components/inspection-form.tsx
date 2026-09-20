@@ -23,7 +23,7 @@ import {
 import {
   InspectionWizardSchema,
   type InspectionWizardInput,
-} from "@/app/hives/[id]/new-inspection/inspection-wizard-schema";
+} from "@/lib/inspection-wizard-schema";
 
 // ---------------------------------------------------------------------------
 // Questionnaire item definitions — one per question.
