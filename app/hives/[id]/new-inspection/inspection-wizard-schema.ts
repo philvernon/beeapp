@@ -1,20 +1,60 @@
 import { z } from "zod";
 
 /**
- * Temporary validation schema for the multi-step wizard foundation.
+ * Client-safe validation schema for the multi-step wizard.
  *
- * This schema only contains the `foundationTestValue` field used to prove
- * that form state survives step navigation. Delete this field and its entry
- * in `defaultValues` / `stepFields` when the first real step is implemented.
+ * This schema is a subset of the database schema — it only contains fields
+ * that the client form collects. Do NOT derive or reproduce the full
+ * inspection database schema here; keep concerns separate.
  *
- * Do NOT derive or reproduce the inspection database schema here.
+ * Zod 4: z.object() strips unknown keys by default, so every field must be
+ * explicitly declared. We use z.input<typeof schema> for RHF so that the
+ * form accepts the raw (pre-transform) input types.
+ *
+ * Numeric fields accept empty strings (from uncontrolled inputs) and coerce
+ * them to null so the wizard can navigate between steps without validation
+ * errors on untouched fields.
  */
 
-// Zod 4: z.object() strips unknown keys by default, so every field must be
-// explicitly declared. We use z.input<typeof schema> for RHF so that the
-// form accepts the raw (pre-transform) input types.
+// Helper: coerce a possibly-empty-string to number | null.
+const nullableNumber = z.preprocess((val) => {
+	if (val === "" || val == null) return null;
+	const n = Number(val);
+	return Number.isNaN(n) ? null : n;
+}, z.number().nullable());
+
 export const InspectionWizardSchema = z.object({
-	foundationTestValue: z.string(),
+	// --- Conditions step ---
+	queenSeen: z.boolean().default(false),
+	queenColour: z.string().optional().nullable(),
+	queenCellsFound: nullableNumber,
+	queenCellsRemoved: z.boolean().default(false),
+	eggsSeen: z.boolean().default(false),
+	broodPatternOk: z.boolean().default(true),
+	broodFrameCount: nullableNumber,
+
+	// --- Colony step ---
+	storeFrames: nullableNumber,
+	roomFrames: nullableNumber,
+
+	// --- Stores & Actions step ---
+	healthOk: z.boolean().default(true),
+	chalkBroodSuspected: z.boolean().default(false),
+	efbSuspected: z.boolean().default(false),
+	afbSuspected: z.boolean().default(false),
+	varroaLevel: z.string().optional().nullable(),
+	varroaCount: nullableNumber,
+
+	// --- Health step ---
+	temperamentScore: nullableNumber,
+	feedLitresLightSyrup: nullableNumber,
+	feedLitresHeavySyrup: nullableNumber,
+	supersChange: nullableNumber,
+
+	// --- Review step (weather + notes) ---
+	weatherTemperatureC: nullableNumber,
+	weatherCondition: z.string().optional().nullable(),
+	notes: z.string().optional().nullable(),
 });
 
 export type InspectionWizardInput = z.input<typeof InspectionWizardSchema>;
