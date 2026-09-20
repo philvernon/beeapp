@@ -47,11 +47,11 @@ export default function NewInspectionPage({
 		<div className="max-w-2xl">
 			<Link
 				href={`/hives/${id}`}
-				className="text-sm text-secondary hover:text-primary/70 mb-4 inline-block"
+				className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block"
 			>
 				← Back to {hiveName || "Hive"}
 			</Link>
-			<h1 className="text-2xl font-bold text-primary mb-6">
+			<h1 className="text-2xl font-bold text-foreground mb-6">
 				New Inspection — {hiveName}
 			</h1>
 

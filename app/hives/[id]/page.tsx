@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getHive, getInspections } from "@/lib/data";
 import { InspectionCard } from "./inspection-card";
 
-
 export default async function HiveDetailPage({
 	params,
 }: {
@@ -20,22 +19,19 @@ export default async function HiveDetailPage({
 		<div>
 			{/* Header */}
 			<div className="flex items-center justify-between mb-6">
-				<Link
-					href="/hives"
-					className="text-sm text-secondary hover:text-primary/70"
-				>
+				<Link href="/hives" className="text-sm text-muted-foreground hover:text-foreground">
 					← Back to Hives
 				</Link>
 				<div className="flex gap-2">
 					<Link
 						href={`/hives/${id}/edit`}
-						className="border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary hover:bg-zinc-50"
+						className="inline-flex items-center border border-border bg-background hover:bg-muted text-foreground px-3 py-1.5 text-sm font-medium rounded-none transition-colors"
 					>
 						Edit Hive
 					</Link>
 					<Link
 						href={`/hives/${id}/new-inspection`}
-						className="bg-accent px-3 py-1.5 text-sm font-medium text-surface hover:bg-accent/90"
+						className="inline-flex items-center bg-primary text-primary-foreground hover:bg-primary/80 px-3 py-1.5 text-sm font-medium rounded-none transition-colors"
 					>
 						+ New Inspection
 					</Link>
@@ -43,55 +39,55 @@ export default async function HiveDetailPage({
 			</div>
 
 			{/* Hive Info */}
-			<div className="border border-primary/20 bg-surface p-6 shadow-sm mb-8">
+			<div className="border border-border bg-card p-6 shadow-sm mb-8">
 				<div className="flex items-start justify-between">
 					<div>
-						<h1 className="text-2xl font-bold text-primary">{hive.name}</h1>
-						<p className="text-sm text-secondary mt-1">{hive.apiaryName}</p>
+						<h1 className="text-2xl font-bold text-foreground">{hive.name}</h1>
+						<p className="text-sm text-muted-foreground mt-1">{hive.apiaryName}</p>
 					</div>
 					{hive.queenClipped && (
-						<span className="text-xs bg-zinc-100 text-secondary px-3 py-1 font-medium">
+						<span className="text-xs bg-muted text-muted-foreground px-3 py-1 font-medium rounded-none">
 							Queen Clipped
 						</span>
 					)}
 				</div>
-				<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-primary/10">
+				<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-border">
 					{hive.queenBreed && (
 						<div>
-							<p className="text-xs text-secondary uppercase tracking-wide">
+							<p className="text-xs text-muted-foreground uppercase tracking-wide">
 								Queen Breed
 							</p>
-							<p className="text-sm font-medium mt-1">{hive.queenBreed}</p>
+							<p className="text-sm font-medium mt-1 text-foreground">{hive.queenBreed}</p>
 						</div>
 					)}
 					<div>
-						<p className="text-xs text-secondary uppercase tracking-wide">
+						<p className="text-xs text-muted-foreground uppercase tracking-wide">
 							Inspections
 						</p>
-						<p className="text-sm font-medium mt-1">{inspections.length}</p>
+						<p className="text-sm font-medium mt-1 text-foreground">{inspections.length}</p>
 					</div>
 					{hive.notes && (
 						<div className="col-span-2">
-							<p className="text-xs text-secondary uppercase tracking-wide">
+							<p className="text-xs text-muted-foreground uppercase tracking-wide">
 								Notes
 							</p>
-							<p className="text-sm mt-1">{hive.notes}</p>
+							<p className="text-sm mt-1 text-foreground">{hive.notes}</p>
 						</div>
 					)}
 				</div>
 			</div>
 
 			{/* Inspections */}
-			<h2 className="text-lg font-semibold text-primary mb-3">
+			<h2 className="text-lg font-semibold text-foreground mb-3">
 				Inspection History
 			</h2>
 
 			{inspections.length === 0 ? (
-				<p className="text-secondary text-sm py-8 text-center border border-dashed border-primary/30">
+				<p className="text-muted-foreground text-sm py-8 text-center border border-dashed border-border">
 					No inspections recorded yet.{" "}
 					<Link
 						href={`/hives/${id}/new-inspection`}
-						className="text-accent hover:text-accent/80 font-medium"
+						className="text-primary hover:underline font-medium"
 					>
 						Record one →
 					</Link>
@@ -106,4 +102,3 @@ export default async function HiveDetailPage({
 		</div>
 	);
 }
-

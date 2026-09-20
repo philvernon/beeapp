@@ -40,14 +40,14 @@ export function InspectionCard({ inspection }: { inspection: InspectionRow }) {
 	});
 
 	return (
-		<div className="border border-primary/20 bg-surface p-4">
+		<div className="border border-border bg-card p-4">
 			<div className="flex items-center justify-between mb-3">
-				<span className="text-sm font-medium text-primary">{date}</span>
+				<span className="text-sm font-medium text-foreground">{date}</span>
 				<span
-					className={`text-xs px-2 py-0.5 font-medium ${
+					className={`text-xs px-2 py-0.5 font-medium rounded-none ${
 						inspection.healthOk
-							? "bg-zinc-100 text-secondary"
-							: "border border-primary/30 text-primary"
+							? "bg-muted text-muted-foreground"
+							: "border border-border text-foreground"
 					}`}
 				>
 					{inspection.healthOk ? "Healthy" : "Issues"}
@@ -57,52 +57,50 @@ export function InspectionCard({ inspection }: { inspection: InspectionRow }) {
 			<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
 				{inspection.queenSeen && (
 					<div>
-						<p className="text-xs text-secondary">Queen</p>
-						<p className="font-medium text-primary">
+						<p className="text-xs text-muted-foreground">Queen</p>
+						<p className="font-medium text-foreground">
 							Seen {inspection.queenColour ? `(${inspection.queenColour})` : ""}
 						</p>
 					</div>
 				)}
 				{!inspection.queenSeen && (
 					<div>
-						<p className="text-xs text-secondary">Queen</p>
-						<p className="font-medium text-primary">Not seen</p>
+						<p className="text-xs text-muted-foreground">Queen</p>
+						<p className="font-medium text-foreground">Not seen</p>
 					</div>
 				)}
 				{inspection.eggsSeen !== null && (
 					<div>
-						<p className="text-xs text-secondary">Eggs</p>
-						<p
-							className={`font-medium ${inspection.eggsSeen ? "text-primary" : "text-primary"}`}
-						>
+						<p className="text-xs text-muted-foreground">Eggs</p>
+						<p className="font-medium text-foreground">
 							{inspection.eggsSeen ? "Yes" : "No"}
 						</p>
 					</div>
 				)}
 				{inspection.broodFrameCount !== null && (
 					<div>
-						<p className="text-xs text-secondary">Brood Frames</p>
-						<p className="font-medium text-primary">
+						<p className="text-xs text-muted-foreground">Brood Frames</p>
+						<p className="font-medium text-foreground">
 							{inspection.broodFrameCount}
 						</p>
 					</div>
 				)}
 				{inspection.storeFrames !== null && (
 					<div>
-						<p className="text-xs text-secondary">Store Frames</p>
-						<p className="font-medium text-primary">{inspection.storeFrames}</p>
+						<p className="text-xs text-muted-foreground">Store Frames</p>
+						<p className="font-medium text-foreground">{inspection.storeFrames}</p>
 					</div>
 				)}
 				{inspection.roomFrames !== null && (
 					<div>
-						<p className="text-xs text-secondary">Room Frames</p>
-						<p className="font-medium text-primary">{inspection.roomFrames}</p>
+						<p className="text-xs text-muted-foreground">Room Frames</p>
+						<p className="font-medium text-foreground">{inspection.roomFrames}</p>
 					</div>
 				)}
 				{inspection.varroaLevel && (
 					<div>
-						<p className="text-xs text-secondary">Varroa</p>
-						<p className="font-medium text-primary">
+						<p className="text-xs text-muted-foreground">Varroa</p>
+						<p className="font-medium text-foreground">
 							{inspection.varroaLevel.toUpperCase()}
 							{inspection.varroaCount !== null &&
 								` (${inspection.varroaCount})`}
@@ -111,8 +109,8 @@ export function InspectionCard({ inspection }: { inspection: InspectionRow }) {
 				)}
 				{inspection.temperamentScore !== null && (
 					<div>
-						<p className="text-xs text-secondary">Temperament</p>
-						<p className="font-medium text-primary">
+						<p className="text-xs text-muted-foreground">Temperament</p>
+						<p className="font-medium text-foreground">
 							{inspection.temperamentScore}/10
 						</p>
 					</div>
@@ -120,7 +118,7 @@ export function InspectionCard({ inspection }: { inspection: InspectionRow }) {
 			</div>
 
 			{inspection.notes && (
-				<p className="mt-3 pt-3 border-t border-primary/10 text-sm text-secondary italic">
+				<p className="mt-3 pt-3 border-t border-border text-sm text-muted-foreground italic">
 					{inspection.notes}
 				</p>
 			)}

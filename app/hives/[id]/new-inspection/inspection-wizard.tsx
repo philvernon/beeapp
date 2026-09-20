@@ -57,9 +57,9 @@ const STEP_FIELDS: Record<StepId, (keyof InspectionWizardInput)[]> = {
 // ---------------------------------------------------------------------------
 
 const inputClass =
-	"w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface";
-const labelClass = "block text-sm font-medium text-primary mb-1";
-const fieldsetClass = "border border-primary/20 p-4 space-y-3";
+	"w-full border border-input bg-transparent px-2.5 py-1.5 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
+const labelClass = "block text-sm font-medium text-foreground mb-1";
+const fieldsetClass = "border border-border p-4 space-y-3 rounded-none bg-card";
 
 function CheckboxField({
 	id,
@@ -68,8 +68,8 @@ function CheckboxField({
 }: React.ComponentProps<"input"> & { label: string }) {
 	return (
 		<label htmlFor={id} className="flex items-center gap-2 cursor-pointer">
-			<input id={id} type="checkbox" className={cn("h-4 w-4 border-primary/30 accent-accent focus:ring-accent", props.className)} {...props} />
-			<span className="text-sm text-primary">{label}</span>
+			<input id={id} type="checkbox" className={cn("h-4 w-4 border-input accent-primary focus:ring-ring", props.className)} {...props} />
+			<span className="text-sm text-foreground">{label}</span>
 		</label>
 	);
 }
@@ -92,7 +92,7 @@ function ConditionsStep() {
 
 			{/* Queen */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					👑 Queen
 				</legend>
 				<CheckboxField id="wizard-queenSeen" label="Queen seen this inspection" {...register("queenSeen")} />
@@ -139,7 +139,7 @@ function ConditionsStep() {
 
 			{/* Brood */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🐝 Brood
 				</legend>
 				<div className="flex items-center gap-4">
@@ -169,7 +169,7 @@ function ColonyStep() {
 		<div className="space-y-4">
 			<h2 className="text-lg font-semibold mb-4">Colony</h2>
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🍯 Stores & Space
 				</legend>
 				<div className="grid grid-cols-2 gap-3">
@@ -211,13 +211,13 @@ function StoresActionsStep() {
 
 			{/* Health */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🏥 Health
 				</legend>
 				<CheckboxField id="wizard-healthOk" label="No disease signs" {...register("healthOk")} />
 				{!healthOk && (
 					<div className="ml-6 space-y-2">
-						<p className="text-xs text-secondary mb-1">Disease flags:</p>
+						<p className="text-xs text-muted-foreground mb-1">Disease flags:</p>
 						<div className="flex gap-4">
 							<CheckboxField id="wizard-chalkBrood" label="Chalk Brood" {...register("chalkBroodSuspected")} />
 							<CheckboxField id="wizard-efb" label="EFB" {...register("efbSuspected")} />
@@ -229,7 +229,7 @@ function StoresActionsStep() {
 
 			{/* Varroa */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🔬 Varroa
 				</legend>
 				<div className="grid grid-cols-2 gap-3">
@@ -270,7 +270,7 @@ function HealthStep() {
 
 			{/* Temperament */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🌡️ Temperament
 				</legend>
 				<div>
@@ -291,7 +291,7 @@ function HealthStep() {
 
 			{/* Feed */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🍯 Feeding
 				</legend>
 				<div className="grid grid-cols-2 gap-3">
@@ -324,7 +324,7 @@ function HealthStep() {
 
 			{/* Supers */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					📦 Supers
 				</legend>
 				<div>
@@ -372,7 +372,7 @@ function ReviewStep() {
 
 			{/* Weather */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					🌤️ Weather
 				</legend>
 				<div className="grid grid-cols-2 gap-3">
@@ -417,10 +417,10 @@ function ReviewStep() {
 
 			{/* Summary preview */}
 			<fieldset className={fieldsetClass}>
-				<legend className="text-sm font-semibold text-primary mb-2">
+				<legend className="text-sm font-semibold text-foreground mb-2">
 					📋 Summary Preview
 				</legend>
-				<div className="text-xs text-secondary space-y-1">
+				<div className="text-xs text-muted-foreground space-y-1">
 					<p>Queen: {queenSeen ? "Seen" : "Not seen"}{queenColour ? ` (${queenColour})` : ""}</p>
 					<p>Eggs: {eggsSeen ? "Yes" : "No"} | Brood pattern: {broodPatternOk ? "OK" : "Not OK"}</p>
 					<p>Store frames: {storeFrames ?? "—"} | Room frames: {roomFrames ?? "—"}</p>

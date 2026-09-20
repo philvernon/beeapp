@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApiaryInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function NewApiaryPage() {
 	const router = useRouter();
@@ -49,44 +51,34 @@ export default function NewApiaryPage() {
 
 	return (
 		<div className="max-w-lg">
-			<Link
-				href="/apiaries"
-				className="text-sm text-secondary hover:text-primary/70 mb-4 inline-block"
-			>
+			<Link href="/apiaries" className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block">
 				← Back to Apiaries
 			</Link>
-			<h1 className="text-2xl font-bold text-primary mb-6">New Apiary</h1>
+			<h1 className="text-2xl font-bold text-foreground mb-6">New Apiary</h1>
 
 			{error && (
-				<div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">
+				<div className="mb-4 border border-border bg-muted px-4 py-3 text-sm text-foreground rounded-none">
 					{error}
 				</div>
 			)}
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
-					<label
-						htmlFor="name"
-						className="block text-sm font-medium text-primary mb-1"
-					>
+					<label htmlFor="name" className="block text-sm font-medium text-foreground mb-1">
 						Name *
 					</label>
-					<input
+					<Input
 						id="name"
 						type="text"
 						required
 						value={name}
 						onChange={(e) => setName(e.target.value)}
-						className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
 						placeholder="e.g. Garden Apiary"
 					/>
 				</div>
 
 				<div>
-					<label
-						htmlFor="notes"
-						className="block text-sm font-medium text-primary mb-1"
-					>
+					<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
 						Notes
 					</label>
 					<textarea
@@ -94,23 +86,15 @@ export default function NewApiaryPage() {
 						value={notes}
 						onChange={(e) => setNotes(e.target.value)}
 						rows={3}
-						className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
-						placeholder="Optional notes…"
+						className="w-full border border-input bg-transparent px-2.5 py-1.5 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-[60px]"
 					/>
 				</div>
 
 				<div className="flex gap-3 pt-2">
-					<button
-						type="submit"
-						disabled={loading}
-						className="bg-accent px-4 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors"
-					>
+					<Button type="submit" disabled={loading}>
 						{loading ? "Creating…" : "Create Apiary"}
-					</button>
-					<Link
-						href="/apiaries"
-						className="text-sm text-secondary hover:text-primary/70 py-2"
-					>
+					</Button>
+					<Link href="/apiaries" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground py-2 transition-colors">
 						Cancel
 					</Link>
 				</div>

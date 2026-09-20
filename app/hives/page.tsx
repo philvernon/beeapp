@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,10 @@ export async function HiveList() {
 	if (hives.length === 0) {
 		return (
 			<div className="text-center py-16">
-				<p className="text-secondary mb-4">No hives yet</p>
+				<p className="text-muted-foreground mb-4">No hives yet</p>
 				<Link
 					href="/apiaries"
-					className="text-accent hover:text-accent/80 font-medium"
+					className="text-primary hover:underline font-medium"
 				>
 					Create an apiary first →
 				</Link>
@@ -24,27 +25,28 @@ export async function HiveList() {
 	return (
 		<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 			{hives.map((h) => (
-				<Link
-					key={h.id}
-					href={`/hives/${h.id}`}
-					className="block border border-primary/20 bg-surface p-4 hover:border-accent/50 transition-all"
-				>
-					<div className="flex items-center justify-between">
-						<h3 className="font-semibold text-primary">{h.name}</h3>
-						{h.queenClipped && (
-							<span className="text-xs bg-zinc-100 text-secondary px-2 py-0.5">
-								Clipped
-							</span>
-						)}
-					</div>
-					<p className="text-sm text-secondary mt-1">{h.apiaryName}</p>
-					{h.queenBreed && (
-						<p className="text-xs text-secondary mt-1">Queen: {h.queenBreed}</p>
-					)}
-					<p className="text-xs text-secondary mt-2">
-						{h.inspectionCount ?? 0} inspection
-						{h.inspectionCount === 1 ? "" : "s"}
-					</p>
+				<Link key={h.id} href={`/hives/${h.id}`} className="block">
+					<Card className="group hover:shadow-sm transition-shadow">
+						<CardHeader>
+							<div className="flex items-center justify-between">
+								<CardTitle>{h.name}</CardTitle>
+								{h.queenClipped && (
+									<span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 font-medium rounded-none">
+										Clipped
+									</span>
+								)}
+							</div>
+						</CardHeader>
+						<CardContent>
+							<p className="text-xs text-muted-foreground">{h.apiaryName}</p>
+							{h.queenBreed && (
+								<p className="text-xs text-muted-foreground mt-1">Queen: {h.queenBreed}</p>
+							)}
+							<p className="text-xs text-muted-foreground mt-2">
+								{h.inspectionCount ?? 0} inspection{h.inspectionCount === 1 ? "" : "s"}
+							</p>
+						</CardContent>
+					</Card>
 				</Link>
 			))}
 		</div>
@@ -55,11 +57,8 @@ export default async function HivesPage() {
 	return (
 		<div>
 			<div className="flex items-center justify-between mb-6">
-				<h1 className="text-2xl font-bold text-primary">Hives</h1>
-				<Link
-					href="/apiaries"
-					className="text-sm text-secondary hover:text-primary/70"
-				>
+				<h1 className="text-2xl font-bold text-foreground">Hives</h1>
+				<Link href="/apiaries" className="text-sm text-muted-foreground hover:text-foreground/70">
 					Manage apiaries →
 				</Link>
 			</div>

@@ -6,15 +6,18 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { HiveInsert } from "@/lib/schema";
 import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+
 
 function NewHiveForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const preselectedApiary = searchParams.get("apiary_id");
 
-	const [apiaries, setApiaries] = useState<Array<{ id: string; name: string }>>(
-		[],
-	);
+	const [apiaries, setApiaries] = useState<Array<{ id: string; name: string }>>([]);
 	const [apiaryId, setApiaryId] = useState(preselectedApiary || "");
 	const [name, setName] = useState("");
 	const [queenBreed, setQueenBreed] = useState("");
@@ -37,15 +40,13 @@ function NewHiveForm() {
 				return;
 			}
 
-			const apiaries = result.data as Array<{ id: string; name: string }>;
-			setApiaries(apiaries as Array<{ id: string; name: string }>);
+			const data = result.data as Array<{ id: string; name: string }>;
+			setApiaries(data);
 			setInitialized(true);
 		}
 
 		load();
-		return () => {
-			cancelled = true;
-		};
+		return () => { cancelled = true; };
 	}, []);
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -91,22 +92,19 @@ function NewHiveForm() {
 
 	return (
 		<div className="max-w-lg">
-			<Link
-				href="/hives"
-				className="text-sm text-secondary hover:text-primary/70 mb-4 inline-block"
-			>
+			<Link href="/hives" className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block">
 				← Back to Hives
 			</Link>
-			<h1 className="text-2xl font-bold text-primary mb-6">New Hive</h1>
+			<h1 className="text-2xl font-bold text-foreground mb-6">New Hive</h1>
 
 			{fetchError && (
-				<div className="mb-4 border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
+				<div className="mb-4 border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive rounded-none">
 					Failed to load data: {fetchError}
 				</div>
 			)}
 
 			{error && (
-				<div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">
+				<div className="mb-4 border border-border bg-muted px-4 py-3 text-sm text-foreground rounded-none">
 					{error}
 				</div>
 			)}
@@ -114,81 +112,61 @@ function NewHiveForm() {
 			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
-						<label
-							htmlFor="apiary"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="apiary" className="block text-sm font-medium text-foreground mb-1">
 							Apiary *
 						</label>
-						<select
-							id="apiary"
-							required
-							value={apiaryId}
-							onChange={(e) => setApiaryId(e.target.value)}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
-						>
-							<option value="">Select apiary…</option>
-							{apiaries.map((a) => (
-								<option key={a.id} value={a.id}>
-									{a.name}
-								</option>
-							))}
-						</select>
+						<Select value={apiaryId} onValueChange={(v) => setApiaryId(v || "")} required>
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Select apiary…" />
+							</SelectTrigger>
+							<SelectContent>
+								{apiaries.map((a) => (
+									<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div>
-						<label
-							htmlFor="name"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="name" className="block text-sm font-medium text-foreground mb-1">
 							Hive Name *
 						</label>
-						<input
+						<Input
 							id="name"
 							type="text"
 							required
 							value={name}
 							onChange={(e) => setName(e.target.value)}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
 							placeholder="e.g. Hive 1"
 						/>
 					</div>
 
 					<div>
-						<label
-							htmlFor="queenBreed"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="queenBreed" className="block text-sm font-medium text-foreground mb-1">
 							Queen Breed
 						</label>
-						<input
+						<Input
 							id="queenBreed"
 							type="text"
 							value={queenBreed}
 							onChange={(e) => setQueenBreed(e.target.value)}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
 							placeholder="e.g. Italian, Carniolan"
 						/>
 					</div>
 
 					<div className="flex items-center gap-2">
-						<input
+						<Checkbox
 							id="queenClipped"
-							type="checkbox"
 							checked={queenClipped}
-							onChange={(e) => setQueenClipped(e.target.checked)}
-							className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent"
+							onCheckedChange={(c) => setQueenClipped(!!c)}
 						/>
-						<label htmlFor="queenClipped" className="text-sm text-primary">
+						<label htmlFor="queenClipped" className="text-sm text-foreground">
 							Queen Clipped?
 						</label>
 					</div>
 
 					<div>
-						<label
-							htmlFor="notes"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
 							Notes
 						</label>
 						<textarea
@@ -196,22 +174,15 @@ function NewHiveForm() {
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
 							rows={3}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
+							className="w-full border border-input bg-transparent px-2.5 py-1.5 text-xs transition-colors outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-[60px]"
 						/>
 					</div>
 
 					<div className="flex gap-3 pt-2">
-						<button
-							type="submit"
-							disabled={loading}
-							className="bg-accent px-4 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors"
-						>
+						<Button type="submit" disabled={loading}>
 							{loading ? "Creating…" : "Create Hive"}
-						</button>
-						<Link
-							href="/hives"
-							className="text-sm text-secondary hover:text-primary/70 py-2"
-						>
+						</Button>
+						<Link href="/hives" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground py-2 transition-colors">
 							Cancel
 						</Link>
 					</div>
@@ -223,7 +194,7 @@ function NewHiveForm() {
 
 export default function NewHivePage() {
 	return (
-		<Suspense fallback={<p className="text-secondary">Loading…</p>}>
+		<Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
 			<NewHiveForm />
 		</Suspense>
 	);
