@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { safeJsonFetch } from "@/lib/fetch";
-import { InspectionForm } from "./inspection-form-new"
+import { InspectionForm } from "./inspection-form";
 
 export default function NewInspectionPage({
   params,
@@ -61,9 +61,7 @@ export default function NewInspectionPage({
         </div>
       )}
 
-      {!fetchError && (
-        <InspectionForm />
-      )}
+      {!fetchError && <InspectionForm hiveId={id} />}
     </div>
   );
 }

@@ -16,20 +16,20 @@ import { z } from "zod";
  * errors on untouched fields.
  */
 
-// Helper: coerce a possibly-empty-string to number | null.
+// Helper: coerce a possibly-empty-string or number to number | null.
 const nullableNumber = z.preprocess((val) => {
   if (val === "" || val == null) return null;
-  const n = Number(val);
+  const n = typeof val === "number" ? val : Number(val);
   return Number.isNaN(n) ? null : n;
 }, z.number().nullable());
 
 const formBoolean = (defaultValue: boolean) =>
   z.preprocess((val) => {
-    if (val === "true") return true
-    if (val === "false") return false
-    if (val == null || val === "") return defaultValue
-    return val
-  }, z.boolean())
+    if (val === "true") return true;
+    if (val === "false") return false;
+    if (val == null || val === "") return defaultValue;
+    return val;
+  }, z.boolean());
 
 export const InspectionWizardSchema = z.object({
   // --- Conditions step ---
@@ -55,16 +55,15 @@ export const InspectionWizardSchema = z.object({
 
   // --- Health step ---
   temperamentScore: nullableNumber,
-  feedLitresLightSyrup: nullableNumber,
-  feedLitresHeavySyrup: nullableNumber,
-  supersChange: nullableNumber,
+  feedLitresLightSyrup: z.string().optional().nullable(),
+  feedLitresHeavySyrup: z.string().optional().nullable(),
+  supersChange: z.string().optional().nullable(),
 
   // --- Review step (weather + notes) ---
-  weatherTemperatureC: nullableNumber,
+  weatherTemperatureC: z.string().optional().nullable(),
   weatherCondition: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 });
-
 
 export type InspectionWizardInput = z.input<typeof InspectionWizardSchema>;
 export type InspectionWizardValue = z.output<typeof InspectionWizardSchema>;
