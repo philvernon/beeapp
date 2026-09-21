@@ -6,6 +6,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HiveUpdate } from "@/lib/schema";
 import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function EditHivePage({
 	params,
@@ -15,9 +21,7 @@ export default function EditHivePage({
 	const router = useRouter();
 	const { id } = React.use(params);
 
-	const [apiaries, setApiaries] = useState<Array<{ id: string; name: string }>>(
-		[],
-	);
+	const [apiaries, setApiaries] = useState<Array<{ id: string; name: string }>>([]);
 	const [apiaryId, setApiaryId] = useState("");
 	const [name, setName] = useState("");
 	const [queenBreed, setQueenBreed] = useState("");
@@ -49,10 +53,7 @@ export default function EditHivePage({
 				return;
 			}
 
-			const apiaries = apiariesResult.data as Array<{
-				id: string;
-				name: string;
-			}>;
+			const apiaries = apiariesResult.data as Array<{ id: string; name: string }>;
 			const hive = hiveResult.data as Record<string, unknown> | null;
 
 			setApiaries(apiaries);
@@ -71,9 +72,7 @@ export default function EditHivePage({
 		}
 
 		load();
-		return () => {
-			cancelled = true;
-		};
+		return () => { cancelled = true; };
 	}, [id, router]);
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -115,125 +114,93 @@ export default function EditHivePage({
 
 	return (
 		<div className="max-w-lg">
-			<Link
-				href={`/hives/${id}`}
-				className="text-sm text-secondary hover:text-primary/70 mb-4 inline-block"
-			>
+			<Link href={`/hives/${id}`} className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block">
 				← Back to Hive
 			</Link>
-			<h1 className="text-2xl font-bold text-primary mb-6">Edit Hive</h1>
+			<h1 className="text-2xl font-bold text-foreground mb-6">Edit Hive</h1>
 
 			{fetchError && (
-				<div className="mb-4 border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
-					Failed to load data: {fetchError}
-				</div>
+				<Alert variant="destructive" className="mb-4">
+					<AlertDescription>Failed to load data: {fetchError}</AlertDescription>
+				</Alert>
 			)}
 
 			{error && (
-				<div className="mb-4 border border-primary/30 bg-zinc-50 px-4 py-3 text-sm text-primary">
-					{error}
-				</div>
+				<Alert className="mb-4">
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
 			)}
 
 			{initialized && !fetchError && (
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
-						<label
-							htmlFor="apiary"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="apiary" className="block text-sm font-medium text-foreground mb-1">
 							Apiary *
 						</label>
-						<select
-							id="apiary"
-							required
-							value={apiaryId}
-							onChange={(e) => setApiaryId(e.target.value)}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
-						>
-							<option value="">Select apiary…</option>
-							{apiaries.map((a) => (
-								<option key={a.id} value={a.id}>
-									{a.name}
-								</option>
-							))}
-						</select>
+						<Select value={apiaryId} onValueChange={(v) => setApiaryId(v || "")}>
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Select apiary…" />
+							</SelectTrigger>
+							<SelectContent>
+								{apiaries.map((a) => (
+									<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div>
-						<label
-							htmlFor="name"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="name" className="block text-sm font-medium text-foreground mb-1">
 							Hive Name *
 						</label>
-						<input
+						<Input
 							id="name"
 							type="text"
 							required
 							value={name}
 							onChange={(e) => setName(e.target.value)}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
 						/>
 					</div>
 
 					<div>
-						<label
-							htmlFor="queenBreed"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="queenBreed" className="block text-sm font-medium text-foreground mb-1">
 							Queen Breed
 						</label>
-						<input
+						<Input
 							id="queenBreed"
 							type="text"
 							value={queenBreed}
 							onChange={(e) => setQueenBreed(e.target.value)}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
 						/>
 					</div>
 
 					<div className="flex items-center gap-2">
-						<input
+						<Checkbox
 							id="queenClipped"
-							type="checkbox"
 							checked={queenClipped}
-							onChange={(e) => setQueenClipped(e.target.checked)}
-							className="h-4 w-4 border-primary/30 accent-accent focus:ring-accent"
+							onCheckedChange={(c) => setQueenClipped(!!c)}
 						/>
-						<label htmlFor="queenClipped" className="text-sm text-primary">
+						<label htmlFor="queenClipped" className="text-sm text-foreground">
 							Queen Clipped?
 						</label>
 					</div>
 
 					<div>
-						<label
-							htmlFor="notes"
-							className="block text-sm font-medium text-primary mb-1"
-						>
+						<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
 							Notes
 						</label>
-						<textarea
+						<Textarea
 							id="notes"
 							value={notes}
 							onChange={(e) => setNotes(e.target.value)}
-							rows={3}
-							className="w-full border border-primary/30 px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
 						/>
 					</div>
 
 					<div className="flex gap-3 pt-2">
-						<button
-							type="submit"
-							disabled={loading}
-							className="bg-accent px-4 py-2 text-sm font-medium text-surface hover:bg-accent/90 disabled:opacity-50 transition-colors"
-						>
+						<Button type="submit" disabled={loading}>
 							{loading ? "Saving…" : "Save Changes"}
-						</button>
-						<Link
-							href={`/hives/${id}`}
-							className="text-sm text-secondary hover:text-primary/70 py-2"
-						>
+						</Button>
+						<Link href={`/hives/${id}`} className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground py-2 transition-colors">
 							Cancel
 						</Link>
 					</div>

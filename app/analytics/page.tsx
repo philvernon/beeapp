@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { getApiaries, getHives, getInspections } from '@/lib/data';
 import { StatCard } from './stat-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress, ProgressIndicator } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +85,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary mb-6">Analytics</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Analytics</h1>
 
       {/* Overview Stats */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6 mb-8">
@@ -95,108 +99,126 @@ export default async function AnalyticsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
         {/* Varroa Summary */}
-        <div className="border border-primary/20 bg-surface p-5">
-          <h2 className="text-sm font-semibold text-primary mb-3">Varroa Levels</h2>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-secondary">Low</span>
-              <span className="font-medium text-primary">{varroaLow}</span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Varroa Levels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">Low</span>
+                  <span className="font-medium text-foreground">{varroaLow}</span>
+                </div>
+                <Progress value={totalInspections > 0 ? (varroaLow / totalInspections) * 100 : 0} className="h-2"><ProgressIndicator className="bg-primary" /></Progress>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">Medium</span>
+                  <span className="font-medium text-foreground">{varroaMed}</span>
+                </div>
+                <Progress value={totalInspections > 0 ? (varroaMed / totalInspections) * 100 : 0} className="h-2"><ProgressIndicator className="bg-primary" /></Progress>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">High</span>
+                  <span className="font-medium text-foreground">{varroaHigh}</span>
+                </div>
+                <Progress value={totalInspections > 0 ? (varroaHigh / totalInspections) * 100 : 0} className="h-2"><ProgressIndicator className="bg-destructive" /></Progress>
+              </div>
             </div>
-            <div className="w-full bg-zinc-100 h-2">
-              <div className="bg-accent h-2" style={{ width: `${totalInspections > 0 ? (varroaLow / totalInspections) * 100 : 0}%` }} />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-secondary">Medium</span>
-              <span className="font-medium text-primary">{varroaMed}</span>
-            </div>
-            <div className="w-full bg-zinc-100 h-2">
-              <div className="bg-accent h-2" style={{ width: `${totalInspections > 0 ? (varroaMed / totalInspections) * 100 : 0}%` }} />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-secondary">High</span>
-              <span className="font-medium text-primary">{varroaHigh}</span>
-            </div>
-            <div className="w-full bg-zinc-100 h-2">
-              <div className="bg-primary/40 h-2" style={{ width: `${totalInspections > 0 ? (varroaHigh / totalInspections) * 100 : 0}%` }} />
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Averages */}
-        <div className="border border-primary/20 bg-surface p-5">
-          <h2 className="text-sm font-semibold text-primary mb-3">Averages</h2>
-          <div className="space-y-3">
-            {avgBroodFrames !== null && (
-              <div className="flex justify-between">
-                <span className="text-sm text-secondary">Avg Brood Frames</span>
-                <span className="font-medium text-primary">{avgBroodFrames}</span>
-              </div>
-            )}
-            {avgStoreFrames !== null && (
-              <div className="flex justify-between">
-                <span className="text-sm text-secondary">Avg Store Frames</span>
-                <span className="font-medium text-primary">{avgStoreFrames}</span>
-              </div>
-            )}
-            {avgTemperament !== null && (
-              <div className="flex justify-between">
-                <span className="text-sm text-secondary">Avg Temperament</span>
-                <span className="font-medium text-primary">{avgTemperament}/10</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Averages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {avgBroodFrames !== null && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Avg Brood Frames</span>
+                  <span className="font-medium text-foreground">{avgBroodFrames}</span>
+                </div>
+              )}
+              {avgStoreFrames !== null && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Avg Store Frames</span>
+                  <span className="font-medium text-foreground">{avgStoreFrames}</span>
+                </div>
+              )}
+              {avgTemperament !== null && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Avg Temperament</span>
+                  <span className="font-medium text-foreground">{avgTemperament}/10</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Hive Performance */}
-      <div className="border border-primary/20 bg-surface shadow-sm mb-8">
-        <div className="p-5 border-b border-primary/10">
-          <h2 className="text-sm font-semibold text-primary">Hive Inspection Counts</h2>
-        </div>
-        {hiveStats.length === 0 ? (
-          <p className="p-5 text-sm text-secondary text-center">No hives to show. <Link href="/apiaries" className="text-accent hover:text-accent/80">Create an apiary</Link> to get started.</p>
-        ) : (
-          <div className="divide-y divide-primary/10">
-            {hiveStats.map((h) => (
-              <Link key={h.id} href={`/hives/${h.id}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-primary">{h.name}</p>
-                  <p className="text-xs text-secondary">{h.apiaryName}</p>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Hive Inspection Counts</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {hiveStats.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-5">No hives to show. <Link href="/apiaries" className="text-primary hover:underline">Create an apiary</Link> to get started.</p>
+          ) : (
+            <div>
+              {hiveStats.map((h, idx) => (
+                <div key={h.id}>
+                  {idx > 0 && <Separator />}
+                  <Link href={`/hives/${h.id}`} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{h.name}</p>
+                      <p className="text-xs text-muted-foreground">{h.apiaryName}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-foreground">{h.inspectionCount}</p>
+                      <p className="text-xs text-muted-foreground">last: {h.lastInspection}</p>
+                    </div>
+                  </Link>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-primary">{h.inspectionCount}</p>
-                  <p className="text-xs text-secondary">last: {h.lastInspection}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Inspections */}
-      <div className="border border-primary/20 bg-surface shadow-sm">
-        <div className="p-5 border-b border-primary/10">
-          <h2 className="text-sm font-semibold text-primary">Recent Inspections</h2>
-        </div>
-        {recentInspections.length === 0 ? (
-          <p className="p-5 text-sm text-secondary text-center">No inspections yet.</p>
-        ) : (
-          <div className="divide-y divide-primary/10">
-            {recentInspections.map((i) => (
-              <Link key={i.id} href={`/hives/${i.hiveId}`} className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors">
-                <div>
-                  <p className="text-sm font-medium text-primary">{i.date}</p>
-                  <p className="text-xs text-secondary">{i.hiveName} ({i.apiaryName})</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Inspections</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {recentInspections.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-5">No inspections yet.</p>
+          ) : (
+            <div>
+              {recentInspections.map((i, idx) => (
+                <div key={i.id}>
+                  {idx > 0 && <Separator />}
+                  <Link href={`/hives/${i.hiveId}`} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{i.date}</p>
+                      <p className="text-xs text-muted-foreground">{i.hiveName} ({i.apiaryName})</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {i.queenSeen && <Badge variant="secondary">Queen ✓</Badge>}
+                      {i.healthOk === false && <Badge variant="outline">Issues</Badge>}
+                    </div>
+                  </Link>
                 </div>
-                <div className="flex items-center gap-3">
-                  {i.queenSeen && <span className="text-xs bg-zinc-100 text-secondary px-2 py-0.5">Queen ✓</span>}
-                  {i.healthOk === false && <span className="text-xs border border-primary/30 text-primary px-2 py-0.5">Issues</span>}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
