@@ -1,9 +1,4 @@
-import {
-  Controller,
-  FormProvider,
-  useForm,
-  useFormContext,
-} from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import {
   InspectionWizardSchema,
   type InspectionWizardInput,
@@ -17,11 +12,11 @@ import { HealthFields } from "./groups/health-fields";
 import { WeatherFields } from "./groups/weather-fields";
 import { NotesFields } from "./groups/notes-fields";
 
-function Previous({ previous }) {
+function Previous({ previous }: { previous: () => void }) {
   return <Button onClick={previous}>Previous</Button>;
 }
 
-function Next({ next }) {
+function Next({ next }: { next: () => void }) {
   return <Button onClick={next}>Next</Button>;
 }
 
@@ -42,7 +37,7 @@ export function InspectionForm() {
 
   const stepFields = [
     ["queenSeen", "queenColour", "queenCellsFound", "queenCellsRemoved"],
-    ["eggsSeen", "broodPatternOk", "broodFrameCount"],
+    ["eggsSeen", "broodPatternOk", "broodFrameCount", "storeFrames", "roomFrames"],
     [
       "healthOk",
       "chalkBroodSuspected",
