@@ -16,11 +16,19 @@ import { getErrorMessage } from "@/lib/fetch";
 import { useRouter } from "next/navigation";
 
 function Previous({ previous }: { previous: () => void }) {
-  return <Button onClick={previous}>Previous</Button>;
+  return (
+    <Button type="button" onClick={previous}>
+      Previous
+    </Button>
+  );
 }
 
 function Next({ next }: { next: () => void }) {
-  return <Button onClick={next}>Next</Button>;
+  return (
+    <Button type="button" onClick={next}>
+      Next
+    </Button>
+  );
 }
 
 export function InspectionForm({ hiveId }: { hiveId: string }) {
@@ -132,7 +140,8 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
           await getErrorMessage(res, "Failed to save inspection"),
         );
       }
-      router.push(`hives/${hiveId}`);
+      console.log(hiveId);
+      router.push(`/hives/${hiveId}`);
       setLoading(false);
     } catch (err: unknown) {
       setError(String(err));
