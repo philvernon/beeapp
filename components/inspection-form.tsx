@@ -148,12 +148,14 @@ function QueenSeenQuestion({ queenSeen, setQueenSeen }: { queenSeen: QueenSeenVa
 
       <QuestionnaireItem name="broodFrameCount">
         <QuestionnaireTitle>{LABELS.broodFrameCount}</QuestionnaireTitle>
-        <QuestionnaireInput
-          aria-label={LABELS.broodFrameCount}
-          placeholder="—"
-          type="number"
-          min="0"
-        />
+        <QuestionnaireChoices>
+          <QuestionnaireInput
+            aria-label={LABELS.broodFrameCount}
+            placeholder="—"
+            type="number"
+            min="0"
+          />
+        </QuestionnaireChoices>
         <QuestionnaireError />
       </QuestionnaireItem>
     </>
@@ -349,6 +351,7 @@ function ReviewQuestions() {
         <QuestionnaireTitle>{LABELS.weatherTemperatureC}</QuestionnaireTitle>
         <QuestionnaireInput
           aria-label={LABELS.weatherTemperatureC}
+          name="weatherTemperatureC"
           placeholder="—"
           type="number"
           step="0.1"
@@ -408,21 +411,21 @@ export function InspectionForm({ hiveId, onSuccess }: InspectionFormProps) {
     { name: "eggsSeen", required: true },
     { name: "broodPatternOk", required: true },
     { name: "broodFrameCount" },
-    { name: "storeFrames" },
-    { name: "roomFrames" },
-    { name: "healthOk", required: true },
-    { name: "chalkBroodSuspected", disabled: healthOk },
-    { name: "efbSuspected", disabled: healthOk },
-    { name: "afbSuspected", disabled: healthOk },
-    { name: "varroaLevel", required: true },
-    { name: "varroaCount" },
-    { name: "temperamentScore", required: true },
-    { name: "feedLitresLightSyrup" },
-    { name: "feedLitresHeavySyrup" },
-    { name: "supersChange" },
-    { name: "weatherTemperatureC", required: true },
-    { name: "weatherCondition", required: true },
-    { name: "notes" },
+    // { name: "storeFrames" },
+    // { name: "roomFrames" },
+    // { name: "healthOk", required: true },
+    // { name: "chalkBroodSuspected", disabled: healthOk },
+    // { name: "efbSuspected", disabled: healthOk },
+    // { name: "afbSuspected", disabled: healthOk },
+    // { name: "varroaLevel", required: true },
+    // { name: "varroaCount" },
+    // { name: "temperamentScore", required: true },
+    // { name: "feedLitresLightSyrup" },
+    // { name: "feedLitresHeavySyrup" },
+    // { name: "supersChange" },
+    // { name: "weatherTemperatureC", required: true },
+    // { name: "weatherCondition", required: true },
+    // { name: "notes" },
   ] as const;
 
 
@@ -432,12 +435,21 @@ export function InspectionForm({ hiveId, onSuccess }: InspectionFormProps) {
       ev.preventDefault();
       setError(null);
       setLoading(true);
+      console.log(ev)
 
+      console.log(Object.fromEntries(
+        new FormData(ev.currentTarget)
+      ))
       const raw = Object.fromEntries(
         new FormData(ev.currentTarget)
-      )
+      );
+
+      console.log(raw)
+
 
       const parsed = InspectionWizardSchema.safeParse(raw);
+
+      console.log(parsed)
 
       if (!parsed.success) {
         setError(
@@ -478,6 +490,7 @@ export function InspectionForm({ hiveId, onSuccess }: InspectionFormProps) {
 
         onSuccess?.();
         router.push(`/hives/${hiveId}`);
+        setLoading(false);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
@@ -500,22 +513,97 @@ export function InspectionForm({ hiveId, onSuccess }: InspectionFormProps) {
         defaultItem="queenSeen"
         onSubmit={formSubmit}
       >
-        {healthOk ? "true" : "false"}
         <QuestionnaireProgress />
 
-        <QueenSeenQuestion
-          queenSeen={queenSeen}
-          setQueenSeen={setQueenSeen}
+        <QuestionnaireItem name="queenSeen" required>
+          <QuestionnaireTitle>{LABELS.queenSeen}</QuestionnaireTitle>
+          <QuestionnaireChoices>
+            <QuestionnaireChoice value="true" checked={queenSeen === true} onChange={() => { setQueenSeen(true) }}>
+              <span className="font-medium">Yes</span>
+            </QuestionnaireChoice>
+            <QuestionnaireChoice value="false" checked={queenSeen === false} onChange={() => { setQueenSeen(false) }}>
+              <span className="font-medium">No</span>
+            </QuestionnaireChoice>
+          </QuestionnaireChoices>
+          <QuestionnaireError />
+        </QuestionnaireItem >
 
-        />
-        <ColonyQuestions />
-        <HealthQuestions
-          healthOk={healthOk}
-          setHealthOk={setHealthOk}
 
-        />
-        <TemperamentQuestions />
-        <ReviewQuestions />
+        <QuestionnaireItem name="queenColour" disabled={!queenSeen}>
+          <QuestionnaireTitle>{LABELS.queenColour}</QuestionnaireTitle>
+          <QuestionnaireChoices>
+            {Object.entries(queenColourLabels).map(([k, v]) => (
+              <QuestionnaireChoice key={k} value={k}>
+                <span className="font-medium">{v}</span>
+                <span className="text-muted-foreground">({k})</span>
+              </QuestionnaireChoice>
+            ))}
+          </QuestionnaireChoices>
+          <QuestionnaireError />
+        </QuestionnaireItem>
+
+        <QuestionnaireItem name="queenCellsFound">
+          <QuestionnaireTitle>{LABELS.queenCellsFound}</QuestionnaireTitle>
+          <QuestionnaireInput
+            aria-label={LABELS.queenCellsFound}
+            name="queenCellsFound"
+            placeholder="—"
+            type="number"
+            min="0"
+          />
+          <QuestionnaireError />
+        </QuestionnaireItem>
+
+        <QuestionnaireItem name="queenCellsRemoved">
+          <QuestionnaireTitle>{LABELS.queenCellsRemoved}</QuestionnaireTitle>
+          <QuestionnaireChoices>
+            <QuestionnaireChoice value="true">
+              <span className="font-medium">Yes</span>
+            </QuestionnaireChoice>
+            <QuestionnaireChoice value="false">
+              <span className="font-medium">No</span>
+            </QuestionnaireChoice>
+          </QuestionnaireChoices>
+          <QuestionnaireError />
+        </QuestionnaireItem>
+
+        <QuestionnaireItem name="eggsSeen" required>
+          <QuestionnaireTitle>{LABELS.eggsSeen}</QuestionnaireTitle>
+          <QuestionnaireChoices>
+            <QuestionnaireChoice value="true">
+              <span className="font-medium">Yes</span>
+            </QuestionnaireChoice>
+            <QuestionnaireChoice value="false">
+              <span className="font-medium">No</span>
+            </QuestionnaireChoice>
+          </QuestionnaireChoices>
+          <QuestionnaireError />
+        </QuestionnaireItem>
+
+        <QuestionnaireItem name="broodPatternOk" required>
+          <QuestionnaireTitle>{LABELS.broodPatternOk}</QuestionnaireTitle>
+          <QuestionnaireChoices>
+            <QuestionnaireChoice value="true">
+              <span className="font-medium">OK</span>
+            </QuestionnaireChoice>
+            <QuestionnaireChoice value="false">
+              <span className="font-medium">Not OK</span>
+            </QuestionnaireChoice>
+          </QuestionnaireChoices>
+          <QuestionnaireError />
+        </QuestionnaireItem>
+
+        <QuestionnaireItem name="broodFrameCount">
+          <QuestionnaireTitle>{LABELS.broodFrameCount}</QuestionnaireTitle>
+          <QuestionnaireInput
+            aria-label={LABELS.broodFrameCount}
+            name="broodFrameCount"
+            placeholder="—"
+            type="number"
+            min="0"
+          />
+          <QuestionnaireError />
+        </QuestionnaireItem>
 
         <QuestionnaireActions className="w-full">
           <QuestionnairePrevious />

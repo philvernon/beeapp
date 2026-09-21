@@ -18,9 +18,9 @@ import { z } from "zod";
 
 // Helper: coerce a possibly-empty-string to number | null.
 const nullableNumber = z.preprocess((val) => {
-	if (val === "" || val == null) return null;
-	const n = Number(val);
-	return Number.isNaN(n) ? null : n;
+  if (val === "" || val == null) return null;
+  const n = Number(val);
+  return Number.isNaN(n) ? null : n;
 }, z.number().nullable());
 
 const formBoolean = (defaultValue: boolean) =>
@@ -32,38 +32,39 @@ const formBoolean = (defaultValue: boolean) =>
   }, z.boolean())
 
 export const InspectionWizardSchema = z.object({
-	// --- Conditions step ---
-	queenSeen: formBoolean(false),
-	queenColour: z.string().optional().nullable(),
-	queenCellsFound: nullableNumber,
-	queenCellsRemoved: formBoolean(false),
-	eggsSeen: formBoolean(false),
-	broodPatternOk: formBoolean(true),
-	broodFrameCount: nullableNumber,
+  // --- Conditions step ---
+  queenSeen: formBoolean(false),
+  queenColour: z.string().optional().nullable(),
+  queenCellsFound: nullableNumber,
+  queenCellsRemoved: formBoolean(false),
+  eggsSeen: formBoolean(false),
+  broodPatternOk: formBoolean(true),
+  broodFrameCount: nullableNumber,
 
-	// --- Colony step ---
-	storeFrames: nullableNumber,
-	roomFrames: nullableNumber,
+  // --- Colony step ---
+  storeFrames: nullableNumber,
+  roomFrames: nullableNumber,
 
-	// --- Stores & Actions step ---
-	healthOk: formBoolean(true),
-	chalkBroodSuspected: formBoolean(false),
-	efbSuspected: formBoolean(false),
-	afbSuspected: formBoolean(false),
-	varroaLevel: z.string().optional().nullable(),
-	varroaCount: nullableNumber,
+  // --- Stores & Actions step ---
+  healthOk: formBoolean(true),
+  chalkBroodSuspected: formBoolean(false),
+  efbSuspected: formBoolean(false),
+  afbSuspected: formBoolean(false),
+  varroaLevel: z.string().optional().nullable(),
+  varroaCount: nullableNumber,
 
-	// --- Health step ---
-	temperamentScore: nullableNumber,
-	feedLitresLightSyrup: nullableNumber,
-	feedLitresHeavySyrup: nullableNumber,
-	supersChange: nullableNumber,
+  // --- Health step ---
+  temperamentScore: nullableNumber,
+  feedLitresLightSyrup: nullableNumber,
+  feedLitresHeavySyrup: nullableNumber,
+  supersChange: nullableNumber,
 
-	// --- Review step (weather + notes) ---
-	weatherTemperatureC: nullableNumber,
-	weatherCondition: z.string().optional().nullable(),
-	notes: z.string().optional().nullable(),
+  // --- Review step (weather + notes) ---
+  weatherTemperatureC: nullableNumber,
+  weatherCondition: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
 });
 
 
-export type InspectionWizardInput = z.output<typeof InspectionWizardSchema>;
+export type InspectionWizardInput = z.input<typeof InspectionWizardSchema>;
+export type InspectionWizardValue = z.output<typeof InspectionWizardSchema>;
