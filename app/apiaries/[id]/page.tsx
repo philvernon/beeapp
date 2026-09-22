@@ -55,12 +55,12 @@ export default async function ApiaryDetailPage({
 					</Link>
 				</p>
 			) : (
-				<div className="grid gap-3 sm:grid-cols-2">
+				<div className="grid auto-rows-fr gap-3 sm:grid-cols-2">
 					{apiary.hives.map((hive) => (
 						<Link
 							key={hive.id}
 							href={`/hives/${hive.id}`}
-							className="block"
+							className="block row-span-full"
 						>
 							<Card className="group hover:shadow-sm transition-shadow">
 								<CardHeader className="pb-2">

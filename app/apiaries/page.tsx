@@ -32,17 +32,17 @@ export async function ApiaryList() {
 					href={`/apiaries/${a.id}`}
 					className="block"
 				>
-					<Card className="group hover:shadow-sm transition-shadow">
+					<Card className="h-full group hover:shadow-sm transition-shadow">
 						<CardHeader>
 							<CardTitle>{a.name}</CardTitle>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="flex flex-col gap-2">
 							{a.notes && (
-								<p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+								<p className="text-xs text-muted-foreground line-clamp-2">
 									{a.notes}
 								</p>
 							)}
-							<p className="mt-3 text-xs text-muted-foreground">
+							<p className="mt-auto text-xs text-muted-foreground">
 								Created {new Date(a.createdAt).toLocaleDateString()}
 							</p>
 						</CardContent>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export default function NewApiaryPage() {
 	const router = useRouter();
@@ -64,31 +65,31 @@ export default function NewApiaryPage() {
 				</Alert>
 			)}
 
-			<form onSubmit={handleSubmit} className="space-y-4">
-				<div>
-					<label htmlFor="name" className="block text-sm font-medium text-foreground mb-1">
-						Name *
-					</label>
-					<Input
-						id="name"
-						type="text"
-						required
-						value={name}
-						onChange={(e) => setName(e.target.value)}
-						placeholder="e.g. Garden Apiary"
-					/>
-				</div>
+			<form onSubmit={handleSubmit}>
+				<FieldGroup>
+					<Field>
+						<FieldLabel htmlFor="name">
+							Name <span className="text-destructive">*</span>
+						</FieldLabel>
+						<Input
+							id="name"
+							type="text"
+							required
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							placeholder="e.g. Garden Apiary"
+						/>
+					</Field>
 
-				<div>
-					<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
-						Notes
-					</label>
-					<Textarea
-						id="notes"
-						value={notes}
-						onChange={(e) => setNotes(e.target.value)}
-					/>
-				</div>
+					<Field>
+						<FieldLabel htmlFor="notes">Notes</FieldLabel>
+						<Textarea
+							id="notes"
+							value={notes}
+							onChange={(e) => setNotes(e.target.value)}
+						/>
+					</Field>
+				</FieldGroup>
 
 				<div className="flex gap-3 pt-2">
 					<Button type="submit" disabled={loading}>

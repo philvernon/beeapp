@@ -90,7 +90,7 @@ export default async function HiveDetailPage({
 					</Link>
 				</p>
 			) : (
-				<div className="space-y-3">
+				<div className="flex flex-col gap-3">
 					{inspections.map((insp) => (
 						<InspectionCard key={insp.id} inspection={insp} />
 					))}
