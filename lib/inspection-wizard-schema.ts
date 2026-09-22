@@ -23,22 +23,14 @@ const nullableNumber = z.preprocess((val) => {
   return Number.isNaN(n) ? null : n;
 }, z.number().nullable());
 
-const formBoolean = (defaultValue: boolean) =>
-  z.preprocess((val) => {
-    if (val === "true") return true;
-    if (val === "false") return false;
-    if (val == null || val === "") return defaultValue;
-    return val;
-  }, z.boolean());
-
 export const InspectionWizardSchema = z.object({
   // --- Conditions step ---
-  queenSeen: formBoolean(false),
+  queenSeen: z.boolean().default(false),
   queenColour: z.string().optional().nullable(),
   queenCellsFound: nullableNumber,
-  queenCellsRemoved: formBoolean(false),
-  eggsSeen: formBoolean(false),
-  broodPatternOk: formBoolean(true),
+  queenCellsRemoved: z.boolean().default(false),
+  eggsSeen: z.boolean().default(false),
+  broodPatternOk: z.boolean().default(true),
   broodFrameCount: nullableNumber,
 
   // --- Colony step ---
@@ -46,10 +38,10 @@ export const InspectionWizardSchema = z.object({
   roomFrames: nullableNumber,
 
   // --- Stores & Actions step ---
-  healthOk: formBoolean(true),
-  chalkBroodSuspected: formBoolean(false),
-  efbSuspected: formBoolean(false),
-  afbSuspected: formBoolean(false),
+  healthOk: z.boolean().default(true),
+  chalkBroodSuspected: z.boolean().default(false),
+  efbSuspected: z.boolean().default(false),
+  afbSuspected: z.boolean().default(false),
   varroaLevel: z.string().optional().nullable(),
   varroaCount: nullableNumber,
 
