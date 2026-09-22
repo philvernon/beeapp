@@ -17,9 +17,9 @@ export default function HiveScanPage() {
 				const url = result.getText().trim();
 				const match = url.match(/\/hives\/([a-f0-9-]+)/i);
 				if (match) {
-					router.push(`/hives/${match[1]}/new-inspection`);
+					router.replace(`/hives/${match[1]}/new-inspection`);
 				} else {
-					router.push(url);
+					router.replace(url);
 				}
 			}
 		},
