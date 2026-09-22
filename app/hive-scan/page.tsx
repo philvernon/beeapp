@@ -11,7 +11,7 @@ export default function HiveScanPage() {
 	const [scanned, setScanned] = useState(false);
 
 	const handleResult = useCallback(
-		(result: { getText(): string } | null | undefined, _err: unknown) => {
+		(result: { getText(): string } | null | undefined) => {
 			if (result && !scanned) {
 				setScanned(true);
 				const url = result.getText().trim();
