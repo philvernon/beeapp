@@ -84,6 +84,105 @@ async function getInspectionCounts(hiveIds: string[]) {
 	return map;
 }
 
+// ── Apiaries with Hives (all) ─────────────────────────────
+
+export interface HiveWithLastInspection {
+	id: string;
+	apiaryId: string;
+	name: string;
+	queenBreed: string | null;
+	queenClipped: boolean | null;
+	notes: string | null;
+	createdAt: Date;
+	inspectionCount: number;
+	lastInspection: {
+		id: string;
+		inspectionDate: string;
+		queenSeen: boolean | null;
+		healthOk: boolean | null;
+	} | null;
+}
+
+export interface ApiaryWithHives {
+	id: string;
+	name: string;
+	notes: string | null;
+	createdAt: Date;
+	hiveCount: number;
+	hives: HiveWithLastInspection[];
+}
+
+async function getLatestInspections(hiveIds: string[]) {
+	if (hiveIds.length === 0) return new Map<string, typeof inspections.$inferSelect>();
+
+	// Fetch the most recent inspection per hive using a subquery approach:
+	// We select all inspections for these hives, ordered by date desc, then pick first per hive.
+	const rows = await db
+		.select()
+		.from(inspections)
+		.where(inArray(inspections.hiveId, hiveIds))
+		.orderBy(inspections.hiveId, desc(inspections.inspectionDate), desc(inspections.createdAt), desc(inspections.id));
+
+	const map = new Map<string, typeof inspections.$inferSelect>();
+	for (const row of rows) {
+		if (!map.has(row.hiveId)) {
+			map.set(row.hiveId, row);
+		}
+	}
+	return map;
+}
+
+export async function getApiariesWithHives(): Promise<ApiaryWithHives[]> {
+	const apiaryRows = await db.select().from(apiaries).orderBy(asc(apiaries.createdAt));
+
+	if (apiaryRows.length === 0) return [];
+
+	// Fetch all hives for these apiaries
+	const apiaryIds = apiaryRows.map((a) => a.id);
+	const hiveRows = await db
+		.select()
+		.from(hives)
+		.where(inArray(hives.apiaryId, apiaryIds))
+		.orderBy(asc(hives.apiaryId), asc(hives.createdAt));
+
+	// Group hives by apiary
+	const hivesByApiary = new Map<string, typeof hiveRows>();
+	for (const hive of hiveRows) {
+		const arr = hivesByApiary.get(hive.apiaryId) ?? [];
+		arr.push(hive);
+		hivesByApiary.set(hive.apiaryId, arr);
+	}
+
+	// Batch latest inspections for all hives
+	const allHiveIds = hiveRows.map((h) => h.id);
+	const latestInspections = await getLatestInspections(allHiveIds);
+
+	// Batch inspection counts
+	const counts = await getInspectionCounts(allHiveIds);
+
+	return apiaryRows.map((apiary) => {
+		const apiaryHives = hivesByApiary.get(apiary.id) ?? [];
+		const hivesWithLast = apiaryHives.map((hive) => ({
+			...hive,
+			inspectionCount: counts.get(hive.id) ?? 0,
+			lastInspection: latestInspections.has(hive.id)
+				? {
+						id: latestInspections.get(hive.id)!.id,
+						inspectionDate: latestInspections.get(hive.id)!.inspectionDate,
+						queenSeen: latestInspections.get(hive.id)!.queenSeen,
+						healthOk: latestInspections.get(hive.id)!.healthOk,
+				  }
+				: null,
+		}));
+
+		return {
+			...apiary,
+			hiveCount: apiaryHives.length,
+			hives: hivesWithLast,
+		};
+	});
+}
+
 // ── Apiaries ──────────────────────────────────────────────
 
 export async function getApiaries() {
