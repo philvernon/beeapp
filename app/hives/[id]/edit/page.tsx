@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export default function EditHivePage({
 	params,
@@ -132,69 +133,65 @@ export default function EditHivePage({
 			)}
 
 			{initialized && !fetchError && (
-				<form onSubmit={handleSubmit} className="space-y-4">
-					<div>
-						<label htmlFor="apiary" className="block text-sm font-medium text-foreground mb-1">
-							Apiary *
-						</label>
-						<Select value={apiaryId} onValueChange={(v) => setApiaryId(v || "")}>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Select apiary…" />
-							</SelectTrigger>
-							<SelectContent>
-								{apiaries.map((a) => (
-									<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
+				<form onSubmit={handleSubmit}>
+					<FieldGroup>
+						<Field>
+							<FieldLabel htmlFor="apiary">
+								Apiary <span className="text-destructive">*</span>
+							</FieldLabel>
+							<Select value={apiaryId} onValueChange={(v) => setApiaryId(v || "")}>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Select apiary…" />
+								</SelectTrigger>
+								<SelectContent>
+									{apiaries.map((a) => (
+										<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</Field>
 
-					<div>
-						<label htmlFor="name" className="block text-sm font-medium text-foreground mb-1">
-							Hive Name *
-						</label>
-						<Input
-							id="name"
-							type="text"
-							required
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-						/>
-					</div>
+						<Field>
+							<FieldLabel htmlFor="name">
+								Hive Name <span className="text-destructive">*</span>
+							</FieldLabel>
+							<Input
+								id="name"
+								type="text"
+								required
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+							/>
+						</Field>
 
-					<div>
-						<label htmlFor="queenBreed" className="block text-sm font-medium text-foreground mb-1">
-							Queen Breed
-						</label>
-						<Input
-							id="queenBreed"
-							type="text"
-							value={queenBreed}
-							onChange={(e) => setQueenBreed(e.target.value)}
-						/>
-					</div>
+						<Field>
+							<FieldLabel htmlFor="queenBreed">Queen Breed</FieldLabel>
+							<Input
+								id="queenBreed"
+								type="text"
+								value={queenBreed}
+								onChange={(e) => setQueenBreed(e.target.value)}
+							/>
+						</Field>
 
-					<div className="flex items-center gap-2">
-						<Checkbox
-							id="queenClipped"
-							checked={queenClipped}
-							onCheckedChange={(c) => setQueenClipped(!!c)}
-						/>
-						<label htmlFor="queenClipped" className="text-sm text-foreground">
-							Queen Clipped?
-						</label>
-					</div>
+						<Field>
+							<FieldLabel htmlFor="queenClipped">Queen Clipped?</FieldLabel>
+							<Checkbox
+								id="queenClipped"
+								checked={queenClipped}
+								onCheckedChange={(c) => setQueenClipped(!!c)}
+							/>
+						</Field>
 
-					<div>
-						<label htmlFor="notes" className="block text-sm font-medium text-foreground mb-1">
-							Notes
-						</label>
-						<Textarea
-							id="notes"
-							value={notes}
-							onChange={(e) => setNotes(e.target.value)}
-						/>
-					</div>
+						<Field>
+							<FieldLabel htmlFor="notes">Notes</FieldLabel>
+							<Textarea
+								id="notes"
+								value={notes}
+								onChange={(e) => setNotes(e.target.value)}
+							/>
+						</Field>
+					</FieldGroup>
 
 					<div className="flex gap-3 pt-2">
 						<Button type="submit" disabled={loading}>

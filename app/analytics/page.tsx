@@ -104,7 +104,7 @@ export default async function AnalyticsPage() {
             <CardTitle>Varroa Levels</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-muted-foreground">Low</span>
@@ -136,7 +136,7 @@ export default async function AnalyticsPage() {
             <CardTitle>Averages</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {avgBroodFrames !== null && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Avg Brood Frames</span>
