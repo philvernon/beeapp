@@ -1,17 +1,14 @@
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
+import { BooleanField } from "@/components/ui/boolean-field";
 import { SelectionBox } from "@/components/selection-box";
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { RadioGroup } from "@base-ui/react";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { varroaLevelLabels } from "@/lib/schema";
 import { Input } from "@/components/ui/input";
-
-const stringToBoolean = (boolString: string) => {
-  return boolString === "true";
-}
 
 export function HealthFields() {
   const { control } = useFormContext<InspectionWizardValue>();
@@ -20,119 +17,15 @@ export function HealthFields() {
   return (
     <FieldSet>
       <FieldGroup>
-        <Controller
-          name="healthOk"
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value == null ? "" : String(field.value)}
-              onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>No disease signs</FieldDescription>
-                <div className="flex gap-4">
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="true" />
-                      <span>Yes</span>
-                    </SelectionBox>
-                  </Label>
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="false" />
-                      <span>No</span>
-                    </SelectionBox>
-                  </Label>
-                </div>
-              </Field>
-            </RadioGroup>
-          )} />
+        <BooleanField name="healthOk" label="No disease signs" />
         {healthOk === false && (
-          <Controller
-            name="chalkBroodSuspected"
-            control={control}
-            render={({ field, fieldState }) => (
-              <RadioGroup
-                value={field.value == null ? "" : String(field.value)}
-                onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-              >
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldDescription>Chalk brood suspected</FieldDescription>
-                  <div className="flex gap-4">
-                    <Label>
-                      <SelectionBox>
-                        <RadioGroupItem value="true" />
-                        <span>Yes</span>
-                      </SelectionBox>
-                    </Label>
-                    <Label>
-                      <SelectionBox>
-                        <RadioGroupItem value="false" />
-                        <span>No</span>
-                      </SelectionBox>
-                    </Label>
-                  </div>
-                </Field>
-              </RadioGroup>
-            )} />
+          <BooleanField name="chalkBroodSuspected" label="Chalk brood suspected" />
         )}
         {healthOk === false && (
-          <Controller
-            name="efbSuspected"
-            control={control}
-            render={({ field, fieldState }) => (
-              <RadioGroup
-                value={field.value == null ? "" : String(field.value)}
-                onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-              >
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldDescription>EFB suspected</FieldDescription>
-                  <div className="flex gap-4">
-                    <Label>
-                      <SelectionBox>
-                        <RadioGroupItem value="true" />
-                        <span>Yes</span>
-                      </SelectionBox>
-                    </Label>
-                    <Label>
-                      <SelectionBox>
-                        <RadioGroupItem value="false" />
-                        <span>No</span>
-                      </SelectionBox>
-                    </Label>
-                  </div>
-                </Field>
-              </RadioGroup>
-            )} />
+          <BooleanField name="efbSuspected" label="EFB suspected" />
         )}
         {healthOk === false && (
-          <Controller
-            name="afbSuspected"
-            control={control}
-            render={({ field, fieldState }) => (
-              <RadioGroup
-                value={field.value == null ? "" : String(field.value)}
-                onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-              >
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldDescription>AFB suspected</FieldDescription>
-                  <div className="flex gap-4">
-                    <Label>
-                      <SelectionBox>
-                        <RadioGroupItem value="true" />
-                        <span>Yes</span>
-                      </SelectionBox>
-                    </Label>
-                    <Label>
-                      <SelectionBox>
-                        <RadioGroupItem value="false" />
-                        <span>No</span>
-                      </SelectionBox>
-                    </Label>
-                  </div>
-                </Field>
-              </RadioGroup>
-            )} />
+          <BooleanField name="afbSuspected" label="AFB suspected" />
         )}
         <Controller
           name="varroaLevel"
