@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getHive, getInspections } from "@/lib/data";
 import { InspectionCard } from "./inspection-card";
+import { Download } from "lucide-react";
 
 export default async function HiveDetailPage({
 	params,
@@ -71,6 +72,29 @@ export default async function HiveDetailPage({
 							</div>
 						)}
 					</div>
+				</CardContent>
+			</Card>
+
+			{/* QR Code Card */}
+			<Card className="mb-8">
+				<CardHeader className="pb-3">
+					<CardTitle className="text-sm">Hive QR Code</CardTitle>
+				</CardHeader>
+				<Separator />
+				<CardContent className="pt-4 flex items-center gap-6">
+					<img
+						src={`/api/hives/${id}/qr`}
+						alt={`QR code for ${hive.name}`}
+						className="w-32 h-32"
+					/>
+					<Link
+						href={`/api/hives/${id}/qr`}
+						download={`${hive.name.replace(/\s+/g, "-").toLowerCase()}-qr.png`}
+						className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+					>
+						<Download className="w-4 h-4" />
+						Download PNG
+					</Link>
 				</CardContent>
 			</Card>
 
