@@ -31,7 +31,10 @@ export function ApiaryHivesList({ apiaries }: ApiaryHivesListProps) {
 	return (
 		<div>
 			<h1 className="text-2xl font-bold text-foreground mb-6">Apiaries & Hives</h1>
-			{apiaries.map((apiary) => (
+			<div className="flex flex-col gap-3">
+				{apiaries
+			.filter((a) => a.hives.length > 0)
+			.map((apiary) => (
 				<div key={apiary.id}>
 					<h2 className="text-lg font-semibold text-foreground mb-3">
 						{apiary.name}
@@ -121,6 +124,7 @@ export function ApiaryHivesList({ apiaries }: ApiaryHivesListProps) {
 					)}
 				</div>
 			))}
+		</div>
 		</div>
 	);
 }

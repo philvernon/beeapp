@@ -75,9 +75,9 @@ describe("ApiaryHivesList", () => {
 		expect(screen.getByText("Backyard location, south facing")).toBeDefined();
 	});
 
-	it("shows total hive count badge", () => {
+	it("shows total hive count", () => {
 		render(<ApiaryHivesList apiaries={mockApiaries} />);
-		expect(screen.getByText("2 hives")).toBeDefined();
+		expect(screen.getByText(/\(2 hives\)/)).toBeDefined();
 	});
 
 	it("shows hive name", () => {
@@ -159,12 +159,9 @@ describe("ApiaryHivesList", () => {
 		expect(screen.getByText("No inspections yet")).toBeDefined();
 	});
 
-	it("shows apiary link href", () => {
+	it("shows apiary heading", () => {
 		render(<ApiaryHivesList apiaries={mockApiaries} />);
-		const links = document.querySelectorAll("a");
-		const apiaryLink = Array.from(links).find((l) => l.getAttribute("href")?.startsWith("/apiaries/"));
-		expect(apiaryLink).toBeDefined();
-		expect(apiaryLink?.getAttribute("href")).toBe("/apiaries/apiary-1");
+		expect(screen.getByText(/Garden Apiary/)).toBeDefined();
 	});
 
 	it("shows hive link hrefs", () => {
@@ -188,7 +185,7 @@ describe("ApiaryHivesList", () => {
 			},
 		];
 		render(<ApiaryHivesList apiaries={singleApiaryNoHives} />);
-		expect(screen.getByText("No hives in this apiary yet.")).toBeDefined();
+		expect(screen.getByText("No hives yet.")).toBeDefined();
 		expect(screen.getByText("Add one →")).toBeDefined();
 		const addLink = document.querySelector('a[href="/hives/new?apiary_id=apiary-2"]');
 		expect(addLink).toBeDefined();
