@@ -1,46 +1,48 @@
-"use client"
+"use client";
 
-import { useController, useFormContext } from "react-hook-form"
+import { useController, useFormContext } from "react-hook-form";
 
-import { SelectionBox } from "@/components/selection-box"
-import { Field, FieldDescription } from "@/components/ui/field"
-import { RadioGroup } from "@base-ui/react"
-import { RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
+import { SelectionBox } from "@/components/selection-box";
+import { Field, FieldDescription } from "@/components/ui/field";
+import { RadioGroup } from "@base-ui/react";
+import { RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
-const stringToBoolean = (boolString: string) => boolString === "true"
+const stringToBoolean = (boolString: string) => boolString === "true";
 
 interface BooleanFieldProps {
-  name: string
-  label: string
+  name: string;
+  label: string;
 }
 
 export function BooleanField({ name, label }: BooleanFieldProps) {
-  const { control } = useFormContext()
-  const { field, fieldState } = useController({ name, control })
+  const { control } = useFormContext();
+  const { field, fieldState } = useController({ name, control });
 
   return (
     <RadioGroup
       value={field.value == null ? "" : String(field.value)}
-      onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
+      onValueChange={(value) => {
+        field.onChange(stringToBoolean(value));
+      }}
     >
       <Field data-invalid={fieldState.invalid}>
         <FieldDescription>{label}</FieldDescription>
         <div className="flex gap-4">
           <Label>
             <SelectionBox>
-              <RadioGroupItem value="true" />
+              <RadioGroupItem value={true} />
               <span>Yes</span>
             </SelectionBox>
           </Label>
           <Label>
             <SelectionBox>
-              <RadioGroupItem value="false" />
+              <RadioGroupItem value={false} />
               <span>No</span>
             </SelectionBox>
           </Label>
         </div>
       </Field>
     </RadioGroup>
-  )
+  );
 }

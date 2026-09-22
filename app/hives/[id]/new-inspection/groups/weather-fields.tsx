@@ -23,12 +23,13 @@ export function WeatherFields() {
                 value={field.value ?? ""}
                 onChange={(e) =>
                   field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
+                    e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
               />
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="feedLitresLightSyrup"
           control={control}
@@ -41,13 +42,12 @@ export function WeatherFields() {
                 min="0"
                 value={field.value ?? ""}
                 onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
-                  )
+                  field.onChange(e.target.value === "" ? null : e.target.value)
                 }
               />
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="feedLitresHeavySyrup"
           control={control}
@@ -60,13 +60,12 @@ export function WeatherFields() {
                 min="0"
                 value={field.value ?? ""}
                 onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
-                  )
+                  field.onChange(e.target.value === "" ? null : e.target.value)
                 }
               />
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="supersChange"
           control={control}
@@ -78,13 +77,12 @@ export function WeatherFields() {
                 step="0.5"
                 value={field.value ?? ""}
                 onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
-                  )
+                  field.onChange(e.target.value === "" ? null : e.target.value)
                 }
               />
             </Field>
-          )} />
+          )}
+        />
       </FieldGroup>
     </FieldSet>
   );

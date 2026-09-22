@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={cn(
-        "dark h-full antialiased",
+        "h-full antialiased",
         geistSans.variable,
         geistMono.variable,
         jetbrainsMono.variable

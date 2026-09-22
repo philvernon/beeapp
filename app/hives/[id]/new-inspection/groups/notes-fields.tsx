@@ -27,13 +27,12 @@ export function NotesFields() {
                 step="0.1"
                 value={field.value ?? ""}
                 onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
-                  )
+                  field.onChange(e.target.value === "" ? null : e.target.value)
                 }
               />
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="weatherCondition"
           control={control}
@@ -42,7 +41,9 @@ export function NotesFields() {
               <FieldLabel>Condition</FieldLabel>
               <RadioGroup
                 value={field.value ?? ""}
-                onValueChange={(value) => { field.onChange(value) }}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
               >
                 <div className="flex gap-1">
                   {Object.entries(weatherConditionLabels).map(([k, v]) => (
@@ -56,7 +57,8 @@ export function NotesFields() {
                 </div>
               </RadioGroup>
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="notes"
           control={control}
@@ -70,7 +72,8 @@ export function NotesFields() {
                 placeholder="Any additional observations…"
               />
             </Field>
-          )} />
+          )}
+        />
       </FieldGroup>
     </FieldSet>
   );
