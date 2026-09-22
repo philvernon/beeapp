@@ -26,7 +26,7 @@ export async function HiveList() {
 		<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 			{hives.map((h) => (
 				<Link key={h.id} href={`/hives/${h.id}`} className="block">
-					<Card className="group hover:shadow-sm transition-shadow">
+					<Card className="h-full group hover:shadow-sm transition-shadow">
 						<CardHeader>
 							<div className="flex items-center justify-between">
 								<CardTitle>{h.name}</CardTitle>
@@ -37,12 +37,12 @@ export async function HiveList() {
 								)}
 							</div>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="flex flex-col gap-2">
 							<p className="text-xs text-muted-foreground">{h.apiaryName}</p>
 							{h.queenBreed && (
-								<p className="text-xs text-muted-foreground mt-1">Queen: {h.queenBreed}</p>
+								<p className="text-xs text-muted-foreground">Queen: {h.queenBreed}</p>
 							)}
-							<p className="text-xs text-muted-foreground mt-2">
+							<p className="mt-auto text-xs text-muted-foreground">
 								{h.inspectionCount ?? 0} inspection{h.inspectionCount === 1 ? "" : "s"}
 							</p>
 						</CardContent>
