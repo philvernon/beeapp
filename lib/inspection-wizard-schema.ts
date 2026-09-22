@@ -55,8 +55,8 @@ export const InspectionWizardSchema = z.object({
 
   // --- Health step ---
   temperamentScore: nullableNumber,
-  feedLitresLightSyrup: z.string().optional().nullable(),
-  feedLitresHeavySyrup: z.string().optional().nullable(),
+  feedLitresLightSyrup: nullableNumber,
+  feedLitresHeavySyrup: nullableNumber,
   supersChange: z.string().optional().nullable(),
 
   // --- Review step (weather + notes) ---

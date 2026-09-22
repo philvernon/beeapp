@@ -1,53 +1,94 @@
 import Link from "next/link";
 import { getApiaries, getHives, getInspections } from "@/lib/data";
+import { inspections as inspectionsTable } from "@/lib/schema";
 import { ApiaryHives } from "@/components/apiary-hives";
 import { StatCard } from "@/components/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress, ProgressIndicator } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { formatDate } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function AnalyticsPage() {
-  const [apiaries, hives, inspections] = await Promise.all([
-    getApiaries(),
-    getHives(),
-    getInspections(),
-  ]);
+interface HiveStat {
+  id: string;
+  name: string;
+  apiaryName: string | null;
+  inspectionCount: number;
+  lastInspection: string;
+}
 
-  // Compute stats
+interface RecentInspection {
+  id: string;
+  hiveId: string;
+  hiveName: string | null;
+  apiaryName: string | null;
+  date: string;
+  queenSeen: boolean | null;
+  healthOk: boolean | null;
+}
+
+interface AnalyticsData {
+  totalHives: number;
+  totalInspections: number;
+  totalApiaries: number;
+  queenSeenRate: number;
+  eggsRate: number;
+  healthRate: number;
+  varroaLow: number;
+  varroaMed: number;
+  varroaHigh: number;
+  avgBroodFrames: number | null;
+  avgStoreFrames: number | null;
+  avgTemperament: number | null;
+  hiveStats: HiveStat[];
+  recentInspections: RecentInspection[];
+}
+
+function computeAnalytics(
+  apiaries: { id: string; name: string }[],
+  hives: { id: string; name: string; apiaryName: string | null }[],
+  inspections: (typeof inspectionsTable.$inferSelect & { hiveName: string | null; apiaryName: string | null })[],
+): AnalyticsData {
   const totalHives = hives.length;
   const totalInspections = inspections.length;
   const totalApiaries = apiaries.length;
 
-  // Queen seen rate
-  const queenSeenCount = inspections.filter((i) => i.queenSeen).length;
   const queenSeenRate =
     totalInspections > 0
-      ? Math.round((queenSeenCount / totalInspections) * 100)
+      ? Math.round(
+          (inspections.filter((i) => i.queenSeen).length / totalInspections) *
+            100,
+        )
       : 0;
 
-  // Eggs seen rate (proxy for healthy laying queen)
-  const eggsSeenCount = inspections.filter((i) => i.eggsSeen).length;
   const eggsRate =
     totalInspections > 0
-      ? Math.round((eggsSeenCount / totalInspections) * 100)
+      ? Math.round(
+          (inspections.filter((i) => i.eggsSeen).length / totalInspections) *
+            100,
+        )
       : 0;
 
-  // Health rate
-  const healthOkCount = inspections.filter((i) => i.healthOk).length;
   const healthRate =
     totalInspections > 0
-      ? Math.round((healthOkCount / totalInspections) * 100)
+      ? Math.round(
+          (inspections.filter((i) => i.healthOk).length / totalInspections) *
+            100,
+        )
       : 0;
 
-  // Varroa levels
-  const varroaLow = inspections.filter((i) => i.varroaLevel === "l").length;
-  const varroaMed = inspections.filter((i) => i.varroaLevel === "m").length;
-  const varroaHigh = inspections.filter((i) => i.varroaLevel === "h").length;
+  const varroaLow = inspections.filter(
+    (i) => i.varroaLevel === "l",
+  ).length;
+  const varroaMed = inspections.filter(
+    (i) => i.varroaLevel === "m",
+  ).length;
+  const varroaHigh = inspections.filter(
+    (i) => i.varroaLevel === "h",
+  ).length;
 
-  // Average brood frames
   const broodCounts = inspections
     .map((i) => i.broodFrameCount)
     .filter((n): n is number => n != null && n > 0);
@@ -58,7 +99,6 @@ export default async function AnalyticsPage() {
         ) / 10
       : null;
 
-  // Average store frames
   const storeCounts = inspections
     .map((i) => i.storeFrames)
     .filter((n): n is number => n != null && n > 0);
@@ -69,7 +109,6 @@ export default async function AnalyticsPage() {
         ) / 10
       : null;
 
-  // Average temperament
   const tempScores = inspections
     .map((i) => i.temperamentScore)
     .filter((n): n is number => n != null);
@@ -80,8 +119,7 @@ export default async function AnalyticsPage() {
         ) / 10
       : null;
 
-  // Per-hive inspection counts
-  const hiveStats = hives
+  const hiveStats: HiveStat[] = hives
     .map((h) => {
       const hiveInspections = inspections.filter((i) => i.hiveId === h.id);
       return {
@@ -91,23 +129,49 @@ export default async function AnalyticsPage() {
         inspectionCount: hiveInspections.length,
         lastInspection:
           hiveInspections.length > 0
-            ? new Date(hiveInspections[0].inspectionDate).toLocaleDateString(
-                "en-GB",
-              )
+            ? formatDate(hiveInspections[0].inspectionDate)
             : "—",
       };
     })
     .sort((a, b) => b.inspectionCount - a.inspectionCount);
 
-  // Recent inspections (last 10)
-  const recentInspections = inspections.slice(0, 10).map((i) => ({
-    ...i,
-    date: new Date(i.inspectionDate + "T00:00:00").toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }),
-  }));
+  const recentInspections: RecentInspection[] = inspections
+    .slice(0, 10)
+    .map((i) => ({
+      ...i,
+      date: formatDate(i.inspectionDate, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+    }));
+
+  return {
+    totalHives,
+    totalInspections,
+    totalApiaries,
+    queenSeenRate,
+    eggsRate,
+    healthRate,
+    varroaLow,
+    varroaMed,
+    varroaHigh,
+    avgBroodFrames,
+    avgStoreFrames,
+    avgTemperament,
+    hiveStats,
+    recentInspections,
+  };
+}
+
+export default async function AnalyticsPage() {
+  const [apiaries, hives, inspections] = await Promise.all([
+    getApiaries(),
+    getHives(),
+    getInspections(),
+  ]);
+
+  const analytics = computeAnalytics(apiaries, hives, inspections);
 
   return (
     <div>
@@ -120,22 +184,25 @@ export default async function AnalyticsPage() {
 
       {/* Overview Stats */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6 mb-8">
-        <StatCard label="Apiaries" value={totalApiaries} />
-        <StatCard label="Hives" value={totalHives} />
-        <StatCard label="Inspections" value={totalInspections} />
+        <StatCard label="Apiaries" value={analytics.totalApiaries} />
+        <StatCard label="Hives" value={analytics.totalHives} />
+        <StatCard
+          label="Inspections"
+          value={analytics.totalInspections}
+        />
         <StatCard
           label="Queen Seen Rate"
-          value={`${queenSeenRate}%`}
-          sub={`of ${totalInspections} inspections`}
+          value={`${analytics.queenSeenRate}%`}
+          sub={`of ${analytics.totalInspections} inspections`}
         />
         <StatCard
           label="Eggs Seen Rate"
-          value={`${eggsRate}%`}
+          value={`${analytics.eggsRate}%`}
           sub="laying activity"
         />
         <StatCard
           label="Health Rate"
-          value={`${healthRate}%`}
+          value={`${analytics.healthRate}%`}
           sub="no disease signs"
         />
       </div>
@@ -152,13 +219,14 @@ export default async function AnalyticsPage() {
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-muted-foreground">Low</span>
                   <span className="font-medium text-foreground">
-                    {varroaLow}
+                    {analytics.varroaLow}
                   </span>
                 </div>
                 <Progress
                   value={
-                    totalInspections > 0
-                      ? (varroaLow / totalInspections) * 100
+                    analytics.totalInspections > 0
+                      ? (analytics.varroaLow / analytics.totalInspections) *
+                        100
                       : 0
                   }
                   className="h-2"
@@ -170,13 +238,14 @@ export default async function AnalyticsPage() {
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-muted-foreground">Medium</span>
                   <span className="font-medium text-foreground">
-                    {varroaMed}
+                    {analytics.varroaMed}
                   </span>
                 </div>
                 <Progress
                   value={
-                    totalInspections > 0
-                      ? (varroaMed / totalInspections) * 100
+                    analytics.totalInspections > 0
+                      ? (analytics.varroaMed / analytics.totalInspections) *
+                        100
                       : 0
                   }
                   className="h-2"
@@ -188,13 +257,14 @@ export default async function AnalyticsPage() {
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-muted-foreground">High</span>
                   <span className="font-medium text-foreground">
-                    {varroaHigh}
+                    {analytics.varroaHigh}
                   </span>
                 </div>
                 <Progress
                   value={
-                    totalInspections > 0
-                      ? (varroaHigh / totalInspections) * 100
+                    analytics.totalInspections > 0
+                      ? (analytics.varroaHigh / analytics.totalInspections) *
+                        100
                       : 0
                   }
                   className="h-2"
@@ -213,33 +283,33 @@ export default async function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3">
-              {avgBroodFrames !== null && (
+              {analytics.avgBroodFrames !== null && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">
                     Avg Brood Frames
                   </span>
                   <span className="font-medium text-foreground">
-                    {avgBroodFrames}
+                    {analytics.avgBroodFrames}
                   </span>
                 </div>
               )}
-              {avgStoreFrames !== null && (
+              {analytics.avgStoreFrames !== null && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">
                     Avg Store Frames
                   </span>
                   <span className="font-medium text-foreground">
-                    {avgStoreFrames}
+                    {analytics.avgStoreFrames}
                   </span>
                 </div>
               )}
-              {avgTemperament !== null && (
+              {analytics.avgTemperament !== null && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">
                     Avg Temperament
                   </span>
                   <span className="font-medium text-foreground">
-                    {avgTemperament}/10
+                    {analytics.avgTemperament}/10
                   </span>
                 </div>
               )}
@@ -254,7 +324,7 @@ export default async function AnalyticsPage() {
           <CardTitle>Hive Inspection Counts</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {hiveStats.length === 0 ? (
+          {analytics.hiveStats.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-5">
               No hives to show.{" "}
               <Link href="/apiaries" className="text-primary hover:underline">
@@ -264,7 +334,7 @@ export default async function AnalyticsPage() {
             </p>
           ) : (
             <div>
-              {hiveStats.map((h, idx) => (
+              {analytics.hiveStats.map((h, idx) => (
                 <div key={h.id}>
                   {idx > 0 && <Separator />}
                   <Link
@@ -301,13 +371,13 @@ export default async function AnalyticsPage() {
           <CardTitle>Recent Inspections</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {recentInspections.length === 0 ? (
+          {analytics.recentInspections.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-5">
               No inspections yet.
             </p>
           ) : (
             <div>
-              {recentInspections.map((i, idx) => (
+              {analytics.recentInspections.map((i, idx) => (
                 <div key={i.id}>
                   {idx > 0 && <Separator />}
                   <Link
