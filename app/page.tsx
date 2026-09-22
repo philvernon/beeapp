@@ -111,12 +111,12 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Overview</h1>
-
       {/* Apiaries & Hives */}
       <div className="mb-8">
         <ApiaryHives />
       </div>
+
+      <h1 className="text-2xl font-bold text-foreground mb-6">Overview</h1>
 
       {/* Overview Stats */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6 mb-8">

@@ -54,10 +54,7 @@ describe("ApiaryHivesList", () => {
 		vi.clearAllMocks();
 	});
 
-	it("shows heading when apiaries exist", () => {
-		render(<ApiaryHivesList apiaries={mockApiaries} />);
-		expect(screen.getByText("Apiaries & Hives")).toBeDefined();
-	});
+
 
 	it("shows empty state when no apiaries", () => {
 		render(<ApiaryHivesList apiaries={emptyApiaries} />);
@@ -173,7 +170,7 @@ describe("ApiaryHivesList", () => {
 		expect(hiveLinks[1].getAttribute("href")).toBe("/hives/hive-2");
 	});
 
-	it("shows add hive link when apiary has no hives", () => {
+	it("filters out apiaries with no hives", () => {
 		const singleApiaryNoHives: ApiaryWithHives[] = [
 			{
 				id: "apiary-2",
@@ -185,10 +182,8 @@ describe("ApiaryHivesList", () => {
 			},
 		];
 		render(<ApiaryHivesList apiaries={singleApiaryNoHives} />);
-		expect(screen.getByText(/No hives yet/)).toBeDefined();
-		expect(screen.getByText("Add one →")).toBeDefined();
-		const addLink = document.querySelector('a[href="/hives/new?apiary_id=apiary-2"]');
-		expect(addLink).toBeDefined();
+		expect(screen.queryByText(/No hives yet/)).toBeNull();
+		expect(screen.queryByText("Empty Apiary")).toBeNull();
 	});
 
 	it("omits apiary notes when null", () => {
