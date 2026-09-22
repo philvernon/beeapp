@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getApiaries, getHives, getInspections } from "@/lib/data";
+import { ApiaryHives } from "@/components/apiary-hives";
 import { StatCard } from "@/components/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -110,7 +111,12 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">Analytics</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Overview</h1>
+
+      {/* Apiaries & Hives */}
+      <div className="mb-8">
+        <ApiaryHives />
+      </div>
 
       {/* Overview Stats */}
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6 mb-8">
