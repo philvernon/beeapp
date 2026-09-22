@@ -1,50 +1,46 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { QrReader } from "react-qr-scan";
+import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function HiveScanPage() {
-	const router = useRouter();
-	const [scanned, setScanned] = useState(false);
+  const router = useRouter();
 
-	const handleResult = useCallback(
-		(result: { getText(): string } | null | undefined) => {
-			if (result && !scanned) {
-				setScanned(true);
-				const url = result.getText().trim();
-				const match = url.match(/\/hives\/([a-f0-9-]+)/i);
-				if (match) {
-					router.replace(`/hives/${match[1]}/new-inspection`);
-				} else {
-					router.replace(url);
-				}
-			}
-		},
-		[router, scanned],
-	);
+  const handleResult = (detectedCodes: IDetectedBarcode[]) => {
+    if (detectedCodes && detectedCodes.length > 0) {
+      const url = detectedCodes[0].rawValue.trim();
+      const match = url.match(/\/hives\/([a-f0-9-]+)/i);
+      if (match) {
+        router.replace(`/hives/${match[1]}/new-inspection`);
+      } else {
+        router.replace(url);
+      }
+    }
+  };
 
-	return (
-		<div className="max-w-md mx-auto space-y-4">
-			<Card>
-				<CardHeader>
-					<CardTitle>Scan Hive QR Code</CardTitle>
-				</CardHeader>
-				<CardContent className="p-0">
-					<QrReader
-						constraints={{ facingMode: "environment" }}
-						onResult={handleResult}
-						containerStyle={{ width: "100%" }}
-						videoStyle={{ width: "100%", objectFit: "cover" }}
-					/>
-				</CardContent>
-			</Card>
+  return (
+    <div className="max-w-md mx-auto space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Scan Hive QR Code</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Scanner
+            onScan={handleResult}
+            onError={(error) => console.log(error?.message)}
+          />
+        </CardContent>
+      </Card>
 
-			<Button variant="outline" onClick={() => router.push("/hives")} className="w-full">
-				Cancel
-			</Button>
-		</div>
-	);
+      <Button
+        variant="outline"
+        onClick={() => router.push("/hives")}
+        className="w-full"
+      >
+        Cancel
+      </Button>
+    </div>
+  );
 }
