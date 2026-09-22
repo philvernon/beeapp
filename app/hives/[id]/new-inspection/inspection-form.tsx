@@ -95,7 +95,6 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
   async function handleSubmit(data: InspectionWizardInput) {
     setError(null);
     setLoading(true);
-    console.log(data);
 
     const parsed = InspectionWizardSchema.safeParse(data);
 
@@ -110,14 +109,12 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
     }
 
     try {
-      console.log("parse", parsed.data);
       const validated = InspectionInsert.safeParse({
         hiveId,
         inspectionDate: new Date().toISOString().split("T")[0],
         ...parsed.data,
       });
 
-      console.log("validate", validated);
       if (!validated.success) {
         setError(
           validated.error.issues
@@ -135,12 +132,10 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
       });
 
       if (!res.ok) {
-        console.log(res);
         throw new Error(
           await getErrorMessage(res, "Failed to save inspection"),
         );
       }
-      console.log(hiveId);
       router.push(`/hives/${hiveId}`);
       setLoading(false);
     } catch (err: unknown) {
