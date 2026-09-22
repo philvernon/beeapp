@@ -31,124 +31,96 @@ export function ApiaryHivesList({ apiaries }: ApiaryHivesListProps) {
 	return (
 		<div>
 			<h1 className="text-2xl font-bold text-foreground mb-6">Apiaries & Hives</h1>
-			<div className="flex flex-col gap-6">
-				{apiaries.map((apiary) => (
-					<div key={apiary.id}>
-						{/* Apiary card */}
-						<Link href={`/apiaries/${apiary.id}`} className="block">
-							<Card className="group hover:shadow-sm transition-shadow mb-3">
-								<CardHeader className="pb-2 px-4 py-3">
-									<div className="flex items-center justify-between">
-										<CardTitle className="text-sm font-medium">
-											{apiary.name}
-										</CardTitle>
-										<span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 font-medium">
-											{apiary.hiveCount} hive{apiary.hiveCount !== 1 ? "s" : ""}
-										</span>
-									</div>
-								</CardHeader>
-								<CardContent className="px-4 pb-3 pt-0">
-									{apiary.notes && (
-										<p className="text-xs text-muted-foreground line-clamp-2">
-											{apiary.notes}
-										</p>
-									)}
-								</CardContent>
-							</Card>
-						</Link>
-
-						{/* Hive cards */}
-						<div className="grid auto-rows-fr gap-2 sm:grid-cols-2 lg:grid-cols-3">
+			{apiaries.map((apiary) => (
+				<div key={apiary.id}>
+					<h2 className="text-lg font-semibold text-foreground mb-3">
+						{apiary.name}
+						<span className="text-sm font-normal text-muted-foreground ml-2">
+							({apiary.hiveCount} hive{apiary.hiveCount !== 1 ? "s" : ""})
+						</span>
+					</h2>
+					{apiary.notes && (
+						<p className="text-xs text-muted-foreground mb-3">{apiary.notes}</p>
+					)}
+					{apiary.hives.length === 0 ? (
+						<p className="text-xs text-muted-foreground">
+							No hives yet.{" "}
+							<Link
+								href={`/hives/new?apiary_id=${apiary.id}`}
+								className="text-primary hover:underline"
+							>
+								Add one →
+							</Link>
+						</p>
+					) : (
+						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 							{apiary.hives.map((hive) => (
 								<Link
 									key={hive.id}
 									href={`/hives/${hive.id}`}
 									className="block"
 								>
-									<Card className="group hover:shadow-sm transition-shadow">
-										<CardHeader className="pb-1 px-3 py-2">
+									<Card className="h-full group hover:shadow-sm transition-shadow">
+										<CardHeader>
 											<div className="flex items-center justify-between">
-												<CardTitle className="text-xs font-medium truncate">
-													{hive.name}
-												</CardTitle>
+												<CardTitle>{hive.name}</CardTitle>
 												{hive.queenClipped && (
-													<span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 font-medium whitespace-nowrap">
+													<span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 font-medium rounded-none">
 														Clipped
 													</span>
 												)}
 											</div>
 										</CardHeader>
-										<CardContent className="px-3 pb-2 pt-0">
-											<div className="flex flex-col gap-1">
-												{hive.queenBreed && (
-													<p className="text-xs text-muted-foreground">
-														Queen: {hive.queenBreed}
-													</p>
-												)}
-												{hive.notes && (
-													<p className="text-xs text-muted-foreground line-clamp-1">
-														{hive.notes}
-													</p>
-												)}
-												{hive.lastInspection ? (
-													<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-														<span>
-															Last:{" "}
-															{new Date(
-																hive.lastInspection.inspectionDate,
-															).toLocaleDateString()}
-														</span>
-														<span
-															className={
-																hive.lastInspection.queenSeen
-																	? "text-green-600"
-																	: ""
-															}
-														>
-															Queen:{" "}
-															{hive.lastInspection.queenSeen
-																? "Seen"
-																: "Not seen"}
-														</span>
-														<span
-															className={
-																hive.lastInspection.healthOk
-																	? "text-green-600"
-																	: ""
-															}
-														>
-															Health:{" "}
-															{hive.lastInspection.healthOk
-																? "OK"
-																: "Issues"}
-														</span>
-													</div>
-												) : (
-													<p className="text-[11px] text-muted-foreground mt-1">
-														No inspections yet
-													</p>
-												)}
-											</div>
+										<CardContent className="flex flex-col gap-2">
+											{hive.notes && (
+												<p className="text-xs text-muted-foreground line-clamp-2">
+													{hive.notes}
+												</p>
+											)}
+											{hive.queenBreed && (
+												<p className="text-xs text-muted-foreground">
+													Queen: {hive.queenBreed}
+												</p>
+											)}
+											{hive.lastInspection ? (
+												<div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+													<span>
+														Last: {new Date(
+															hive.lastInspection.inspectionDate,
+														).toLocaleDateString()}
+													</span>
+													<span
+														className={
+															hive.lastInspection.queenSeen
+															? "text-green-600"
+															: ""
+														}
+													>
+														Queen: {hive.lastInspection.queenSeen ? "Seen" : "Not seen"}
+													</span>
+													<span
+														className={
+															hive.lastInspection.healthOk
+															? "text-green-600"
+															: ""
+														}
+													>
+														Health: {hive.lastInspection.healthOk ? "OK" : "Issues"}
+													</span>
+												</div>
+											) : (
+												<p className="mt-auto text-xs text-muted-foreground">
+													No inspections yet
+												</p>
+											)}
 										</CardContent>
 									</Card>
 								</Link>
 							))}
 						</div>
-
-						{apiary.hives.length === 0 && (
-							<p className="text-xs text-muted-foreground py-2 px-1">
-								No hives in this apiary yet.{" "}
-								<Link
-									href={`/hives/new?apiary_id=${apiary.id}`}
-									className="text-primary hover:underline"
-								>
-									Add one →
-								</Link>
-							</p>
-						)}
-					</div>
-				))}
-			</div>
+					)}
+				</div>
+			))}
 		</div>
 	);
 }
