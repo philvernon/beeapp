@@ -1,5 +1,6 @@
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
+import { BooleanField } from "@/components/ui/boolean-field";
 import { SelectionBox } from "@/components/selection-box";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { RadioGroup } from "@base-ui/react";
@@ -8,10 +9,6 @@ import { Label } from "@/components/ui/label";
 import { queenColourLabels } from "@/lib/schema";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { Input } from "@/components/ui/input";
-
-const stringToBoolean = (boolString: string) => {
-  return boolString === "true";
-}
 
 export function QueenFields() {
   const { control } = useFormContext<InspectionWizardValue>();
@@ -23,61 +20,8 @@ export function QueenFields() {
   return (
     <FieldSet>
       <FieldGroup>
-        <Controller
-          name="queenSeen"
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value == null ? "" : String(field.value)}
-              onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>Queen seen</FieldDescription>
-                <div className="flex gap-4">
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="true" />
-                      <span>Yes</span>
-                    </SelectionBox>
-                  </Label>
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="false" />
-                      <span>No</span>
-                    </SelectionBox>
-                  </Label>
-                </div>
-              </Field>
-            </RadioGroup>
-          )} />
-        <Controller
-          name="queenCellsRemoved"
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value == null ? "" : String(field.value)}
-              onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>Queen cells removed</FieldDescription>
-                <div className="flex gap-4">
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="true" />
-                      <span>Yes</span>
-                    </SelectionBox>
-                  </Label>
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="false" />
-                      <span>No</span>
-                    </SelectionBox>
-                  </Label>
-                </div>
-              </Field>
-            </RadioGroup>
-
-          )} />
+        <BooleanField name="queenSeen" label="Queen seen" />
+        <BooleanField name="queenCellsRemoved" label="Queen cells removed" />
         <Controller
           name="queenCellsFound"
           control={control}

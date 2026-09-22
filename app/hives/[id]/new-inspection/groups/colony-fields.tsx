@@ -1,16 +1,9 @@
 import { Controller, useFormContext } from "react-hook-form";
 
-import { SelectionBox } from "@/components/selection-box";
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
-import { RadioGroup } from "@base-ui/react";
-import { RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { BooleanField } from "@/components/ui/boolean-field";
+import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { Input } from "@/components/ui/input";
-
-const stringToBoolean = (boolString: string) => {
-  return boolString === "true";
-}
 
 export function ColonyFields() {
   const { control } = useFormContext<InspectionWizardValue>();
@@ -18,60 +11,8 @@ export function ColonyFields() {
   return (
     <FieldSet>
       <FieldGroup>
-        <Controller
-          name="eggsSeen"
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value == null ? "" : String(field.value)}
-              onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>Eggs seen</FieldDescription>
-                <div className="flex gap-4">
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="true" />
-                      <span>Yes</span>
-                    </SelectionBox>
-                  </Label>
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="false" />
-                      <span>No</span>
-                    </SelectionBox>
-                  </Label>
-                </div>
-              </Field>
-            </RadioGroup>
-          )} />
-        <Controller
-          name="broodPatternOk"
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value == null ? "" : String(field.value)}
-              onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>Brood pattern OK</FieldDescription>
-                <div className="flex gap-4">
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="true" />
-                      <span>Yes</span>
-                    </SelectionBox>
-                  </Label>
-                  <Label>
-                    <SelectionBox>
-                      <RadioGroupItem value="false" />
-                      <span>No</span>
-                    </SelectionBox>
-                  </Label>
-                </div>
-              </Field>
-            </RadioGroup>
-          )} />
+        <BooleanField name="eggsSeen" label="Eggs seen" />
+        <BooleanField name="broodPatternOk" label="Brood pattern OK" />
         <Controller
           name="broodFrameCount"
           control={control}
