@@ -1,223 +1,179 @@
-# Task: Add a Multi-Step Form Foundation
+# Beehive Tracker — Code Audit & Review
 
-## Goal
+## Overall Assessment
 
-Create a small, tested multi-step form foundation for the new-inspection page. Do not migrate the existing inspection fields yet.
+This is a well-structured, focused beekeeping management app. The codebase is **reasonably concise** with clear separation between data layer, API routes, and UI. However, there are several patterns worth addressing.
 
-The result should make it straightforward to add fields to each step later without changing the step-navigation architecture.
+---
 
-GitHub issue #12 is background only. Do not attempt to implement its full scope.
+## Backend: Libs & Schemas
 
-## Required preparation
+### `lib/schema.ts` (134 lines) — **Good, with minor issues**
 
-Before editing:
+**Strengths:**
+- Clean Drizzle + Zod integration using `createInsertSchema`/`createUpdateSchema`
+- Shared numeric invariant helper avoids repetition across insert/update
+- Enum helpers for UI dropdowns are well organized
 
-1. Read the repository `AGENTS.md`.
-2. Read these exact documents:
+**Issues:**
+1. **Redundant refine logic** — The `ApiaryUpdate` and `HiveUpdate` both have nearly identical name-refine logic. Extract to a shared helper:
+   ```ts
+   function nonEmptyName(val: Record<string, unknown>) {
+     if (!("name" in val) || val.name === undefined || val.name === null) return;
+     // ...
+   }
+   ```
 
-   Next.js 16:
-   - `node_modules/next/dist/docs/01-app/01-getting-started/05-server-and-client-components.md`
-   - `node_modules/next/dist/docs/01-app/03-api-reference/01-directives/use-client.md`
+2. **`inspectionNumericInvariants` is a god-function** — 18 lines of `if` checks doing the same thing. Could be data-driven:
+   ```ts
+   const numericRules = [
+     { key: "temperamentScore", min: 1, max: 10 },
+     { key: "queenCellsFound", min: 0 },
+     // ...
+   ];
+   for (const rule of numericRules) {
+     if (val[rule.key] != null) {
+       if (rule.min != null && val[rule.key] < rule.min) ctx.addIssue(...);
+       if (rule.max != null && val[rule.key] > rule.max) ctx.addIssue(...);
+     }
+   }
+   ```
 
-   React Hook Form:
-   - <https://react-hook-form.com/docs/useform> — focus on `defaultValues`, `shouldUnregister`, and `resolver`
-   - <https://react-hook-form.com/docs/formprovider>
-   - <https://react-hook-form.com/docs/useformcontext>
+3. **`HiveUpdate` has a confusing refine** — `val.apiaryId !== null` should be `val.apiaryId == null` (the refine fires when apiaryId IS null, but the condition reads backwards).
 
-   React Hook Form with Zod:
-   - <https://github.com/react-hook-form/resolvers/blob/master/README.md> — read the TypeScript and Zod sections
+### `lib/data.ts` (240 lines) — **Solid, some optimization opportunities**
 
-   Zod 4:
-   - <https://zod.dev/basics> — focus on object schemas and `z.input` versus `z.output`
+**Strengths:**
+- Good use of `server-only`
+- Helper functions for query building and flattening reduce duplication
+- Batch inspection counts avoids N+1 queries
 
-3. Do not read or use Drizzle documentation for this task. Do not derive the wizard schema from the database schema. Database integration is explicitly deferred.
+**Issues:**
+1. **`getInspectionCounts` is called multiple times in hot paths** — In `getApiaryWithHives`, it's called once for all hives, but `getHive()` calls it per-hive inside a map. Consider caching or batching.
 
-4. Inspect:
-   - `app/hives/[id]/new-inspection/page.tsx`
-   - `package.json`
-   - `vitest.config.mts`
-   - existing test conventions
-5. Do not modify code during this inspection.
+2. **`getLatestInspections` loads ALL inspections then dedupes in JS** — A SQL `DISTINCT ON` or window function would be cleaner:
+   ```ts
+   db.select().from(inspections)
+     .where(inArray(...))
+     .orderBy(inspections.hiveId, desc(inspections.inspectionDate))
+   ```
+   The current approach works but is less efficient at scale.
 
-## Scope
+3. **`getHive()` does a separate count query per hive** — This is the biggest perf concern. If you're fetching one hive, you're doing 2 queries (join + count). Consider returning the count from the join query itself or using a subquery.
 
-Implement only:
+### `lib/db.ts` (17 lines) — **Clean**
+- No issues. Standard pool setup with HMR guard.
 
-1. Install:
-   - `react-hook-form`
-   - `@hookform/resolvers`
+### `lib/fetch.ts` (45 lines) — **Good**
+- `parseErrorBody` is reused by both `safeJsonFetch` and `getErrorMessage` — good DRY.
+- Minor: `safeJsonFetch` returns `{ data: null, error }` but the type says `data: unknown`. The `null` case should be `data: T | null` with generics for better typing.
 
-2. Create a reusable inspection wizard shell with five steps:
-   - Conditions
-   - Colony
-   - Stores & Actions
-   - Health
-   - Review
+### `lib/inspection-wizard-schema.ts` (63 lines) — **Well-scoped**
+- Good separation from DB schema
+- `formBoolean` and `nullableNumber` helpers are clean
+- Minor: `feedLitresLightSyrup` etc. use `z.string().optional().nullable()` instead of `nullableNumber` like other numeric fields. Inconsistent — should use the same helper.
 
-3. Set up one React Hook Form instance at the wizard root.
+### API Routes — **Consistent pattern, minor issues**
 
-4. Use `FormProvider` so future step components can access the same form instance through `useFormContext()`.
+**Issues:**
+1. **Inspection POST is verbose** — The `.values({...})` block manually maps every field. Could be simplified:
+   ```ts
+   const { hiveId, inspectionDate, ...rest } = validated.data;
+   await db.insert(inspections).values({
+     hive_id: hiveId,
+     inspection_date: inspectionDate,
+     ...Object.fromEntries(Object.entries(rest).map(([k,v]) => [snakeCase(k), v])),
+   });
+   ```
 
-5. Keep form values when navigating between steps:
-   - configure `shouldUnregister: false`
+2. **Error responses are inconsistent** — Some return `{ error }`, some return `{ success, deleted }`. Standardize.
 
-6. Add Previous and Next navigation:
-   - Previous is disabled on the first step
-   - Next advances to the following step
-   - Next is absent on the Review step
-   - Review is the final step
-   - Do not render a Submit button or implement final API submission yet
+3. **`DELETE /api/hives/[id]` doesn't check cascading** — It relies on DB `ON DELETE CASCADE` silently. Consider returning the cascade count or at least logging it.
 
-7. Expose basic accessible step state:
-   - a navigation landmark with an accessible label
-   - ordered step labels
-   - `aria-current="step"` on the active step
-   - visible current-step heading
+---
 
-8. Add a minimal client-safe Zod schema used by the RHF resolver:
-   - include only the temporary field used to prove state preservation
-   - do not use `z.object({})` with an undeclared field, because Zod strips unknown object keys by default
-   - delete or replace the temporary field and its schema entry when the first real step is implemented
-   - do not reproduce or derive the inspection database schema
+## Frontend: Pages & Components
 
-9. Add focused tests for:
-   - initial step
-   - Next navigation
-   - Previous navigation
-   - first/last boundary behavior
-   - active `aria-current` state
-   - one temporary test field retaining its value between steps
+### Form Pages (New/Edit Apiary, New/Edit Hive) — **DRY violation**
 
-## Integration strategy
+The four form pages (`new-apiary`, `edit-apiary`, `new-hive`, `edit-hive`) share an almost identical pattern:
+- `useState` for each field
+- `useEffect` with cancellation for data loading
+- Form validation → fetch → redirect
+- Error state handling
 
-Do not integrate the wizard into `page.tsx` in this task. Do not replace, wrap, or delete any part of the existing working inspection form.
+**Recommendation:** Extract a `useFormState` hook or a generic `CrudForm` component that handles the loading/validation/error/redirect cycle. The form-specific parts (fields, schema) can be passed as props. This would reduce ~200 lines of duplicated boilerplate to ~50 lines of shared code.
 
-Create `InspectionWizard` as an isolated component beside the page. Its test must import and render it directly. It is acceptable for the component to remain unused by production code until the existing fields are migrated incrementally in later work.
+### `app/page.tsx` (AnalyticsPage) — **Too much logic in the view**
 
-## Suggested files
+**Issues:**
+1. **Computes everything server-side in the render function** — Queen seen rate, eggs rate, health rate, varroa breakdown, averages, hive stats, recent inspections — all computed inline. This makes the component hard to test and read. Extract to a `computeAnalytics()` helper function.
 
-Create:
+2. **`recentInspections` uses `.slice(0, 10)` on an unsorted array** — The data is ordered by date in `data.ts`, but this relies on that implicit ordering. Add explicit sorting or limit at the DB level.
 
-- `app/hives/[id]/new-inspection/inspection-wizard.tsx`
-- `app/hives/[id]/new-inspection/inspection-wizard-schema.ts`
-- `app/hives/[id]/new-inspection/__tests__/inspection-wizard.test.tsx`
+3. **Date formatting repeated** — `new Date(...).toLocaleDateString("en-GB", ...)` appears 4+ times. Extract a utility.
 
-Modify only if necessary:
+### `components/apiary-hives.tsx` — **Good separation**
+- Clean split between server wrapper and presentational component
+- Testable list component
 
-- `package.json`
-- `pnpm-lock.yaml`
-- `vitest.config.mts`
+### Inspection Wizard (`groups/*.tsx`) — **DRY violation**
 
-Do not modify:
+The `stringToBoolean` helper is **copied verbatim** into 4 files (`queen-fields.tsx`, `colony-fields.tsx`, `health-fields.tsx`, `notes-fields.tsx`). Move to a shared utility.
 
-- `lib/schema.ts`
-- `app/api/inspections/route.ts`
-- database declarations
-- API contracts
-- the current inspection submission logic
-- unrelated components
-
-## Component responsibilities
-
-### `InspectionWizard`
-
-Owns:
-
-- the RHF `useForm()` instance
-- `FormProvider`
-- the active step index
-- Previous/Next navigation
-- rendering the active step
-- accessible step status
-
-It must not own inspection-specific validation rules beyond connecting the resolver.
-
-### Step definitions
-
-Represent steps as static configuration containing:
-
-- stable ID
-- display label
-- rendered content
-
-Do not introduce a generic application-wide wizard framework. Keep this local to the inspection feature.
-
-### Step content
-
-Use simple placeholders for unfinished steps.
-
-The Conditions placeholder must contain one temporary text input named `foundationTestValue`, registered through `useFormContext()`. Include `foundationTestValue: ""` in RHF `defaultValues` and in the temporary Zod schema. Use it only to prove that state survives navigation; do not invent real inspection fields.
-
-The test must type into this field, navigate to Colony, return to Conditions, and assert that the same value remains.
-
-## Explicit form semantics for future work
-
-Record these conventions in comments or exported defaults, but do not add all fields now:
-
-- checkbox values will default to `false`
-- unchecked checkboxes will submit `false`
-- optional text, select, and numeric fields may use `null` when later implemented
-- database nullability must not determine checkbox UI defaults
-- fields must not be cleared or inferred from unrelated fields
-- queen colour is independent of whether the queen was seen
-- queen-cell observations are independent of whether the queen was seen
-
-## Non-goals
-
-Do not implement:
-
-- existing field migration
-- inspection form defaults beyond the temporary test field
-- conditional field behavior
-- cross-field normalization
-- database schema changes
-- API changes
-- final form submission
-- server/client page restructuring
-- hive loading changes
-- error summaries
-- per-step field validation
-- completed-step tracking
-- review summaries
-- styling redesign
-- a generic wizard library
-
-## Acceptance criteria
-
-- One RHF instance exists for the entire wizard.
-- The wizard has exactly five named steps.
-- Previous is disabled on Conditions, Next is absent on Review, and navigation never leaves the five-step range.
-- The active step exposes `aria-current="step"`.
-- A field value survives moving forward and backward.
-- No existing inspection behavior is removed.
-- No database or API files are changed.
-- Tests pass.
-- Type checking and linting pass.
-
-## Verification
-
-Run:
-
-```bash
-pnpm test
-pnpm lint
-pnpm exec tsc --noEmit
+Each boolean field follows the same pattern:
+```tsx
+<Controller name="..." control={control} render={({ field, fieldState }) => (
+  <RadioGroup value={field.value == null ? "" : String(field.value)}
+    onValueChange={(value) => { field.onChange(stringToBoolean(value)) }}>
+    <Field data-invalid={fieldState.invalid}>
+      <Label><SelectionBox><RadioGroupItem value="true" /><span>Yes</span></SelectionBox></Label>
+      <Label><SelectionBox><RadioGroupItem value="false" /><span>No</span></SelectionBox></Label>
+    </Field>
+  </RadioGroup>
+)} />
 ```
 
-Report:
+**Recommendation:** Create a `<BooleanField name="..." label="..." />` component. This would eliminate ~60 lines of repeated boilerplate across the wizard groups.
 
-1. files created
-2. files modified
-3. tests added
-4. verification results
-5. anything deliberately left for later
+### `inspection-form.tsx` — **Debug code left in**
 
-## Stop conditions
+Contains multiple `console.log()` calls that should be removed:
+- Line: `console.log(data);`
+- Line: `console.log("parse", parsed.data);`
+- Line: `console.log("validate", validated);`
+- Line: `console.log(res);`
+- Line: `console.log(hiveId);`
 
-Stop and ask before proceeding if:
+### `components/ui/field.tsx` (170 lines) — **Over-engineered**
 
-- the wizard cannot be tested in isolation without changing the existing page
-- the test setup requires unrelated global changes
-- the specified Next.js documentation conflicts with this plan
-- implementation requires changing the database or API
-- an unspecified product decision is encountered
+This is a shadcn-generated component with 11 sub-components (`Field`, `FieldLabel`, `FieldDescription`, `FieldError`, `FieldGroup`, `FieldLegend`, `FieldSeparator`, `FieldSet`, `FieldContent`, `FieldTitle`). Most of your app only uses `Field`, `FieldGroup`, `FieldLabel`, and `FieldSet`.
+
+**Issues:**
+1. **Massive overkill for your usage** — You use ~4 of 11 exported components. The remaining 7 (`FieldError`, `FieldSeparator`, `FieldLegend`, `FieldContent`, `FieldTitle`) are dead weight in production.
+
+2. **`FieldLabel` has an absurdly long className** — The CVA-based class string is hundreds of characters. This is a shadcn artifact that's hard to maintain.
+
+3. **Recommendation:** Either strip this down to what you actually use, or accept the shadcn trade-off if you plan to use more components later.
+
+### `app/hive-scan/page.tsx` — **Good**
+- Clean QR scanner implementation
+- Proper URL parsing with regex
+
+---
+
+## Summary of Actionable Items
+
+| Priority | Issue | Location | Effort |
+|----------|-------|----------|--------|
+| **High** | Extract shared `BooleanField` component | Wizard groups | 30 min |
+| **High** | Remove `console.log` debug statements | `inspection-form.tsx` | 5 min |
+| **High** | Deduplicate form page boilerplate | All CRUD pages | 1-2 hrs |
+| **Medium** | Data-drive `inspectionNumericInvariants` | `lib/schema.ts` | 30 min |
+| **Medium** | Extract analytics computation from view | `app/page.tsx` | 30 min |
+| **Medium** | Use `nullableNumber` consistently in wizard schema | `lib/inspection-wizard-schema.ts` | 10 min |
+| **Low** | Simplify `field.tsx` to used components | `components/ui/field.tsx` | 1 hr |
+| **Low** | Fix backwards refine condition in `HiveUpdate` | `lib/schema.ts` | 5 min |
+| **Low** | Standardize API error response format | All routes | 30 min |
+
+**Overall verdict:** The codebase is **not sprawling** — it's focused and well-organized. The main issues are repetitive patterns (form pages, wizard fields) and a few debug artifacts. No architectural problems detected.

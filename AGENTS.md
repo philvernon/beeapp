@@ -7,3 +7,38 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Beehive Tracker — Agent Guide
+
+## Stack
+Next.js App Router (RSC), Drizzle ORM + PostgreSQL, Zod schemas, React Hook Form + Zod resolver, Base UI primitives (shadcn), Phosphor icons, `@yudiel/react-qr-scanner`.
+
+## Architecture
+```
+lib/          ← schema.ts (Drizzle tables + Zod), data.ts (queries), db.ts (pool), fetch.ts (client helpers), inspection-wizard-schema.ts (form-only)
+app/api/      ← one route file per resource (CRUD), validated against lib/schema types
+app/          ← RSC pages (list/detail) + "use client" forms
+components/   ← ui/ (Base UI primitives), apiary-hives, stat-card, selection-box
+```
+
+## Frontend patterns
+- **RSC pages**: data fetches directly in component body, no `useEffect` for loading
+- **Client forms**: use `useState` per field + `safeJsonFetch`/`getErrorMessage` from `lib/fetch.ts`, validate with Zod schema before POST/PUT, redirect on success
+- **Wizard inspection form**: multi-step via `FormProvider` + `useForm`, steps defined as `[QueenFields, ColonyFields, HealthFields, WeatherFields, NotesFields]`, step validation via `methods.trigger(stepFields[stepIndex])`
+- **Boolean fields** in wizard: RadioGroup with `stringToBoolean` coercion — extract to shared `<BooleanField />` if adding new ones
+- **Server list/detail pages**: export `dynamic = "force-dynamic"`, use `Suspense` for async sub-components
+- **Toast notifications**: `toast.add({ type, title, description })` from `@/components/ui/toast`
+- **QR flow**: `/hive-scan` page uses camera scanner → parses hive ID from URL → redirects to inspection form
+
+## Conventions
+- Server functions: `import "server-only"`, query helpers in `lib/data.ts`
+- Error responses: `{ error: string }` — keep consistent across routes
+- No debug `console.log` in committed code
+- Date formatting: `toLocaleDateString("en-GB")` — extract to utility if repeated
+
+## Key files
+- `lib/schema.ts` — DB tables + insert/select/update schemas + enum helpers
+- `lib/data.ts` — all DB queries (batched where possible)
+- `lib/inspection-wizard-schema.ts` — client form schema subset (never duplicate full DB schema here)
+- `components/ui/field.tsx` — shadcn field system (only Field, FieldGroup, FieldLabel, FieldSet used)
+- `app/hives/[id]/new-inspection/` — multi-step wizard (form + 5 group components)
