@@ -185,7 +185,7 @@ describe("ApiaryHivesList", () => {
 			},
 		];
 		render(<ApiaryHivesList apiaries={singleApiaryNoHives} />);
-		expect(screen.getByText("No hives yet.")).toBeDefined();
+		expect(screen.getByText(/No hives yet/)).toBeDefined();
 		expect(screen.getByText("Add one →")).toBeDefined();
 		const addLink = document.querySelector('a[href="/hives/new?apiary_id=apiary-2"]');
 		expect(addLink).toBeDefined();

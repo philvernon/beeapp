@@ -1,19 +1,20 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { cn } from "@/lib/utils"
-import { ListIcon } from "@phosphor-icons/react"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { ListIcon } from "@phosphor-icons/react";
 
 // Mobile menu items
 const navItems = [
+  { label: "Scan", href: "/hive-scan" },
   { label: "Home", href: "/" },
   { label: "Apiaries", href: "/apiaries" },
   { label: "Hives", href: "/hives" },
   { label: "Analytics", href: "/analytics" },
-]
+];
 
 function DesktopNav() {
   return (
@@ -24,7 +25,7 @@ function DesktopNav() {
         </Button>
       ))}
     </nav>
-  )
+  );
 }
 
 function MobileNav({ className }: { className?: string }) {
@@ -40,7 +41,7 @@ function MobileNav({ className }: { className?: string }) {
         </Link>
       ))}
     </nav>
-  )
+  );
 }
 
 export function AppHeader() {
@@ -62,7 +63,9 @@ export function AppHeader() {
         <div className="flex md:hidden items-center gap-2">
           <Separator orientation="vertical" className="h-6" />
           <Sheet>
-            <SheetTrigger render={<Button variant="ghost" size="icon" className="size-7" />}>
+            <SheetTrigger
+              render={<Button variant="ghost" size="icon" className="size-7" />}
+            >
               <ListIcon weight="bold" />
               <span className="sr-only">Open menu</span>
             </SheetTrigger>
@@ -73,5 +76,5 @@ export function AppHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }
