@@ -8,8 +8,6 @@ import { RadioGroup } from "@base-ui/react";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-const stringToBoolean = (boolString: string) => boolString === "true";
-
 interface BooleanFieldProps {
   name: string;
   label: string;
@@ -21,9 +19,9 @@ export function BooleanField({ name, label }: BooleanFieldProps) {
 
   return (
     <RadioGroup
-      value={field.value == null ? "" : String(field.value)}
+      value={field.value}
       onValueChange={(value) => {
-        field.onChange(stringToBoolean(value));
+        field.onChange(value);
       }}
     >
       <Field data-invalid={fieldState.invalid}>

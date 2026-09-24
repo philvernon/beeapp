@@ -1,6 +1,10 @@
 {
   "schemaVersion": 2,
-  "parent": "pi",
+  "parent": "01a0d578-08e3-704d-99d9-bad3d66ff37f",
+  "telemetry": {
+    "correlationId": "5ae8f603-c1b7-42ca-ac64-3b8d3918b10f",
+    "mode": "straight"
+  },
   "states": {
     "896e7e7d6c549966": {
       "id": "896e7e7d6c549966",

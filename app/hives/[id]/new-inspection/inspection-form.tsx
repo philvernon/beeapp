@@ -15,6 +15,31 @@ import { InspectionInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { useRouter } from "next/navigation";
 
+const wizardDefaultValues: InspectionWizardInput = {
+  queenSeen: false,
+  queenColour: null,
+  queenCellsFound: null,
+  queenCellsRemoved: false,
+  eggsSeen: false,
+  broodPatternOk: true,
+  broodFrameCount: null,
+  storeFrames: null,
+  roomFrames: null,
+  healthOk: true,
+  chalkBroodSuspected: false,
+  efbSuspected: false,
+  afbSuspected: false,
+  varroaLevel: null,
+  varroaCount: null,
+  temperamentScore: null,
+  feedLitresLightSyrup: null,
+  feedLitresHeavySyrup: null,
+  supersChange: null,
+  weatherTemperatureC: null,
+  weatherCondition: null,
+  notes: null,
+};
+
 function Previous({ previous }: { previous: () => void }) {
   return (
     <Button type="button" onClick={previous}>
@@ -36,10 +61,9 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const defaultValues = InspectionWizardSchema.parse({});
   const methods = useForm<InspectionWizardInput>({
     resolver: zodResolver(InspectionWizardSchema),
-    defaultValues,
+    defaultValues: wizardDefaultValues,
   });
 
   const steps = [
@@ -96,23 +120,11 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
     setError(null);
     setLoading(true);
 
-    const parsed = InspectionWizardSchema.safeParse(data);
-
-    if (!parsed.success) {
-      setError(
-        parsed.error.issues
-          .map((i) => `${i.path.join(".")}: ${i.message}`)
-          .join("; "),
-      );
-      setLoading(false);
-      return;
-    }
-
     try {
       const validated = InspectionInsert.safeParse({
         hiveId,
         inspectionDate: new Date().toISOString().split("T")[0],
-        ...parsed.data,
+        ...data,
       });
 
       if (!validated.success) {
