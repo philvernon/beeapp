@@ -26,7 +26,6 @@ export function QueenFields() {
   return (
     <FieldSet>
       <FieldGroup>
-        {queenSeen ? "true" : "false"}
         <BooleanField name="queenSeen" label="Queen seen" />
         <BooleanField name="queenCellsRemoved" label="Queen cells removed" />
         <Controller
