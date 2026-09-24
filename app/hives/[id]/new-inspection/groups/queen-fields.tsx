@@ -2,7 +2,13 @@ import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "@/components/ui/boolean-field";
 import { SelectionBox } from "@/components/selection-box";
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { RadioGroup } from "@base-ui/react";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -15,7 +21,7 @@ export function QueenFields() {
   const queenSeen = useWatch({
     control,
     name: "queenSeen",
-  })
+  });
 
   return (
     <FieldSet>
@@ -33,15 +39,15 @@ export function QueenFields() {
                 value={field.value ?? ""}
                 onChange={(e) =>
                   field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
+                    e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
               />
             </Field>
-          )} />
+          )}
+        />
       </FieldGroup>
-      {
-        queenSeen === true &&
+      {queenSeen === true && (
         <Controller
           name="queenColour"
           shouldUnregister
@@ -49,26 +55,27 @@ export function QueenFields() {
           render={({ field, fieldState }) => (
             <RadioGroup
               value={field.value}
-              onValueChange={(value) => { field.onChange(value) }}
+              onValueChange={(value) => {
+                field.onChange(value);
+              }}
             >
               <Field data-invalid={fieldState.invalid}>
                 <FieldDescription>Queen colour</FieldDescription>
                 <div className="flex gap-1">
-                  {
-                    Object.entries(queenColourLabels).map(([k, v]) => (
-                      <Label key={k}>
-                        <SelectionBox>
-                          <RadioGroupItem value={k} />
-                          <span>{v}</span>
-                        </SelectionBox>
-                      </Label>
-                    ))
-                  }
+                  {Object.entries(queenColourLabels).map(([k, v]) => (
+                    <Label key={k}>
+                      <SelectionBox>
+                        <RadioGroupItem value={k} />
+                        <span>{v}</span>
+                      </SelectionBox>
+                    </Label>
+                  ))}
                 </div>
               </Field>
             </RadioGroup>
-          )} />
-      }
+          )}
+        />
+      )}
     </FieldSet>
-  )
+  );
 }
