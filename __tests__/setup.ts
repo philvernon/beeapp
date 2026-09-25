@@ -6,22 +6,25 @@ vi.mock("server-only", () => ({}));
 
 // Mock next/navigation (used by client components)
 vi.mock("next/navigation", () => ({
-	useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-	useSearchParams: () => ({ get: vi.fn() }),
-	notFound: vi.fn(),
-	redirect: vi.fn((url: string) => {
-		throw new Error(`Redirect to ${url}`);
-	}),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => ({ get: vi.fn() }),
+  notFound: vi.fn(),
+  redirect: vi.fn((url: string) => {
+    throw new Error(`Redirect to ${url}`);
+  }),
 }));
 
 // Mock next/font/google for RootLayout tests
-vi.mock("next/font/google", () => ({
-	Geist: () => ({ variable: "--font-geist-sans" }),
-	Geist_Mono: () => ({ variable: "--font-geist-mono" }),
-}));
+vi.mock("next/font/google", () => {
+  return {
+    Geist: () => ({ variable: "--font-geist-sans" }),
+    Geist_Mono: () => ({ variable: "--font-geist-mono" }),
+    JetBrains_Mono: () => ({ variable: "--font-jetbrains-mono" }),
+  };
+});
 
 // Mock next/link to render plain <a>
 vi.mock("next/link", () => ({
-	default: ({ href, children, ...props }: ComponentProps<"a">) =>
-		createElement("a", { href, ...props }, children),
+  default: ({ href, children, ...props }: ComponentProps<"a">) =>
+    createElement("a", { href, ...props }, children),
 }));
