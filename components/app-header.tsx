@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
 import { cn } from "@/lib/utils";
 import { ListIcon } from "@phosphor-icons/react";
 
@@ -32,13 +33,12 @@ function MobileNav({ className }: { className?: string }) {
   return (
     <nav className={cn("flex flex-col gap-1 p-2", className)}>
       {navItems.map((item) => (
-        <Link
+        <SheetClose
           key={item.href}
-          href={item.href}
-          className="px-2 py-1.5 text-sm font-medium rounded-none hover:bg-muted transition-colors"
-        >
+          nativeButton={false}
+          render={<Link href={item.href} className="px-2 py-1.5 text-sm font-medium rounded-none hover:bg-muted transition-colors" />}>
           {item.label}
-        </Link>
+        </SheetClose>
       ))}
     </nav>
   );
