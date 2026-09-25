@@ -3,5 +3,5 @@ allowBuilds:
   sharp: false
   unrs-resolver: false
 syncInjectedDepsAfterScripts:
-- build
+  - build
 injectWorkspacePackages: true

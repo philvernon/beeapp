@@ -39,7 +39,7 @@ describe("ColonyFields", () => {
     render(
       <Wrapper>
         <ColonyFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Eggs seen")).toBeDefined();
     expect(screen.getByText("Brood pattern OK")).toBeDefined();
@@ -52,9 +52,11 @@ describe("ColonyFields", () => {
     render(
       <Wrapper>
         <ColonyFields />
-      </Wrapper>
+      </Wrapper>,
     );
-    const field = screen.getByText("Eggs seen").closest('[data-slot="field"]') as HTMLElement;
+    const field = screen
+      .getByText("Eggs seen")
+      .closest('[data-slot="field"]') as HTMLElement;
     expect(within(field).getByText("Yes")).toBeDefined();
     expect(within(field).getByText("No")).toBeDefined();
   });
@@ -63,9 +65,11 @@ describe("ColonyFields", () => {
     render(
       <Wrapper>
         <ColonyFields />
-      </Wrapper>
+      </Wrapper>,
     );
-    const field = screen.getByText("Brood pattern OK").closest('[data-slot="field"]') as HTMLElement;
+    const field = screen
+      .getByText("Brood pattern OK")
+      .closest('[data-slot="field"]') as HTMLElement;
     expect(within(field).getByText("Yes")).toBeDefined();
     expect(within(field).getByText("No")).toBeDefined();
   });
@@ -74,11 +78,13 @@ describe("ColonyFields", () => {
     render(
       <Wrapper>
         <ColonyFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Brood frame count");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -86,11 +92,13 @@ describe("ColonyFields", () => {
     render(
       <Wrapper>
         <ColonyFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Store frames");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -98,11 +106,13 @@ describe("ColonyFields", () => {
     render(
       <Wrapper>
         <ColonyFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Room frames");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 });

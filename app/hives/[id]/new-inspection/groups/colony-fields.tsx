@@ -24,12 +24,13 @@ export function ColonyFields() {
                 value={field.value ?? ""}
                 onChange={(e) =>
                   field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
+                    e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
               />
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="storeFrames"
           control={control}
@@ -41,12 +42,13 @@ export function ColonyFields() {
                 value={field.value ?? ""}
                 onChange={(e) =>
                   field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
+                    e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
               />
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="roomFrames"
           control={control}
@@ -58,12 +60,13 @@ export function ColonyFields() {
                 value={field.value ?? ""}
                 onChange={(e) =>
                   field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
+                    e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
               />
             </Field>
-          )} />
+          )}
+        />
       </FieldGroup>
     </FieldSet>
   );

@@ -1,10 +1,10 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from './schema';
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import * as schema from "./schema";
 
 let pool: Pool;
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   pool = new Pool({ connectionString: process.env.DATABASE_URL });
 } else {
   // In dev, reuse the global pool to avoid HMR exhausting connections
@@ -16,7 +16,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Drizzle instance with schema for type-safe queries
-export const db = drizzle(pool, { schema, casing: 'snake_case' });
-
+export const db = drizzle(pool, { schema, casing: "snake_case" });
 
 export default pool;

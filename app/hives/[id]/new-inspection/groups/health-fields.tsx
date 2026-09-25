@@ -19,7 +19,10 @@ export function HealthFields() {
       <FieldGroup>
         <BooleanField name="healthOk" label="No disease signs" />
         {healthOk === false && (
-          <BooleanField name="chalkBroodSuspected" label="Chalk brood suspected" />
+          <BooleanField
+            name="chalkBroodSuspected"
+            label="Chalk brood suspected"
+          />
         )}
         {healthOk === false && (
           <BooleanField name="efbSuspected" label="EFB suspected" />
@@ -35,7 +38,9 @@ export function HealthFields() {
               <FieldLabel>Varroa level</FieldLabel>
               <RadioGroup
                 value={field.value ?? ""}
-                onValueChange={(value) => { field.onChange(value) }}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
               >
                 <div className="flex gap-1">
                   {Object.entries(varroaLevelLabels).map(([k, v]) => (
@@ -49,7 +54,8 @@ export function HealthFields() {
                 </div>
               </RadioGroup>
             </Field>
-          )} />
+          )}
+        />
         <Controller
           name="varroaCount"
           control={control}
@@ -61,12 +67,13 @@ export function HealthFields() {
                 value={field.value ?? ""}
                 onChange={(e) =>
                   field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value)
+                    e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
               />
             </Field>
-          )} />
+          )}
+        />
       </FieldGroup>
     </FieldSet>
   );

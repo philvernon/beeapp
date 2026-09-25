@@ -39,11 +39,13 @@ describe("NotesFields", () => {
     render(
       <Wrapper>
         <NotesFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText(/Temperature/);
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -51,7 +53,7 @@ describe("NotesFields", () => {
     render(
       <Wrapper>
         <NotesFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Condition")).toBeDefined();
   });
@@ -60,7 +62,7 @@ describe("NotesFields", () => {
     render(
       <Wrapper>
         <NotesFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Notes");
     const field = label.closest('[data-slot="field"]');
