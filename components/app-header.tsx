@@ -63,9 +63,7 @@ export function AppHeader() {
         <div className="flex md:hidden items-center gap-2">
           <Separator orientation="vertical" className="h-6" />
           <Sheet>
-            <SheetTrigger
-              render={<Button variant="ghost" size="icon" className="size-7" />}
-            >
+            <SheetTrigger className="inline-flex size-7 items-center justify-center rounded-none border border-transparent bg-clip-padding text-xs font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 hover:bg-muted hover:text-foreground active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50">
               <ListIcon weight="bold" />
               <span className="sr-only">Open menu</span>
             </SheetTrigger>
