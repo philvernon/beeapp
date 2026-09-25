@@ -29,8 +29,16 @@ const defaultValues: InspectionWizardValue = {
   notes: null,
 };
 
-function Wrapper({ children, values }: { children: React.ReactNode; values?: Partial<InspectionWizardValue> }) {
-  const form = useForm<InspectionWizardValue>({ defaultValues: { ...defaultValues, ...values } });
+function Wrapper({
+  children,
+  values,
+}: {
+  children: React.ReactNode;
+  values?: Partial<InspectionWizardValue>;
+}) {
+  const form = useForm<InspectionWizardValue>({
+    defaultValues: { ...defaultValues, ...values },
+  });
   return <FormProvider {...form}>{children}</FormProvider>;
 }
 
@@ -39,7 +47,7 @@ describe("QueenFields", () => {
     render(
       <Wrapper>
         <QueenFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Queen seen")).toBeDefined();
     const yesNoTexts = screen.getAllByText(/Yes|No/);
@@ -50,7 +58,7 @@ describe("QueenFields", () => {
     render(
       <Wrapper>
         <QueenFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.queryByText("Queen colour")).toBeNull();
   });
@@ -59,7 +67,7 @@ describe("QueenFields", () => {
     render(
       <Wrapper values={{ queenSeen: true }}>
         <QueenFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Queen colour")).toBeDefined();
   });
@@ -68,11 +76,13 @@ describe("QueenFields", () => {
     render(
       <Wrapper>
         <QueenFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Cells found");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -80,7 +90,7 @@ describe("QueenFields", () => {
     render(
       <Wrapper>
         <QueenFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Queen cells removed")).toBeDefined();
     const yesNoTexts = screen.getAllByText(/Yes|No/);

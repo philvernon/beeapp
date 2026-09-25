@@ -16,9 +16,9 @@ export function SelectionBox({
         "has-[[data-slot=radio-group-item]:focus-visible]:border-ring",
         "has-[[data-slot=radio-group-item]:focus-visible]:ring-1",
         "has-[[data-slot=radio-group-item]:focus-visible]:ring-ring/50",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }

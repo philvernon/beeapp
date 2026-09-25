@@ -2,13 +2,13 @@
 
 ## Recommended Stack
 
-| Layer | Choice | Why |
-|-------|--------|-----|
-| **DB** | PostgreSQL (Docker container) | Self-hosted, full control, no vendor lock-in |
-| **Driver** | `pg` (node-postgres) | Lightweight, works with any Postgres instance |
-| **ORM** | None initially | Your schema is simple — raw SQL is fine |
-| **Validation** | Zod | Type-safe server-side validation, works great with TypeScript |
-| **Hosting** | Docker Compose | Next.js + PostgreSQL in one compose file, self-hosted on your server |
+| Layer          | Choice                        | Why                                                                  |
+| -------------- | ----------------------------- | -------------------------------------------------------------------- |
+| **DB**         | PostgreSQL (Docker container) | Self-hosted, full control, no vendor lock-in                         |
+| **Driver**     | `pg` (node-postgres)          | Lightweight, works with any Postgres instance                        |
+| **ORM**        | None initially                | Your schema is simple — raw SQL is fine                              |
+| **Validation** | Zod                           | Type-safe server-side validation, works great with TypeScript        |
+| **Hosting**    | Docker Compose                | Next.js + PostgreSQL in one compose file, self-hosted on your server |
 
 ## What gets built
 
@@ -91,12 +91,14 @@ volumes:
 ## The SQL (migrations/001_initial.sql)
 
 ### Hive-level fields (from the header section of the record sheet)
+
 - **Apiary** → `apiaries.name` (separate table, hives reference via FK)
 - **Colony** → `hives.name`
 - **Queen breed from** → `hives.queen_breed`
 - **Queen Clipped?** → `hives.queen_clipped` (boolean)
 
 ### Per-inspection fields (from the row columns)
+
 - **Q** (Queen seen) → `inspections.queen_seen`, `inspections.queen_clipped`, `inspections.queen_colour`
 - **QC** (Queen Cells) → `inspections.queen_cells_found`, `inspections.queen_cells_removed`
 - **Brood** → `inspections.eggs_seen`, `inspections.brood_pattern_ok`, `inspections.brood_frame_count`
@@ -198,7 +200,6 @@ The `migrations/` directory is mounted into `/docker-entrypoint-initdb.d`, which
 2. Build all pages + API routes — hives CRUD, inspections form with validation, analytics page
 3. Full app from scratch
 
-
 this is a test of the diff rendering
 
-and here i am going to just type lots of words as many as i can 
+and here i am going to just type lots of words as many as i can

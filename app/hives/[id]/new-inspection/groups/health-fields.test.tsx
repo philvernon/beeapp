@@ -29,8 +29,16 @@ const defaultValues: InspectionWizardValue = {
   notes: null,
 };
 
-function Wrapper({ children, values }: { children: React.ReactNode; values?: Partial<InspectionWizardValue> }) {
-  const form = useForm<InspectionWizardValue>({ defaultValues: { ...defaultValues, ...values } });
+function Wrapper({
+  children,
+  values,
+}: {
+  children: React.ReactNode;
+  values?: Partial<InspectionWizardValue>;
+}) {
+  const form = useForm<InspectionWizardValue>({
+    defaultValues: { ...defaultValues, ...values },
+  });
   return <FormProvider {...form}>{children}</FormProvider>;
 }
 
@@ -39,7 +47,7 @@ describe("HealthFields", () => {
     render(
       <Wrapper>
         <HealthFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("No disease signs")).toBeDefined();
     // Should have at least Yes and No text visible
@@ -51,7 +59,7 @@ describe("HealthFields", () => {
     render(
       <Wrapper>
         <HealthFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.queryByText("Chalk brood suspected")).toBeNull();
     expect(screen.queryByText("EFB suspected")).toBeNull();
@@ -62,7 +70,7 @@ describe("HealthFields", () => {
     render(
       <Wrapper values={{ healthOk: false }}>
         <HealthFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Chalk brood suspected")).toBeDefined();
     expect(screen.getByText("EFB suspected")).toBeDefined();
@@ -73,7 +81,7 @@ describe("HealthFields", () => {
     render(
       <Wrapper>
         <HealthFields />
-      </Wrapper>
+      </Wrapper>,
     );
     expect(screen.getByText("Varroa level")).toBeDefined();
     // Check that at least one of the varroa level labels is present
@@ -85,11 +93,13 @@ describe("HealthFields", () => {
     render(
       <Wrapper>
         <HealthFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Varroa count");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 });

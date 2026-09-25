@@ -39,11 +39,13 @@ describe("WeatherFields", () => {
     render(
       <Wrapper>
         <WeatherFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Temperament score");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -51,11 +53,13 @@ describe("WeatherFields", () => {
     render(
       <Wrapper>
         <WeatherFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Light syrup (litres)");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -63,11 +67,13 @@ describe("WeatherFields", () => {
     render(
       <Wrapper>
         <WeatherFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Heavy syrup (litres)");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 
@@ -75,11 +81,13 @@ describe("WeatherFields", () => {
     render(
       <Wrapper>
         <WeatherFields />
-      </Wrapper>
+      </Wrapper>,
     );
     const label = screen.getByText("Supers change");
     const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>('input[type="number"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      'input[type="number"]',
+    );
     expect(input).not.toBeNull();
   });
 });
