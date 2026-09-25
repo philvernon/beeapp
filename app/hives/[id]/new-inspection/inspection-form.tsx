@@ -6,6 +6,14 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { QueenFields } from "./groups/queen-fields";
 import { ColonyFields } from "./groups/colony-fields";
 import { HealthFields } from "./groups/health-fields";
@@ -65,6 +73,8 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
     resolver: zodResolver(InspectionWizardSchema),
     defaultValues: wizardDefaultValues,
   });
+
+  const stepLabels = ["Queen", "Brood", "Health", "Weather", "Notes"];
 
   const steps = [
     QueenFields,
@@ -164,6 +174,30 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
           {error}
         </div>
       )}
+
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          {stepLabels.map((label, i) => (
+            <>
+              <BreadcrumbItem key={label}>
+                {i === stepIndex ? (
+                  <BreadcrumbPage className="font-bold text-primary">
+                    {label}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    className="cursor-pointer text-muted-foreground"
+                    onClick={() => setStepIndex(i)}
+                  >
+                    {label}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+              {i < stepLabels.length - 1 && <BreadcrumbSeparator />}
+            </>
+          ))}
+        </BreadcrumbList>
+      </Breadcrumb>
 
       <FormProvider {...methods}>
         <form
