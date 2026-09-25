@@ -1,3 +1,4 @@
+import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   InspectionWizardSchema,
@@ -67,7 +68,6 @@ function Next({ next }: { next: () => void }) {
 export function InspectionForm({ hiveId }: { hiveId: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const methods = useForm<InspectionWizardInput>({
     resolver: zodResolver(InspectionWizardSchema),
@@ -128,8 +128,6 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
 
   async function handleSubmit(data: InspectionWizardInput) {
     setError(null);
-    setLoading(true);
-
     try {
       const validated = InspectionInsert.safeParse({
         hiveId,
@@ -143,7 +141,6 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
             .map((i) => `${i.path.join(".")}: ${i.message}`)
             .join("; "),
         );
-        setLoading(false);
         return;
       }
 
@@ -159,7 +156,6 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
         );
       }
       router.push(`/hives/${hiveId}`);
-      setLoading(false);
     } catch (err: unknown) {
       setError(String(err));
     }
@@ -178,8 +174,8 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           {stepLabels.map((label, i) => (
-            <>
-              <BreadcrumbItem key={label}>
+            <React.Fragment key={i}>
+              <BreadcrumbItem>
                 {i === stepIndex ? (
                   <BreadcrumbPage className="font-bold text-primary">
                     {label}
@@ -194,7 +190,7 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
                 )}
               </BreadcrumbItem>
               {i < stepLabels.length - 1 && <BreadcrumbSeparator />}
-            </>
+            </React.Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
