@@ -63,7 +63,7 @@ export default function NewInspectionPage({
       >
         ← Back to {hiveName || "Hive"}
       </Link>
-      <h1 className="text-m font-bold text-foreground mb-1">
+      <h1 className="text-base font-bold text-foreground mb-1">
         New Inspection — {hiveName}
       </h1>
 
