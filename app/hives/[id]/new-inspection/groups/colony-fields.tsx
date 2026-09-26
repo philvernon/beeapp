@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 
-import { BooleanField } from "@/components/ui/boolean-field";
+import { BooleanField } from "./boolean-field";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { Input } from "@/components/ui/input";

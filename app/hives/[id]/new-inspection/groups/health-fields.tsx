@@ -1,8 +1,8 @@
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
-import { BooleanField } from "@/components/ui/boolean-field";
+import { BooleanField } from "./boolean-field";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
-import { RadioGroup } from "@base-ui/react";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";

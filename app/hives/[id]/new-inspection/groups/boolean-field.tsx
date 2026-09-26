@@ -3,8 +3,7 @@
 import { useController, useFormContext } from "react-hook-form";
 
 import { Field, FieldDescription } from "@/components/ui/field";
-import { RadioGroup } from "@base-ui/react";
-import { RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 interface BooleanFieldProps {
