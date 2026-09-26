@@ -45,34 +45,34 @@ export function QueenFields() {
             </Field>
           )}
         />
+        {queenSeen === true && (
+          <Controller
+            name="queenColour"
+            shouldUnregister
+            control={control}
+            render={({ field, fieldState }) => (
+              <RadioGroup
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
+              >
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldDescription>Queen colour</FieldDescription>
+                  <div className="flex flex-wrap">
+                    {Object.entries(queenColourLabels).map(([k, v]) => (
+                      <Label key={k}>
+                        <RadioGroupItem value={k} />
+                        <span>{v}</span>
+                      </Label>
+                    ))}
+                  </div>
+                </Field>
+              </RadioGroup>
+            )}
+          />
+        )}
       </FieldGroup>
-      {queenSeen === true && (
-        <Controller
-          name="queenColour"
-          shouldUnregister
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value}
-              onValueChange={(value) => {
-                field.onChange(value);
-              }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>Queen colour</FieldDescription>
-                <div className="flex flex-wrap gap-1">
-                  {Object.entries(queenColourLabels).map(([k, v]) => (
-                    <Label key={k}>
-                      <RadioGroupItem value={k} />
-                      <span>{v}</span>
-                    </Label>
-                  ))}
-                </div>
-              </Field>
-            </RadioGroup>
-          )}
-        />
-      )}
     </FieldSet>
   );
 }
