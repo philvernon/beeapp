@@ -44,7 +44,7 @@ describe("WeatherFields", () => {
     const label = screen.getByText("Temperament score");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });
@@ -58,7 +58,7 @@ describe("WeatherFields", () => {
     const label = screen.getByText("Light syrup (litres)");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });
@@ -72,7 +72,7 @@ describe("WeatherFields", () => {
     const label = screen.getByText("Heavy syrup (litres)");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });
@@ -86,7 +86,7 @@ describe("WeatherFields", () => {
     const label = screen.getByText("Supers change");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });

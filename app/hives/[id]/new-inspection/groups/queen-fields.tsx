@@ -14,7 +14,7 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { queenColourLabels } from "@/lib/schema";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
-import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 
 export function QueenFields() {
   const { control, unregister } = useFormContext<InspectionWizardValue>();
@@ -39,14 +39,9 @@ export function QueenFields() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Cells found</FieldLabel>
-              <Input
-                type="number"
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
+              <NumberInput
+                value={field.value ?? null}
+                onChange={field.onChange}
               />
             </Field>
           )}

@@ -98,7 +98,7 @@ describe("HealthFields", () => {
     const label = screen.getByText("Varroa count");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });

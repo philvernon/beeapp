@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { BooleanField } from "./boolean-field";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
-import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 
 export function ColonyFields() {
   const { control } = useFormContext<InspectionWizardValue>();
@@ -19,14 +19,9 @@ export function ColonyFields() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Brood frame count</FieldLabel>
-              <Input
-                type="number"
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
+              <NumberInput
+                value={field.value ?? null}
+                onChange={field.onChange}
               />
             </Field>
           )}
@@ -37,14 +32,9 @@ export function ColonyFields() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Store frames</FieldLabel>
-              <Input
-                type="number"
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
+              <NumberInput
+                value={field.value ?? null}
+                onChange={field.onChange}
               />
             </Field>
           )}
@@ -55,14 +45,9 @@ export function ColonyFields() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Room frames</FieldLabel>
-              <Input
-                type="number"
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
+              <NumberInput
+                value={field.value ?? null}
+                onChange={field.onChange}
               />
             </Field>
           )}
