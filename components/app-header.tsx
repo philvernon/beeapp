@@ -18,7 +18,6 @@ const navItems = [
   { label: "Home", href: "/" },
   { label: "Apiaries", href: "/apiaries" },
   { label: "Hives", href: "/hives" },
-  { label: "Analytics", href: "/analytics" },
 ];
 
 function DesktopNav() {
