@@ -55,15 +55,15 @@ export default function NewInspectionPage({
   }, [hiveName]);
 
   return (
-    <div className="flex flex-col max-w-2xl flex-1">
+    <div className="flex min-h-0 flex-col max-w-2xl flex-1">
       <Toaster />
       <Link
         href={`/hives/${id}`}
-        className="text-sm text-muted-foreground hover:text-foreground mb-4 inline-block"
+        className="text-sm text-muted-foreground hover:text-foreground mb-2 inline-block"
       >
         ← Back to {hiveName || "Hive"}
       </Link>
-      <h1 className="text-2xl font-bold text-foreground mb-6">
+      <h1 className="text-m font-bold text-foreground mb-1">
         New Inspection — {hiveName}
       </h1>
 
