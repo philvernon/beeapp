@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-
 import { cn } from "@/lib/utils";
 import { ListIcon } from "@phosphor-icons/react";
 
@@ -21,9 +20,13 @@ function DesktopNav() {
   return (
     <nav className="hidden md:flex items-center gap-1">
       {navItems.map((item) => (
-        <Button key={item.href} variant="ghost" className="px-3">
-          <Link href={item.href}>{item.label}</Link>
-        </Button>
+        <Link
+          key={item.href}
+          href={item.href}
+          className={buttonVariants({ variant: "ghost", size: "default" }) + " px-3"}
+        >
+          {item.label}
+        </Link>
       ))}
     </nav>
   );
@@ -63,7 +66,7 @@ export function AppHeader() {
         <div className="flex md:hidden items-center gap-2">
           <Separator orientation="vertical" className="h-6" />
           <Sheet>
-            <SheetTrigger className="inline-flex size-7 items-center justify-center rounded-none border border-transparent bg-clip-padding text-xs font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 hover:bg-muted hover:text-foreground active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50">
+            <SheetTrigger className={buttonVariants({ variant: "ghost", size: "icon-sm" })}>
               <ListIcon weight="bold" />
               <span className="sr-only">Open menu</span>
             </SheetTrigger>
