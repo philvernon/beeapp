@@ -1,6 +1,5 @@
 import { Controller, useFormContext } from "react-hook-form";
 
-import { SelectionBox } from "@/components/selection-box";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { RadioGroup } from "@base-ui/react";
 import { RadioGroupItem } from "@/components/ui/radio-group";
@@ -48,10 +47,8 @@ export function NotesFields() {
                 <div className="flex gap-1">
                   {Object.entries(weatherConditionLabels).map(([k, v]) => (
                     <Label key={k}>
-                      <SelectionBox>
-                        <RadioGroupItem value={k} />
-                        <span>{v}</span>
-                      </SelectionBox>
+                      <RadioGroupItem value={k} />
+                      <span>{v}</span>
                     </Label>
                   ))}
                 </div>

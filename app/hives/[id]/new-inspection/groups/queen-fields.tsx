@@ -1,7 +1,6 @@
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "@/components/ui/boolean-field";
-import { SelectionBox } from "@/components/selection-box";
 import {
   Field,
   FieldDescription,
@@ -64,10 +63,8 @@ export function QueenFields() {
                 <div className="flex gap-1">
                   {Object.entries(queenColourLabels).map(([k, v]) => (
                     <Label key={k}>
-                      <SelectionBox>
-                        <RadioGroupItem value={k} />
-                        <span>{v}</span>
-                      </SelectionBox>
+                      <RadioGroupItem value={k} />
+                      <span>{v}</span>
                     </Label>
                   ))}
                 </div>

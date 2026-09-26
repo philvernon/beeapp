@@ -1,7 +1,6 @@
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "@/components/ui/boolean-field";
-import { SelectionBox } from "@/components/selection-box";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { RadioGroup } from "@base-ui/react";
 import { RadioGroupItem } from "@/components/ui/radio-group";
@@ -45,10 +44,8 @@ export function HealthFields() {
                 <div className="flex gap-1">
                   {Object.entries(varroaLevelLabels).map(([k, v]) => (
                     <Label key={k}>
-                      <SelectionBox>
-                        <RadioGroupItem value={k} />
-                        <span>{v}</span>
-                      </SelectionBox>
+                      <RadioGroupItem value={k} />
+                      <span>{v}</span>
                     </Label>
                   ))}
                 </div>
