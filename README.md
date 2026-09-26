@@ -7,11 +7,10 @@ Manage apiaries, hives, and inspection records.
 - **Apiary Management** — Create and organize multiple apiary locations
 - **Hive Tracking** — Record hive details (queen breed, clipping status, apiary assignment)
 - **Inspection Records** — Log inspections with queen presence, brood pattern, varroa mite load, stores, temperament, feeding, and weather
-- **Analytics** — View aggregated inspection data
 
 ## Tech Stack
 
-- Next.js 15 (App Router)
+- Next.js 16 (App Router)
 - TypeScript
 - PostgreSQL (via Docker Compose)
 - Tailwind CSS
@@ -41,15 +40,18 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Project Structure
 
-```
+```text
 app/
-  apiaries/     # Apiary CRUD pages
-  hives/        # Hive CRUD pages
-  analytics/    # Inspection analytics
-  api/          # API routes
+  api/
+  apiaries/
+  hive-scan/    # QR-based hive scan flow
+  hives/
+    [id]/
+      new-inspection/  # Multi-step inspection wizard
 lib/
-  db.ts         # Database connection
-  validations.ts # Zod schemas
+  db.ts                # Database connection
+  schema.ts            # Zod schemas + Drizzle tables
+  inspection-wizard-schema.ts  # Client form schema subset
 migrations/
   001_initial.sql # Schema definition
 ```
