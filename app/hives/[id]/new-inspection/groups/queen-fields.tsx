@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "./boolean-field";
@@ -16,11 +17,16 @@ import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { Input } from "@/components/ui/input";
 
 export function QueenFields() {
-  const { control } = useFormContext<InspectionWizardValue>();
-  const queenSeen = useWatch({
-    control,
-    name: "queenSeen",
-  });
+  const { control, unregister } = useFormContext<InspectionWizardValue>();
+  const queenSeen = useWatch({ control, name: "queenSeen" });
+  const prevQueenSeenRef = useRef(queenSeen);
+
+  useEffect(() => {
+    if (prevQueenSeenRef.current === true && queenSeen === false) {
+      unregister("queenColour");
+    }
+    prevQueenSeenRef.current = queenSeen;
+  }, [queenSeen, unregister]);
 
   return (
     <FieldSet>
@@ -48,13 +54,12 @@ export function QueenFields() {
         {queenSeen === true && (
           <Controller
             name="queenColour"
-            shouldUnregister
             control={control}
             render={({ field, fieldState }) => (
               <RadioGroup
-                value={field.value}
+                value={field.value ?? ""}
                 onValueChange={(value) => {
-                  field.onChange(value);
+                  if (value) field.onChange(value);
                 }}
               >
                 <Field data-invalid={fieldState.invalid}>
