@@ -14,10 +14,10 @@ import { ListIcon } from "@phosphor-icons/react";
 
 // Mobile menu items
 const navItems = [
-  { label: "Scan", href: "/hive-scan" },
   { label: "Home", href: "/" },
   { label: "Apiaries", href: "/apiaries" },
   { label: "Hives", href: "/hives" },
+  { label: "Scan", href: "/hive-scan" },
 ];
 
 function DesktopNav() {
