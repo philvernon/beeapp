@@ -41,7 +41,7 @@ export function HealthFields() {
                   field.onChange(value);
                 }}
               >
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {Object.entries(varroaLevelLabels).map(([k, v]) => (
                     <Label key={k}>
                       <RadioGroupItem value={k} />

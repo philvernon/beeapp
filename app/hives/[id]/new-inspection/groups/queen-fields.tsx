@@ -60,7 +60,7 @@ export function QueenFields() {
             >
               <Field data-invalid={fieldState.invalid}>
                 <FieldDescription>Queen colour</FieldDescription>
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {Object.entries(queenColourLabels).map(([k, v]) => (
                     <Label key={k}>
                       <RadioGroupItem value={k} />

@@ -44,7 +44,7 @@ export function NotesFields() {
                   field.onChange(value);
                 }}
               >
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {Object.entries(weatherConditionLabels).map(([k, v]) => (
                     <Label key={k}>
                       <RadioGroupItem value={k} />

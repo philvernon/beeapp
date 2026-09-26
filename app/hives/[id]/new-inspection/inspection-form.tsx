@@ -164,14 +164,14 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
   const Step = steps[stepIndex];
 
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       {error && (
         <div className="mb-4 border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
-      <Breadcrumb className="mb-6">
+      <Breadcrumb className="mb-6 shrink-0">
         <BreadcrumbList>
           {stepLabels.map((label, i) => (
             <React.Fragment key={i}>
@@ -199,10 +199,13 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
         <form
           id="new-inspection-form"
           onSubmit={methods.handleSubmit(handleSubmit)}
+          className="flex flex-col min-h-full"
         >
-          <Step />
+          <div className="flex-1 overflow-y-auto">
+            <Step />
+          </div>
 
-          <div className="py-2 flex justify-end">
+          <div className="shrink-0 py-2 flex justify-end">
             {stepIndex > 0 && <Previous previous={previous} />}
             {stepIndex < steps.length - 1 && <Next next={next} />}
             {stepIndex === steps.length - 1 && (

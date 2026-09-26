@@ -55,7 +55,7 @@ export default function NewInspectionPage({
   }, [hiveName]);
 
   return (
-    <div className="max-w-2xl">
+    <div className="flex flex-col max-w-2xl flex-1">
       <Toaster />
       <Link
         href={`/hives/${id}`}
