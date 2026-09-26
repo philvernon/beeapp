@@ -2,10 +2,8 @@
 
 import { useController, useFormContext } from "react-hook-form";
 
-import { SelectionBox } from "@/components/selection-box";
 import { Field, FieldDescription } from "@/components/ui/field";
-import { RadioGroup } from "@base-ui/react";
-import { RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 interface BooleanFieldProps {
@@ -28,16 +26,12 @@ export function BooleanField({ name, label }: BooleanFieldProps) {
         <FieldDescription>{label}</FieldDescription>
         <div className="flex gap-4">
           <Label>
-            <SelectionBox>
-              <RadioGroupItem value={true} />
-              <span>Yes</span>
-            </SelectionBox>
+            <RadioGroupItem value={true} />
+            <span>Yes</span>
           </Label>
           <Label>
-            <SelectionBox>
-              <RadioGroupItem value={false} />
-              <span>No</span>
-            </SelectionBox>
+            <RadioGroupItem value={false} />
+            <span>No</span>
           </Label>
         </div>
       </Field>
