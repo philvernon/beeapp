@@ -20,15 +20,16 @@ Next.js App Router (RSC), Drizzle ORM + PostgreSQL, Zod schemas, React Hook Form
 lib/          ← schema.ts (Drizzle tables + Zod), data.ts (queries), db.ts (pool), fetch.ts (client helpers), inspection-wizard-schema.ts (form-only)
 app/api/      ← one route file per resource (CRUD), validated against lib/schema types
 app/          ← RSC pages (list/detail) + "use client" forms
-components/   ← ui/ (Base UI primitives), apiary-hives, stat-card, selection-box
+components/   ← ui/ (shadcn UI layer), button-link, app-header, apiary-hives, stat-card
 ```
+
+`components/ui/**` contains shadcn UI components and thin project styling adapters. Some wrap Base UI primitives, some are native DOM elements (Label, Card, Textarea, etc.), and `questionnaire.tsx` uses `@shadcn/react`. Application code should consume this layer rather than importing `@base-ui/react` directly. Do not put application/domain logic or form-library integration here.
 
 ## Frontend patterns
 
 - **RSC pages**: data fetches directly in component body, no `useEffect` for loading
 - **Client forms**: use `useState` per field + `safeJsonFetch`/`getErrorMessage` from `lib/fetch.ts`, validate with Zod schema before POST/PUT, redirect on success
 - **Wizard inspection form**: multi-step via `FormProvider` + `useForm`, steps defined as `[QueenFields, ColonyFields, HealthFields, WeatherFields, NotesFields]`, step validation via `methods.trigger(stepFields[stepIndex])`
-- **Boolean fields** in wizard: RadioGroup with `stringToBoolean` coercion — extract to shared `<BooleanField />` if adding new ones
 - **Server list/detail pages**: export `dynamic = "force-dynamic"`, use `Suspense` for async sub-components
 - **Toast notifications**: `toast.add({ type, title, description })` from `@/components/ui/toast`
 - **QR flow**: `/hive-scan` page uses camera scanner → parses hive ID from URL → redirects to inspection form
