@@ -40,13 +40,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
-      # Verify schema ↔ migration drift by regenerating and diffing.
-      # drizzle-kit check only validates migration history consistency,
-      # not whether the current TypeScript schema has ungenerated changes.
-      - run: |
+      - name: Check schema/migration drift
+        run: |
           pnpm db:generate
-          git diff --exit-code -- migrations/
-        continue-on-error: false
+          if [ -n "$(git status --porcelain -- migrations/)" ]; then
+            echo "Schema and migrations are out of sync"
+            git status --short -- migrations/
+            exit 1
+          fi
       - run: pnpm test -- --run
       - run: pnpm build
         env:
