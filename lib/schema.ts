@@ -296,14 +296,3 @@ export type VarroaLevel = NonNullable<
 export type WeatherCondition = NonNullable<
   (typeof inspections.$inferSelect)["weatherCondition"]
 >;
-
-// Re-export inspection options for backward compatibility.
-// New code should import from "./inspection-options" instead.
-export {
-  queenColours,
-  queenColourLabels,
-  varroaLevels,
-  varroaLevelLabels,
-  weatherConditions,
-  weatherConditionLabels,
-} from "./inspection-options";

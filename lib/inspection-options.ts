@@ -8,19 +8,9 @@
  * provide compile-time constraint against the Drizzle enum definitions
  * without pulling schema.ts into the client bundle at runtime.
  */
-
 import type { QueenColour, VarroaLevel, WeatherCondition } from "./schema";
 
-// ── Queen colours ─────────────────────────────────────────
-export const queenColours = [
-  "W",
-  "Y",
-  "R",
-  "G",
-  "B",
-] as const satisfies readonly QueenColour[];
-
-export const queenColourLabels: Record<QueenColour, string> = {
+export const queenColourLabels = {
   W: "White",
   Y: "Yellow",
   R: "Red",
@@ -28,28 +18,13 @@ export const queenColourLabels: Record<QueenColour, string> = {
   B: "Blue",
 } satisfies Record<QueenColour, string>;
 
-// ── Varroa levels ─────────────────────────────────────────
-export const varroaLevels = [
-  "l",
-  "m",
-  "h",
-] as const satisfies readonly VarroaLevel[];
-
-export const varroaLevelLabels: Record<VarroaLevel, string> = {
+export const varroaLevelLabels = {
   l: "Low",
   m: "Medium",
   h: "High",
 } satisfies Record<VarroaLevel, string>;
 
-// ── Weather conditions ────────────────────────────────────
-export const weatherConditions = [
-  "c",
-  "s",
-  "r",
-  "f",
-] as const satisfies readonly WeatherCondition[];
-
-export const weatherConditionLabels: Record<WeatherCondition, string> = {
+export const weatherConditionLabels = {
   c: "Cloudy",
   s: "Sunny",
   r: "Rain",
