@@ -23,6 +23,7 @@ import { NotesFields } from "./groups/notes-fields";
 import { InspectionInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { useRouter } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 
 const wizardDefaultValues: InspectionWizardInput = {
   queenSeen: false,
@@ -164,14 +165,13 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
   const Step = steps[stepIndex];
 
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       {error && (
-        <div className="mb-4 border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="mb-2 border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
-
-      <Breadcrumb className="mb-6">
+      <Breadcrumb className="sm:mb-2 shrink-0">
         <BreadcrumbList>
           {stepLabels.map((label, i) => (
             <React.Fragment key={i}>
@@ -194,15 +194,18 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-
+      <Separator className="mt-1 mb-3 block sm:hidden" />
       <FormProvider {...methods}>
         <form
           id="new-inspection-form"
           onSubmit={methods.handleSubmit(handleSubmit)}
+          className="flex flex-1 flex-col min-h-0"
         >
-          <Step />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <Step />
+          </div>
 
-          <div className="py-2 flex justify-end">
+          <div className="shrink-0 py-2 flex justify-end">
             {stepIndex > 0 && <Previous previous={previous} />}
             {stepIndex < steps.length - 1 && <Next next={next} />}
             {stepIndex === steps.length - 1 && (

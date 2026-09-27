@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "./boolean-field";
@@ -13,14 +14,19 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { queenColourLabels } from "@/lib/schema";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
-import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 
 export function QueenFields() {
-  const { control } = useFormContext<InspectionWizardValue>();
-  const queenSeen = useWatch({
-    control,
-    name: "queenSeen",
-  });
+  const { control, unregister } = useFormContext<InspectionWizardValue>();
+  const queenSeen = useWatch({ control, name: "queenSeen" });
+  const prevQueenSeenRef = useRef(queenSeen);
+
+  useEffect(() => {
+    if (prevQueenSeenRef.current === true && queenSeen === false) {
+      unregister("queenColour");
+    }
+    prevQueenSeenRef.current = queenSeen;
+  }, [queenSeen, unregister]);
 
   return (
     <FieldSet>
@@ -33,46 +39,40 @@ export function QueenFields() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Cells found</FieldLabel>
-              <Input
-                type="number"
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
+              <NumberInput
+                value={field.value ?? null}
+                onChange={field.onChange}
               />
             </Field>
           )}
         />
+        {queenSeen === true && (
+          <Controller
+            name="queenColour"
+            control={control}
+            render={({ field, fieldState }) => (
+              <RadioGroup
+                value={field.value ?? ""}
+                onValueChange={(value) => {
+                  if (value) field.onChange(value);
+                }}
+              >
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldDescription>Queen colour</FieldDescription>
+                  <div className="flex flex-wrap">
+                    {Object.entries(queenColourLabels).map(([k, v]) => (
+                      <Label key={k}>
+                        <RadioGroupItem value={k} />
+                        <span>{v}</span>
+                      </Label>
+                    ))}
+                  </div>
+                </Field>
+              </RadioGroup>
+            )}
+          />
+        )}
       </FieldGroup>
-      {queenSeen === true && (
-        <Controller
-          name="queenColour"
-          shouldUnregister
-          control={control}
-          render={({ field, fieldState }) => (
-            <RadioGroup
-              value={field.value}
-              onValueChange={(value) => {
-                field.onChange(value);
-              }}
-            >
-              <Field data-invalid={fieldState.invalid}>
-                <FieldDescription>Queen colour</FieldDescription>
-                <div className="flex gap-1">
-                  {Object.entries(queenColourLabels).map(([k, v]) => (
-                    <Label key={k}>
-                      <RadioGroupItem value={k} />
-                      <span>{v}</span>
-                    </Label>
-                  ))}
-                </div>
-              </Field>
-            </RadioGroup>
-          )}
-        />
-      )}
     </FieldSet>
   );
 }

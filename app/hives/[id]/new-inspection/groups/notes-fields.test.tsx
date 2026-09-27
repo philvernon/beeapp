@@ -44,7 +44,7 @@ describe("NotesFields", () => {
     const label = screen.getByText(/Temperature/);
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });

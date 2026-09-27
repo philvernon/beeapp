@@ -7,7 +7,7 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { varroaLevelLabels } from "@/lib/schema";
-import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 
 export function HealthFields() {
   const { control } = useFormContext<InspectionWizardValue>();
@@ -41,7 +41,7 @@ export function HealthFields() {
                   field.onChange(value);
                 }}
               >
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {Object.entries(varroaLevelLabels).map(([k, v]) => (
                     <Label key={k}>
                       <RadioGroupItem value={k} />
@@ -59,14 +59,9 @@ export function HealthFields() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel>Varroa count</FieldLabel>
-              <Input
-                type="number"
-                value={field.value ?? ""}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === "" ? null : Number(e.target.value),
-                  )
-                }
+              <NumberInput
+                value={field.value ?? null}
+                onChange={field.onChange}
               />
             </Field>
           )}

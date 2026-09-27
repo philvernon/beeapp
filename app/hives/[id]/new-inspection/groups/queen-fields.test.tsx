@@ -81,7 +81,7 @@ describe("QueenFields", () => {
     const label = screen.getByText("Cells found");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });

@@ -83,7 +83,7 @@ describe("ColonyFields", () => {
     const label = screen.getByText("Brood frame count");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });
@@ -97,7 +97,7 @@ describe("ColonyFields", () => {
     const label = screen.getByText("Store frames");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });
@@ -111,7 +111,7 @@ describe("ColonyFields", () => {
     const label = screen.getByText("Room frames");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
-      'input[type="number"]',
+      '[data-slot="number-input-value"]',
     );
     expect(input).not.toBeNull();
   });
