@@ -8,7 +8,9 @@ import {
   timestamp,
   date,
   index,
+  check,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import {
   createInsertSchema,
   createSelectSchema,
@@ -93,16 +95,16 @@ export const inspections = pgTable(
     inspectionDate: date("inspection_date").notNull(),
 
     // Queen
-    queenSeen: boolean("queen_seen").default(false),
+    queenSeen: boolean("queen_seen").notNull().default(false),
     queenColour: text("queen_colour", { enum: ["W", "Y", "R", "G", "B"] }),
 
     // Queen cells
     queenCellsFound: integer("queen_cells_found"),
-    queenCellsRemoved: boolean("queen_cells_removed").default(false),
+    queenCellsRemoved: boolean("queen_cells_removed").notNull().default(false),
 
     // Brood
-    eggsSeen: boolean("eggs_seen").default(false),
-    broodPatternOk: boolean("brood_pattern_ok").default(true),
+    eggsSeen: boolean("eggs_seen").notNull().default(false),
+    broodPatternOk: boolean("brood_pattern_ok").notNull().default(true),
     broodFrameCount: integer("brood_frame_count"),
 
     // Stores & Space
@@ -110,10 +112,12 @@ export const inspections = pgTable(
     roomFrames: integer("room_frames"),
 
     // Health
-    healthOk: boolean("health_ok").default(true),
-    chalkBroodSuspected: boolean("chalk_brood_suspected").default(false),
-    efbSuspected: boolean("efb_suspected").default(false),
-    afbSuspected: boolean("afb_suspected").default(false),
+    healthOk: boolean("health_ok").notNull().default(true),
+    chalkBroodSuspected: boolean("chalk_brood_suspected")
+      .notNull()
+      .default(false),
+    efbSuspected: boolean("efb_suspected").notNull().default(false),
+    afbSuspected: boolean("afb_suspected").notNull().default(false),
 
     // Varroa
     varroaLevel: text("varroa_level", { enum: ["l", "m", "h"] }),
@@ -150,6 +154,29 @@ export const inspections = pgTable(
   },
   (t) => [
     index("idx_inspections_hive_date").on(t.hiveId, t.inspectionDate.desc()),
+    check("check_queen_cells_found", sql`${t.queenCellsFound} >= 0`),
+    check("check_brood_frame_count", sql`${t.broodFrameCount} >= 0`),
+    check("check_store_frames", sql`${t.storeFrames} >= 0`),
+    check("check_room_frames", sql`${t.roomFrames} >= 0`),
+    check("check_varroa_count", sql`${t.varroaCount} >= 0`),
+    check(
+      "check_temperament_score",
+      sql`${t.temperamentScore} BETWEEN 1 AND 10`,
+    ),
+    check("check_feed_litres_light_syrup", sql`${t.feedLitresLightSyrup} >= 0`),
+    check("check_feed_litres_heavy_syrup", sql`${t.feedLitresHeavySyrup} >= 0`),
+    check(
+      "check_queen_colour",
+      sql`${t.queenColour} IS NULL OR ${t.queenColour} IN ('W', 'Y', 'R', 'G', 'B')`,
+    ),
+    check(
+      "check_varroa_level",
+      sql`${t.varroaLevel} IS NULL OR ${t.varroaLevel} IN ('l', 'm', 'h')`,
+    ),
+    check(
+      "check_weather_condition",
+      sql`${t.weatherCondition} IS NULL OR ${t.weatherCondition} IN ('c', 's', 'r', 'f')`,
+    ),
   ],
 );
 // Shared numeric invariants for inspections (insert + update)
@@ -161,6 +188,8 @@ function inspectionNumericInvariants(
     broodFrameCount?: number | null;
     roomFrames?: number | null;
     varroaCount?: number | null;
+    feedLitresLightSyrup?: string | null;
+    feedLitresHeavySyrup?: string | null;
   },
   ctx: z.RefinementCtx,
 ) {
@@ -207,6 +236,26 @@ function inspectionNumericInvariants(
       code: "custom",
       message: "Varroa count must not be negative",
       path: ["varroaCount"],
+    });
+  }
+  if (
+    val.feedLitresLightSyrup != null &&
+    Number(val.feedLitresLightSyrup) < 0
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Light syrup quantity must not be negative",
+      path: ["feedLitresLightSyrup"],
+    });
+  }
+  if (
+    val.feedLitresHeavySyrup != null &&
+    Number(val.feedLitresHeavySyrup) < 0
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Heavy syrup quantity must not be negative",
+      path: ["feedLitresHeavySyrup"],
     });
   }
 }

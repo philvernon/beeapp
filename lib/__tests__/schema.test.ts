@@ -231,6 +231,50 @@ describe("InspectionInsert", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects negative feedLitresLightSyrup", () => {
+    const result = InspectionInsert.safeParse({
+      hiveId: UUID,
+      inspectionDate: "2025-03-01",
+      feedLitresLightSyrup: "-1.5",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative feedLitresHeavySyrup", () => {
+    const result = InspectionInsert.safeParse({
+      hiveId: UUID,
+      inspectionDate: "2025-03-01",
+      feedLitresHeavySyrup: "-2.0",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts zero for feed quantities", () => {
+    const result = InspectionInsert.safeParse({
+      hiveId: UUID,
+      inspectionDate: "2025-03-01",
+      feedLitresLightSyrup: "0",
+      feedLitresHeavySyrup: "0",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts null for nullable numeric fields", () => {
+    const result = InspectionInsert.safeParse({
+      hiveId: UUID,
+      inspectionDate: "2025-03-01",
+      queenCellsFound: null,
+      broodFrameCount: null,
+      storeFrames: null,
+      roomFrames: null,
+      varroaCount: null,
+      temperamentScore: null,
+      feedLitresLightSyrup: null,
+      feedLitresHeavySyrup: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
   it("does not apply .default() values in Zod v4 safeParse (defaults enforced at DB layer)", () => {
     const result = InspectionInsert.safeParse({
       hiveId: UUID,
@@ -300,6 +344,16 @@ describe("InspectionUpdate", () => {
 
   it("rejects negative varroaCount", () => {
     const result = InspectionUpdate.safeParse({ varroaCount: -1 });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative feedLitresLightSyrup", () => {
+    const result = InspectionUpdate.safeParse({ feedLitresLightSyrup: "-1.5" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative feedLitresHeavySyrup", () => {
+    const result = InspectionUpdate.safeParse({ feedLitresHeavySyrup: "-2.0" });
     expect(result.success).toBe(false);
   });
 
