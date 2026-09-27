@@ -54,11 +54,24 @@ describe("GET /api/hives/:id", () => {
     expect(body.error).toBe("Hive not found");
   });
 
+  it("returns 400 when route UUID is malformed", async () => {
+    const response = await handlers.GET(
+      {} as Request,
+      mockParams("not-a-uuid"),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid hive id");
+    expect(mocks.getHive).not.toHaveBeenCalled();
+  });
+
   it("returns 500 on error", async () => {
     mocks.getHive.mockRejectedValue(new Error("DB error"));
 
     const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });
 
@@ -188,6 +201,46 @@ describe("PUT /api/hives/:id", () => {
     expect(response.status).toBe(404);
   });
 
+  it("returns 400 when route UUID is malformed", async () => {
+    const req = new Request("http://localhost/api/hives/not-a-uuid", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Updated" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams("not-a-uuid"));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid hive id");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("returns 422 when apiary does not exist (FK violation)", async () => {
+    const fkError = Object.assign(new Error("fk violation"), { code: "23503" });
+    mocks.dbUpdate.mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockRejectedValue(fkError),
+        }),
+      }),
+    });
+
+    // Send a body that passes Zod validation so the FK error fires at the DB layer.
+    const req = new Request("http://localhost/api/hives/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Updated",
+        apiaryId: "d4e5f6a7-b8c9-4123-8ef0-123456789abc",
+      }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.error).toBe("Apiary does not exist");
+  });
+
   it("returns 500 on error", async () => {
     mocks.dbUpdate.mockReturnValue({
       set: vi.fn().mockReturnValue({
@@ -205,6 +258,8 @@ describe("PUT /api/hives/:id", () => {
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });
 
@@ -233,6 +288,17 @@ describe("DELETE /api/hives/:id", () => {
 
     const response = await handlers.DELETE({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(404);
+  });
+
+  it("returns 400 when route UUID is malformed", async () => {
+    const response = await handlers.DELETE(
+      {} as Request,
+      mockParams("not-a-uuid"),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid hive id");
+    expect(mocks.dbDelete).not.toHaveBeenCalled();
   });
 
   it("returns 500 on error", async () => {
