@@ -10,7 +10,7 @@ CREATE TABLE hives (
   apiary_id UUID NOT NULL REFERENCES apiaries(id) ON DELETE RESTRICT,
   name TEXT NOT NULL,
   queen_breed TEXT,
-  queen_clipped BOOLEAN,
+  queen_clipped BOOLEAN NOT NULL DEFAULT false,
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

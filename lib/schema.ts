@@ -54,7 +54,7 @@ export const hives = pgTable(
       .references(() => apiaries.id, { onDelete: "restrict" }),
     name: text("name").notNull(),
     queenBreed: text("queen_breed"),
-    queenClipped: boolean("queen_clipped").default(false),
+    queenClipped: boolean("queen_clipped").notNull().default(false),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
