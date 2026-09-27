@@ -406,3 +406,26 @@ export type WeatherCondition = NonNullable<
 
 /** Full inspection row as returned by the database / select query. */
 export type InspectionRow = typeof inspections.$inferSelect;
+
+/**
+ * Zod schema for validating a fully-resolved inspection state against
+ * cross-field invariants.
+ *
+ * Used by the PUT route to validate the merged (existing + patch)
+ * record before writing.  All booleans must be present as boolean
+ * (not undefined) — the caller resolves defaults before passing in.
+ */
+export const InspectionInvariantState = z
+  .object({
+    queenSeen: z.boolean(),
+    queenColour: z.string().nullable().optional(),
+    healthOk: z.boolean(),
+    chalkBroodSuspected: z.boolean().optional(),
+    efbSuspected: z.boolean().optional(),
+    afbSuspected: z.boolean().optional(),
+    queenCellsFound: z.number().nullable().optional(),
+    queenCellsRemoved: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    inspectionCrossFieldInvariants(data, ctx);
+  });

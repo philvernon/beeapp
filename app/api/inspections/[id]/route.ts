@@ -5,10 +5,9 @@ import { db } from "@/lib/db";
 import {
   inspections,
   InspectionUpdate,
-  inspectionCrossFieldInvariants,
+  InspectionInvariantState,
   InspectionRow,
 } from "@/lib/schema";
-import { z } from "zod";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
@@ -45,6 +44,13 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await req.json();
+
+    // Guard against non-object JSON bodies (null, primitives, arrays).
+    // "hiveId" in body throws for null/primitives, which would otherwise
+    // surface as a 500 via the catch block.
+    if (typeof body !== "object" || body === null || Array.isArray(body)) {
+      return NextResponse.json({ error: "Validation failed" }, { status: 400 });
+    }
 
     // Reject attempts to change immutable fields.
     if ("hiveId" in body) {
@@ -97,8 +103,7 @@ export async function PUT(
     } satisfies InspectionRow;
 
     // Validate the merged record against cross-field invariants.
-    // The core invariant function expects fully-resolved booleans.
-    const mergedForInvariants = {
+    const invariantResult = InspectionInvariantState.safeParse({
       queenSeen: merged.queenSeen ?? false,
       queenColour: merged.queenColour,
       healthOk: merged.healthOk ?? true,
@@ -107,14 +112,7 @@ export async function PUT(
       afbSuspected: merged.afbSuspected,
       queenCellsFound: merged.queenCellsFound,
       queenCellsRemoved: merged.queenCellsRemoved ?? false,
-    };
-
-    const invariantResult = z
-      .object({})
-      .superRefine((_, ctx) => {
-        inspectionCrossFieldInvariants(mergedForInvariants, ctx);
-      })
-      .safeParse({});
+    });
 
     if (!invariantResult.success) {
       return NextResponse.json(

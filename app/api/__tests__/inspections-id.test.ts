@@ -70,6 +70,45 @@ describe("PUT /api/inspections/:id", () => {
     mocks.getInspection.mockResolvedValue(TEST_INSPECTION);
   });
 
+  it("rejects null JSON body", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: "null",
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+  });
+
+  it("rejects primitive JSON body", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: '"hello"',
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+  });
+
+  it("rejects array JSON body", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: '[1, 2]',
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+  });
+
   it("returns 200 with updated inspection", async () => {
     const updatedRow = { ...TEST_INSPECTION, notes: "Updated notes" };
     mocks.dbUpdate.mockReturnValue({
