@@ -100,7 +100,7 @@ describe("PUT /api/inspections/:id", () => {
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: '[1, 2]',
+      body: "[1, 2]",
     });
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
