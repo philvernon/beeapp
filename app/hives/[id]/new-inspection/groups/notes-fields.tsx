@@ -23,11 +23,7 @@ export function NotesFields() {
               <FieldLabel>Temperature (°C)</FieldLabel>
               <NumberInput
                 value={field.value ?? null}
-                onChange={(v) =>
-                  field.onChange(
-                    v === null ? null : String(v),
-                  )
-                }
+                onChange={(v) => field.onChange(v === null ? null : String(v))}
                 step={0.1}
               />
             </Field>

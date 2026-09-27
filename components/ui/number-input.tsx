@@ -3,7 +3,10 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { Input as InputPrimitive } from "@base-ui/react/input";
 import { cn } from "cn";
 
-interface NumberInputProps extends Omit<React.ComponentProps<"input">, "onChange" | "value" | "type"> {
+interface NumberInputProps extends Omit<
+  React.ComponentProps<"input">,
+  "onChange" | "value" | "type"
+> {
   value: string | number | null;
   onChange: (value: string | number | null) => void;
   step?: number;

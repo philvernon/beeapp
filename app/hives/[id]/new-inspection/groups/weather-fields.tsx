@@ -34,11 +34,7 @@ export function WeatherFields() {
               <FieldLabel>Light syrup (litres)</FieldLabel>
               <NumberInput
                 value={field.value ?? null}
-                onChange={(v) =>
-                  field.onChange(
-                    v === null ? null : String(v),
-                  )
-                }
+                onChange={(v) => field.onChange(v === null ? null : String(v))}
                 step={0.25}
                 min={0}
               />
@@ -53,11 +49,7 @@ export function WeatherFields() {
               <FieldLabel>Heavy syrup (litres)</FieldLabel>
               <NumberInput
                 value={field.value ?? null}
-                onChange={(v) =>
-                  field.onChange(
-                    v === null ? null : String(v),
-                  )
-                }
+                onChange={(v) => field.onChange(v === null ? null : String(v))}
                 step={0.25}
                 min={0}
               />
@@ -72,11 +64,7 @@ export function WeatherFields() {
               <FieldLabel>Supers change</FieldLabel>
               <NumberInput
                 value={field.value ?? null}
-                onChange={(v) =>
-                  field.onChange(
-                    v === null ? null : String(v),
-                  )
-                }
+                onChange={(v) => field.onChange(v === null ? null : String(v))}
                 step={0.5}
               />
             </Field>
