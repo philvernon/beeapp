@@ -29,8 +29,8 @@ docker compose up -d
 cp .env.local.example .env.local
 # Edit .env.local with your DB_URL
 
-# Run migrations
-# (run SQL in migrations/001_initial.sql against your database)
+# Run Drizzle migrations
+pnpm db:migrate
 
 # Start dev server
 pnpm dev
@@ -49,11 +49,12 @@ app/
     [id]/
       new-inspection/  # Multi-step inspection wizard
 lib/
-  db.ts                # Database connection
-  schema.ts            # Zod schemas + Drizzle tables
-  inspection-wizard-schema.ts  # Client form schema subset
+  db.ts                         # Database connection
+  schema.ts                     # Drizzle tables + Zod schemas (source of truth)
+  inspection-wizard-schema.ts   # Client form schema subset
 migrations/
-  001_initial.sql # Schema definition
+  0000_initial.sql  # Drizzle-generated migration
+  meta/             # Drizzle journal and snapshots
 ```
 
 ## License
