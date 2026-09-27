@@ -13,15 +13,26 @@ export class ApiError extends Error {
 
 /**
  * Check if an error object is a PostgreSQL error with the given SQLSTATE code.
+ * Walks up to two levels of .cause chains to handle DrizzleQueryError wrappers
+ * (drizzle-orm@0.45+ wraps the original pg error on .cause).
  * Used by routes for operation-specific constraint handling — not a global map.
  */
 export function isPgError(err: unknown, code: string): boolean {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "code" in err &&
-    (err as { code: unknown }).code === code
-  );
+  let current: unknown = err;
+
+  for (let depth = 0; depth < 3; depth++) {
+    if (typeof current !== "object" || current === null) return false;
+
+    if ("code" in current && (current as { code?: unknown }).code === code) {
+      return true;
+    }
+
+    current = "cause" in current
+      ? (current as { cause?: unknown }).cause
+      : undefined;
+  }
+
+  return false;
 }
 
 /**

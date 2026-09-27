@@ -111,6 +111,22 @@ describe("isPgError", () => {
     expect(isPgError(null, "23503")).toBe(false);
     expect(isPgError(undefined, "23503")).toBe(false);
   });
+
+  it("finds SQLSTATE code in a .cause chain (DrizzleQueryError wrapper)", () => {
+    const pgError = Object.assign(new Error("fk"), { code: "23503" });
+    const drizzleError = Object.assign(new Error("Failed query"), {
+      cause: pgError,
+    });
+    expect(isPgError(drizzleError, "23503")).toBe(true);
+  });
+
+  it("returns false when wrapped error has a non-matching code", () => {
+    const pgError = Object.assign(new Error("check"), { code: "23514" });
+    const drizzleError = Object.assign(new Error("Failed query"), {
+      cause: pgError,
+    });
+    expect(isPgError(drizzleError, "23503")).toBe(false);
+  });
 });
 
 describe("errorResponse", () => {
