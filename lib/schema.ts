@@ -273,27 +273,26 @@ function inspectionNumericInvariants(
 }
 
 /**
- * Cross-field invariants shared between InspectionInsert and InspectionUpdate.
+ * Core cross-field invariants for inspections.
  *
- * These rules enforce domain constraints that the UI hides but direct API
- * callers can bypass.  Normalisation is used only when the intended meaning
- * is unambiguous; otherwise contradictory input is rejected with a useful
- * validation error.
+ * Validates a fully-resolved record (all booleans present as boolean,
+ * not undefined). Used by both the Insert schema (after applying
+ * effective defaults) and the PUT route (against the merged existing
+ * + patch record).
  */
-function inspectionCrossFieldInvariants(
+export function inspectionCrossFieldInvariants(
   val: {
-    queenSeen?: boolean;
+    queenSeen: boolean;
     queenColour?: string | null;
-    healthOk?: boolean;
+    healthOk: boolean;
     chalkBroodSuspected?: boolean;
     efbSuspected?: boolean;
     afbSuspected?: boolean;
     queenCellsFound?: number | null;
-    queenCellsRemoved?: boolean;
+    queenCellsRemoved: boolean;
   },
   ctx: z.RefinementCtx,
 ) {
-  // Queen colour is only meaningful when the queen was seen.
   if (val.queenSeen === false && val.queenColour != null) {
     ctx.addIssue({
       code: "custom",
@@ -302,7 +301,6 @@ function inspectionCrossFieldInvariants(
     });
   }
 
-  // Disease-suspected flags are only meaningful when healthOk is false.
   if (
     val.healthOk === true &&
     (val.chalkBroodSuspected === true ||
@@ -316,7 +314,6 @@ function inspectionCrossFieldInvariants(
     });
   }
 
-  // Queen cells removed implies at least one queen cell was found.
   if (
     val.queenCellsRemoved === true &&
     (val.queenCellsFound == null || val.queenCellsFound === 0)
@@ -330,9 +327,49 @@ function inspectionCrossFieldInvariants(
   }
 }
 
+/**
+ * Cross-field invariants for InspectionInsert.
+ *
+ * Applies effective defaults (queenSeen=false, healthOk=true,
+ * queenCellsRemoved=false) before delegating to the core invariant
+ * checker so that omitted booleans are validated against the values
+ * the POST route will write to the database.
+ */
+function inspectionInsertCrossFieldInvariants(
+  val: {
+    queenSeen?: boolean;
+    queenColour?: string | null;
+    healthOk?: boolean;
+    chalkBroodSuspected?: boolean;
+    efbSuspected?: boolean;
+    afbSuspected?: boolean;
+    queenCellsFound?: number | null;
+    queenCellsRemoved?: boolean;
+  },
+  ctx: z.RefinementCtx,
+) {
+  const queenSeen = val.queenSeen ?? false;
+  const healthOk = val.healthOk ?? true;
+  const queenCellsRemoved = val.queenCellsRemoved ?? false;
+
+  inspectionCrossFieldInvariants(
+    {
+      queenSeen,
+      queenColour: val.queenColour,
+      healthOk,
+      chalkBroodSuspected: val.chalkBroodSuspected,
+      efbSuspected: val.efbSuspected,
+      afbSuspected: val.afbSuspected,
+      queenCellsFound: val.queenCellsFound,
+      queenCellsRemoved,
+    },
+    ctx,
+  );
+}
+
 export const InspectionInsert = createInsertSchema(inspections)
   .superRefine(inspectionNumericInvariants)
-  .superRefine(inspectionCrossFieldInvariants);
+  .superRefine(inspectionInsertCrossFieldInvariants);
 export const InspectionSelect = createSelectSchema(inspections);
 export const InspectionUpdate = createUpdateSchema(inspections, {
   queenColour: (schema) => schema.nullable(),
@@ -352,8 +389,7 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
 })
   .omit({ id: true, createdAt: true, hiveId: true, inspectionDate: true })
   .partial()
-  .superRefine(inspectionNumericInvariants)
-  .superRefine(inspectionCrossFieldInvariants);
+  .superRefine(inspectionNumericInvariants);
 
 // ── Inspection option type exports (inferred from Drizzle schema) ──
 // These types let inspection-options.ts stay compile-time constrained
@@ -367,3 +403,6 @@ export type VarroaLevel = NonNullable<
 export type WeatherCondition = NonNullable<
   (typeof inspections.$inferSelect)["weatherCondition"]
 >;
+
+/** Full inspection row as returned by the database / select query. */
+export type InspectionRow = typeof inspections.$inferSelect;

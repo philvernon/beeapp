@@ -65,7 +65,10 @@ describe("GET /api/inspections/:id", () => {
 });
 
 describe("PUT /api/inspections/:id", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.getInspection.mockResolvedValue(TEST_INSPECTION);
+  });
 
   it("returns 200 with updated inspection", async () => {
     const updatedRow = { ...TEST_INSPECTION, notes: "Updated notes" };
@@ -115,7 +118,8 @@ describe("PUT /api/inspections/:id", () => {
     expect(body.error).toBe("No fields to update");
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
-  it("rejects update body with only hiveId (omitted from schema)", async () => {
+
+  it("rejects hiveId in update body explicitly", async () => {
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -125,11 +129,12 @@ describe("PUT /api/inspections/:id", () => {
     const response = await handlers.PUT(req, mockParams(TEST_ID));
     expect(response.status).toBe(400);
     const body = await response.json();
-    expect(body.error).toBe("No fields to update");
+    expect(body.error).toBe("hiveId cannot be changed via this endpoint");
+    expect(mocks.getInspection).not.toHaveBeenCalled();
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
 
-  it("rejects update body with only inspectionDate (omitted from schema)", async () => {
+  it("rejects inspectionDate in update body explicitly", async () => {
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -139,12 +144,83 @@ describe("PUT /api/inspections/:id", () => {
     const response = await handlers.PUT(req, mockParams(TEST_ID));
     expect(response.status).toBe(400);
     const body = await response.json();
-    expect(body.error).toBe("No fields to update");
+    expect(body.error).toBe(
+      "inspectionDate cannot be changed via this endpoint",
+    );
+    expect(mocks.getInspection).not.toHaveBeenCalled();
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
 
-  it("ignores hiveId when combined with other valid fields", async () => {
-    const updatedRow = { ...TEST_INSPECTION, notes: "Updated notes" };
+  it("rejects hiveId even when combined with other valid fields", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: "d4e5f6a7-b8c9-4123-defa-234567890123",
+        notes: "Updated notes",
+      }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("hiveId cannot be changed via this endpoint");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  // ── State-dependent cross-field invariants ──────────────────────
+
+  it("rejects patch queenSeen=false when existing row has queenColour set", async () => {
+    const existingWithColour = {
+      ...TEST_INSPECTION,
+      queenSeen: true,
+      queenColour: "Y",
+    };
+    mocks.getInspection.mockResolvedValue(existingWithColour);
+
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ queenSeen: false }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects patch healthOk=true when existing row has disease flags", async () => {
+    const existingWithDisease = {
+      ...TEST_INSPECTION,
+      healthOk: false,
+      chalkBroodSuspected: true,
+    };
+    mocks.getInspection.mockResolvedValue(existingWithDisease);
+
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ healthOk: true }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("accepts patch queenCellsRemoved=true when existing row has queenCellsFound > 0", async () => {
+    const existingWithCells = {
+      ...TEST_INSPECTION,
+      queenCellsFound: 2,
+      queenCellsRemoved: false,
+    };
+    mocks.getInspection.mockResolvedValue(existingWithCells);
+
+    const updatedRow = { ...existingWithCells, queenCellsRemoved: true };
     mocks.dbUpdate.mockReturnValue({
       set: vi.fn().mockReturnValue({
         where: vi.fn().mockReturnValue({
@@ -156,25 +232,27 @@ describe("PUT /api/inspections/:id", () => {
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        hiveId: "d4e5f6a7-b8c9-4123-defa-234567890123",
-        notes: "Updated notes",
-      }),
+      body: JSON.stringify({ queenCellsRemoved: true }),
     });
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body.notes).toBe("Updated notes");
-    // hiveId is silently stripped — the existing hiveId is preserved.
-    expect(body.hiveId).toBe("b2c3d4e5-f6a7-4890-bcde-f12345678901");
+    expect(body.queenCellsRemoved).toBe(true);
   });
 
-  it("returns 400 when queenColour is set but queenSeen is false", async () => {
+  it("rejects patch queenCellsRemoved=true when existing row has queenCellsFound=0", async () => {
+    const existingWithZeroCells = {
+      ...TEST_INSPECTION,
+      queenCellsFound: 0,
+      queenCellsRemoved: false,
+    };
+    mocks.getInspection.mockResolvedValue(existingWithZeroCells);
+
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ queenSeen: false, queenColour: "Y" }),
+      body: JSON.stringify({ queenCellsRemoved: true }),
     });
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
@@ -184,25 +262,18 @@ describe("PUT /api/inspections/:id", () => {
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
 
-  it("returns 400 when healthOk is true but disease flags are set", async () => {
+  it("validates merged state: patch queenColour + existing queenSeen=false is rejected", async () => {
+    const existingNoQueen = {
+      ...TEST_INSPECTION,
+      queenSeen: false,
+      queenColour: null,
+    };
+    mocks.getInspection.mockResolvedValue(existingNoQueen);
+
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ healthOk: true, chalkBroodSuspected: true }),
-    });
-
-    const response = await handlers.PUT(req, mockParams(TEST_ID));
-    expect(response.status).toBe(400);
-    const body = await response.json();
-    expect(body.error).toBe("Validation failed");
-    expect(mocks.dbUpdate).not.toHaveBeenCalled();
-  });
-
-  it("returns 400 when queenCellsRemoved is true but no cells found", async () => {
-    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ queenCellsRemoved: true, queenCellsFound: 0 }),
+      body: JSON.stringify({ queenColour: "Y" }),
     });
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
@@ -213,13 +284,7 @@ describe("PUT /api/inspections/:id", () => {
   });
 
   it("returns 404 when not found (update returns empty)", async () => {
-    mocks.dbUpdate.mockReturnValue({
-      set: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue([]),
-        }),
-      }),
-    });
+    mocks.getInspection.mockResolvedValue(null);
 
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
