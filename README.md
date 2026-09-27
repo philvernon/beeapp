@@ -25,7 +25,6 @@ If you already have a PostgreSQL volume from before issue #6, destroy it so the 
 ```bash
 docker compose down -v
 docker compose up -d db
-pnpm db:migrate
 ```
 
 ### Normal development
@@ -34,13 +33,13 @@ pnpm db:migrate
 # Install dependencies
 pnpm install
 
+# Set environment variables
+cp .env.example .env.local
+# Edit .env.local — change POSTGRES_PASSWORD and set DATABASE_URL to:
+#   DATABASE_URL=postgresql://bee:change-me@localhost:5432/beehive
+
 # Start PostgreSQL via Docker
 docker compose up -d db
-
-# Set environment variables
-# Copy .env and update DATABASE_URL to use localhost:5432 for local tooling:
-cp .env .env.local
-# Edit .env.local — change the host in DATABASE_URL from "db" to "localhost"
 
 # Run Drizzle migrations (if starting fresh)
 pnpm db:migrate
