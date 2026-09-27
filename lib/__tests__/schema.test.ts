@@ -139,6 +139,159 @@ describe("HiveUpdate", () => {
   });
 });
 
+describe("InspectionInsert — cross-field invariants", () => {
+  const base = {
+    hiveId: UUID,
+    inspectionDate: "2025-03-01",
+  };
+
+  it("rejects queenColour when queenSeen is false", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenSeen: false,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const queenColourIssue = result.error.issues.find((i) =>
+        i.path.includes("queenColour"),
+      );
+      expect(queenColourIssue).toBeDefined();
+    }
+  });
+
+  it("accepts queenColour when queenSeen is true", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenSeen: true,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts null queenColour when queenSeen is false", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenSeen: false,
+      queenColour: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects disease flags when healthOk is true", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      healthOk: true,
+      chalkBroodSuspected: true,
+    });
+    expect(result.success).toBe(false);
+
+    const result2 = InspectionInsert.safeParse({
+      ...base,
+      healthOk: true,
+      efbSuspected: true,
+    });
+    expect(result2.success).toBe(false);
+
+    const result3 = InspectionInsert.safeParse({
+      ...base,
+      healthOk: true,
+      afbSuspected: true,
+    });
+    expect(result3.success).toBe(false);
+  });
+
+  it("accepts disease flags when healthOk is false", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      healthOk: false,
+      chalkBroodSuspected: true,
+      efbSuspected: true,
+      afbSuspected: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects queenCellsRemoved when queenCellsFound is null", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: true,
+      queenCellsFound: null,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects queenCellsRemoved when queenCellsFound is 0", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: true,
+      queenCellsFound: 0,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts queenCellsRemoved when queenCellsFound > 0", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: true,
+      queenCellsFound: 2,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts queenCellsRemoved false with zero cells found", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: false,
+      queenCellsFound: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  // Omitted-default bypass cases — the route applies defaults after
+  // validation, so the schema must validate against those effective
+  // defaults rather than raw undefined values.
+  it("rejects omitted queenSeen + queenColour set (queenSeen defaults to false)", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects omitted healthOk + disease flag set (healthOk defaults to true)", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      chalkBroodSuspected: true,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects omitted healthOk + multiple disease flags", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      chalkBroodSuspected: true,
+      efbSuspected: true,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts omitted queenSeen + queenColour null (both default to safe values)", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenColour: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts omitted healthOk + no disease flags (healthOk defaults to true, safe)", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
 describe("InspectionInsert", () => {
   it("validates required hiveId and inspectionDate", () => {
     const result = InspectionInsert.safeParse({
@@ -298,8 +451,13 @@ describe("InspectionInsert", () => {
   });
 });
 
-describe("InspectionUpdate", () => {
-  it("validates partial updates", () => {
+describe("InspectionUpdate — narrowed contract", () => {
+  // The schema omits hiveId and inspectionDate. Patch-level validation
+  // only checks field types / allowed shape; cross-field invariants are
+  // enforced at the route level against the merged (existing + patch)
+  // record.
+
+  it("accepts valid partial updates", () => {
     const result = InspectionUpdate.safeParse({ notes: "Updated notes" });
     expect(result.success).toBe(true);
   });
@@ -312,6 +470,7 @@ describe("InspectionUpdate", () => {
     });
     expect(result.success).toBe(true);
   });
+
   it("rejects temperamentScore of 0", () => {
     const result = InspectionUpdate.safeParse({ temperamentScore: 0 });
     expect(result.success).toBe(false);
@@ -355,12 +514,16 @@ describe("InspectionUpdate", () => {
   });
 
   it("rejects negative feedLitresLightSyrup", () => {
-    const result = InspectionUpdate.safeParse({ feedLitresLightSyrup: "-1.5" });
+    const result = InspectionUpdate.safeParse({
+      feedLitresLightSyrup: "-1.5",
+    });
     expect(result.success).toBe(false);
   });
 
   it("rejects negative feedLitresHeavySyrup", () => {
-    const result = InspectionUpdate.safeParse({ feedLitresHeavySyrup: "-2.0" });
+    const result = InspectionUpdate.safeParse({
+      feedLitresHeavySyrup: "-2.0",
+    });
     expect(result.success).toBe(false);
   });
 

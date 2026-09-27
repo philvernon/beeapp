@@ -272,9 +272,104 @@ function inspectionNumericInvariants(
   }
 }
 
-export const InspectionInsert = createInsertSchema(inspections).superRefine(
-  inspectionNumericInvariants,
-);
+/**
+ * Core cross-field invariants for inspections.
+ *
+ * Validates a fully-resolved record (all booleans present as boolean,
+ * not undefined). Used by both the Insert schema (after applying
+ * effective defaults) and the PUT route (against the merged existing
+ * + patch record).
+ */
+export function inspectionCrossFieldInvariants(
+  val: {
+    queenSeen: boolean;
+    queenColour?: string | null;
+    healthOk: boolean;
+    chalkBroodSuspected?: boolean;
+    efbSuspected?: boolean;
+    afbSuspected?: boolean;
+    queenCellsFound?: number | null;
+    queenCellsRemoved: boolean;
+  },
+  ctx: z.RefinementCtx,
+) {
+  if (val.queenSeen === false && val.queenColour != null) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Queen colour cannot be set when the queen was not seen",
+      path: ["queenColour"],
+    });
+  }
+
+  if (
+    val.healthOk === true &&
+    (val.chalkBroodSuspected === true ||
+      val.efbSuspected === true ||
+      val.afbSuspected === true)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Disease suspected flags cannot be set when health is OK",
+      path: ["healthOk"],
+    });
+  }
+
+  if (
+    val.queenCellsRemoved === true &&
+    (val.queenCellsFound == null || val.queenCellsFound === 0)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        "Queen cells removed cannot be true when no queen cells were found",
+      path: ["queenCellsRemoved"],
+    });
+  }
+}
+
+/**
+ * Cross-field invariants for InspectionInsert.
+ *
+ * Applies effective defaults (queenSeen=false, healthOk=true,
+ * queenCellsRemoved=false) before delegating to the core invariant
+ * checker so that omitted booleans are validated against the values
+ * the POST route will write to the database.
+ */
+function inspectionInsertCrossFieldInvariants(
+  val: {
+    queenSeen?: boolean;
+    queenColour?: string | null;
+    healthOk?: boolean;
+    chalkBroodSuspected?: boolean;
+    efbSuspected?: boolean;
+    afbSuspected?: boolean;
+    queenCellsFound?: number | null;
+    queenCellsRemoved?: boolean;
+  },
+  ctx: z.RefinementCtx,
+) {
+  const queenSeen = val.queenSeen ?? false;
+  const healthOk = val.healthOk ?? true;
+  const queenCellsRemoved = val.queenCellsRemoved ?? false;
+
+  inspectionCrossFieldInvariants(
+    {
+      queenSeen,
+      queenColour: val.queenColour,
+      healthOk,
+      chalkBroodSuspected: val.chalkBroodSuspected,
+      efbSuspected: val.efbSuspected,
+      afbSuspected: val.afbSuspected,
+      queenCellsFound: val.queenCellsFound,
+      queenCellsRemoved,
+    },
+    ctx,
+  );
+}
+
+export const InspectionInsert = createInsertSchema(inspections)
+  .superRefine(inspectionNumericInvariants)
+  .superRefine(inspectionInsertCrossFieldInvariants);
 export const InspectionSelect = createSelectSchema(inspections);
 export const InspectionUpdate = createUpdateSchema(inspections, {
   queenColour: (schema) => schema.nullable(),
@@ -292,7 +387,7 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   weatherCondition: (schema) => schema.nullable(),
   notes: (schema) => schema.nullable(),
 })
-  .omit({ id: true, createdAt: true })
+  .omit({ id: true, createdAt: true, hiveId: true, inspectionDate: true })
   .partial()
   .superRefine(inspectionNumericInvariants);
 
@@ -308,3 +403,29 @@ export type VarroaLevel = NonNullable<
 export type WeatherCondition = NonNullable<
   (typeof inspections.$inferSelect)["weatherCondition"]
 >;
+
+/** Full inspection row as returned by the database / select query. */
+export type InspectionRow = typeof inspections.$inferSelect;
+
+/**
+ * Zod schema for validating a fully-resolved inspection state against
+ * cross-field invariants.
+ *
+ * Used by the PUT route to validate the merged (existing + patch)
+ * record before writing.  All booleans must be present as boolean
+ * (not undefined) — the caller resolves defaults before passing in.
+ */
+export const InspectionInvariantState = z
+  .object({
+    queenSeen: z.boolean(),
+    queenColour: z.string().nullable().optional(),
+    healthOk: z.boolean(),
+    chalkBroodSuspected: z.boolean().optional(),
+    efbSuspected: z.boolean().optional(),
+    afbSuspected: z.boolean().optional(),
+    queenCellsFound: z.number().nullable().optional(),
+    queenCellsRemoved: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    inspectionCrossFieldInvariants(data, ctx);
+  });

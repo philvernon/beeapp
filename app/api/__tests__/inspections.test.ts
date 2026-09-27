@@ -190,4 +190,81 @@ describe("POST /api/inspections", () => {
     const response = await handlers.POST(req);
     expect(response.status).toBe(500);
   });
+
+  // ── Omitted-default bypass cases ────────────────────────────────
+
+  it("rejects omitted queenSeen + queenColour set (queenSeen defaults to false)", async () => {
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: TEST_INSPECTION.hiveId,
+        inspectionDate: TEST_INSPECTION.inspectionDate,
+        queenColour: "Y",
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbInsert).not.toHaveBeenCalled();
+  });
+
+  it("rejects omitted healthOk + disease flag set (healthOk defaults to true)", async () => {
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: TEST_INSPECTION.hiveId,
+        inspectionDate: TEST_INSPECTION.inspectionDate,
+        chalkBroodSuspected: true,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbInsert).not.toHaveBeenCalled();
+  });
+
+  it("accepts omitted queenSeen + queenColour null (both default to safe values)", async () => {
+    const values = vi.fn().mockReturnValue({
+      returning: vi.fn().mockResolvedValue([TEST_INSPECTION]),
+    });
+    mocks.dbInsert.mockReturnValue({ values });
+
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: TEST_INSPECTION.hiveId,
+        inspectionDate: TEST_INSPECTION.inspectionDate,
+        queenColour: null,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(201);
+  });
+
+  it("accepts omitted healthOk + no disease flags (healthOk defaults to true, safe)", async () => {
+    const values = vi.fn().mockReturnValue({
+      returning: vi.fn().mockResolvedValue([TEST_INSPECTION]),
+    });
+    mocks.dbInsert.mockReturnValue({ values });
+
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: TEST_INSPECTION.hiveId,
+        inspectionDate: TEST_INSPECTION.inspectionDate,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(201);
+  });
 });
