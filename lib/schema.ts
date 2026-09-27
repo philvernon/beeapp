@@ -28,19 +28,25 @@ export const apiaries = pgTable("apiaries", {
     .notNull(),
 });
 
-export const ApiaryInsert = createInsertSchema(apiaries).refine(
-  (val) => val.name.trim().length > 0,
-  { message: "Name must not be empty", path: ["name"] },
-);
+export const ApiaryInsert = createInsertSchema(apiaries)
+  .transform((val) => ({ ...val, name: val.name.trim() }))
+  .refine((val) => val.name.length > 0, {
+    message: "Name must not be empty",
+    path: ["name"],
+  });
 export const ApiarySelect = createSelectSchema(apiaries);
 export const ApiaryUpdate = createUpdateSchema(apiaries, {
   notes: (schema) => schema.nullable(),
 })
   .omit({ id: true, createdAt: true })
   .partial()
+  .transform((val) =>
+    "name" in val && val.name !== undefined
+      ? { ...val, name: val.name.trim() }
+      : val,
+  )
   .refine(
-    (val) =>
-      !("name" in val) || val.name === undefined || val.name.trim().length > 0,
+    (val) => !("name" in val) || val.name === undefined || val.name.length > 0,
     { message: "Name must not be empty", path: ["name"] },
   );
 
@@ -63,10 +69,12 @@ export const hives = pgTable(
   (t) => [index("idx_hives_apiary_id").on(t.apiaryId)],
 );
 
-export const HiveInsert = createInsertSchema(hives).refine(
-  (val) => val.name.trim().length > 0,
-  { message: "Name must not be empty", path: ["name"] },
-);
+export const HiveInsert = createInsertSchema(hives)
+  .transform((val) => ({ ...val, name: val.name.trim() }))
+  .refine((val) => val.name.length > 0, {
+    message: "Name must not be empty",
+    path: ["name"],
+  });
 export const HiveSelect = createSelectSchema(hives);
 export const HiveUpdate = createUpdateSchema(hives, {
   queenBreed: (schema) => schema.nullable(),
@@ -74,9 +82,13 @@ export const HiveUpdate = createUpdateSchema(hives, {
 })
   .omit({ id: true, createdAt: true })
   .partial()
+  .transform((val) =>
+    "name" in val && val.name !== undefined
+      ? { ...val, name: val.name.trim() }
+      : val,
+  )
   .refine(
-    (val) =>
-      !("name" in val) || val.name === undefined || val.name.trim().length > 0,
+    (val) => !("name" in val) || val.name === undefined || val.name.length > 0,
     { message: "Name must not be empty", path: ["name"] },
   )
   .refine((val) => !("apiaryId" in val) || val.apiaryId !== null, {

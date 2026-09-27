@@ -22,6 +22,7 @@ import { WeatherFields } from "./groups/weather-fields";
 import { NotesFields } from "./groups/notes-fields";
 import { InspectionInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
+import { getLocalDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 
@@ -132,7 +133,7 @@ export function InspectionForm({ hiveId }: { hiveId: string }) {
     try {
       const validated = InspectionInsert.safeParse({
         hiveId,
-        inspectionDate: new Date().toISOString().split("T")[0],
+        inspectionDate: getLocalDate(),
         ...data,
       });
 

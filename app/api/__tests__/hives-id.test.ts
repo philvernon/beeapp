@@ -101,6 +101,20 @@ describe("PUT /api/hives/:id", () => {
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when name is whitespace only", async () => {
+    const req = new Request("http://localhost/api/hives/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "   " }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when no fields to update (empty body)", async () => {
     const req = new Request("http://localhost/api/hives/" + TEST_ID, {
       method: "PUT",

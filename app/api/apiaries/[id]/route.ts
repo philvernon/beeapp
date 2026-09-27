@@ -46,8 +46,7 @@ export async function PUT(
 
     // Build update object with only defined fields
     const updates: Record<string, unknown> = {};
-    if (validated.data.name !== undefined)
-      updates.name = validated.data.name.trim();
+    if (validated.data.name !== undefined) updates.name = validated.data.name;
     if (validated.data.notes !== undefined)
       updates.notes = validated.data.notes ?? null;
 
