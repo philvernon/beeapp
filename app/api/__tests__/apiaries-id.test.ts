@@ -11,7 +11,6 @@ function mockParams(id: string) {
 const mocks = vi.hoisted(() => ({
   dbUpdate: vi.fn(),
   dbDelete: vi.fn(),
-  dbSelect: vi.fn(),
   getApiaryWithHives: vi.fn(),
 }));
 
@@ -23,7 +22,6 @@ vi.mock("@/lib/db", () => ({
   db: {
     update: (...args: unknown[]) => mocks.dbUpdate(...args),
     delete: (...args: unknown[]) => mocks.dbDelete(...args),
-    select: (...args: unknown[]) => mocks.dbSelect(...args),
   },
 }));
 
@@ -56,11 +54,31 @@ describe("GET /api/apiaries/:id", () => {
     expect(body.error).toBe("Apiary not found");
   });
 
+  it("returns 400 when route UUID is malformed", async () => {
+    const response = await handlers.GET(
+      {} as Request,
+      mockParams("not-a-uuid"),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid apiary id");
+    expect(mocks.getApiaryWithHives).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when route UUID is empty", async () => {
+    const response = await handlers.GET({} as Request, mockParams(""));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid apiary id");
+  });
+
   it("returns 500 on error", async () => {
     mocks.getApiaryWithHives.mockRejectedValue(new Error("DB error"));
 
     const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });
 
@@ -176,6 +194,20 @@ describe("PUT /api/apiaries/:id", () => {
     expect(response.status).toBe(404);
   });
 
+  it("returns 400 when route UUID is malformed", async () => {
+    const req = new Request("http://localhost/api/apiaries/not-a-uuid", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Updated" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams("not-a-uuid"));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid apiary id");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
   it("returns 500 on error", async () => {
     mocks.dbUpdate.mockReturnValue({
       set: vi.fn().mockReturnValue({
@@ -193,6 +225,8 @@ describe("PUT /api/apiaries/:id", () => {
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });
 
@@ -200,12 +234,6 @@ describe("DELETE /api/apiaries/:id", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("returns 200 with success + deleted apiary when no hives exist", async () => {
-    mocks.dbSelect.mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue([]),
-      }),
-    });
-
     mocks.dbDelete.mockReturnValue({
       where: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue([TEST_APIARY]),
@@ -218,26 +246,7 @@ describe("DELETE /api/apiaries/:id", () => {
     expect(body.success).toBe(true);
   });
 
-  it("returns 409 when hives exist in apiary", async () => {
-    mocks.dbSelect.mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue([{ id: "hive-1" }]),
-      }),
-    });
-
-    const response = await handlers.DELETE({} as Request, mockParams(TEST_ID));
-    expect(response.status).toBe(409);
-    const body = await response.json();
-    expect(body.error).toBe("Cannot delete apiary with existing hives");
-  });
-
   it("returns 404 when apiary not found", async () => {
-    mocks.dbSelect.mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue([]),
-      }),
-    });
-
     mocks.dbDelete.mockReturnValue({
       where: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue([]),
@@ -248,13 +257,37 @@ describe("DELETE /api/apiaries/:id", () => {
     expect(response.status).toBe(404);
   });
 
-  it("returns 500 on error", async () => {
-    mocks.dbSelect.mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue([]),
+  it("returns 400 when route UUID is malformed", async () => {
+    const response = await handlers.DELETE(
+      {} as Request,
+      mockParams("not-a-uuid"),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid apiary id");
+    expect(mocks.dbDelete).not.toHaveBeenCalled();
+  });
+
+  it("returns 409 on FK violation (hive references apiary)", async () => {
+    const fkError = Object.assign(
+      new Error(
+        'update or delete on table "apiaries" violates foreign key constraint',
+      ),
+      { code: "23503" },
+    );
+    mocks.dbDelete.mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        returning: vi.fn().mockRejectedValue(fkError),
       }),
     });
 
+    const response = await handlers.DELETE({} as Request, mockParams(TEST_ID));
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.error).toBe("Cannot delete apiary with existing hives");
+  });
+
+  it("returns 500 on unexpected DB error", async () => {
     mocks.dbDelete.mockReturnValue({
       where: vi.fn().mockReturnValue({
         returning: vi.fn().mockRejectedValue(new Error("DB error")),

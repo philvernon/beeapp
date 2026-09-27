@@ -56,11 +56,24 @@ describe("GET /api/inspections/:id", () => {
     expect(body.error).toBe("Inspection not found");
   });
 
+  it("returns 400 when route UUID is malformed", async () => {
+    const response = await handlers.GET(
+      {} as Request,
+      mockParams("not-a-uuid"),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid inspection id");
+    expect(mocks.getInspection).not.toHaveBeenCalled();
+  });
+
   it("returns 500 on error", async () => {
     mocks.getInspection.mockRejectedValue(new Error("DB error"));
 
     const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });
 
@@ -335,6 +348,44 @@ describe("PUT /api/inspections/:id", () => {
     expect(response.status).toBe(404);
   });
 
+  it("returns 400 when route UUID is malformed", async () => {
+    const req = new Request("http://localhost/api/inspections/not-a-uuid", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notes: "Updated" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams("not-a-uuid"));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid inspection id");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("returns 422 when inspection violates a data constraint (CHECK)", async () => {
+    const checkError = Object.assign(new Error("check violation"), {
+      code: "23514",
+    });
+    mocks.dbUpdate.mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockRejectedValue(checkError),
+        }),
+      }),
+    });
+
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notes: "Updated" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.error).toBe("Inspection violates a data constraint");
+  });
+
   it("returns 500 on error", async () => {
     mocks.dbUpdate.mockReturnValue({
       set: vi.fn().mockReturnValue({
@@ -352,6 +403,8 @@ describe("PUT /api/inspections/:id", () => {
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });
 
@@ -380,6 +433,17 @@ describe("DELETE /api/inspections/:id", () => {
 
     const response = await handlers.DELETE({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(404);
+  });
+
+  it("returns 400 when route UUID is malformed", async () => {
+    const response = await handlers.DELETE(
+      {} as Request,
+      mockParams("not-a-uuid"),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid inspection id");
+    expect(mocks.dbDelete).not.toHaveBeenCalled();
   });
 
   it("returns 500 on error", async () => {

@@ -3,6 +3,12 @@ import { eq } from "drizzle-orm";
 import { getHive } from "@/lib/data";
 import { db } from "@/lib/db";
 import { hives, HiveUpdate } from "@/lib/schema";
+import {
+  isPgError,
+  validateUuid,
+  errorResponse,
+  parseJsonBody,
+} from "@/lib/api-error";
 
 // GET /api/hives/:id — single hive with apiary name and inspection count
 export async function GET(
@@ -11,6 +17,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    validateUuid(id, "hive id");
 
     const result = await getHive(id);
     if (!result) {
@@ -19,11 +26,7 @@ export async function GET(
 
     return NextResponse.json(result);
   } catch (err) {
-    console.error("GET /api/hives/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch hive" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }
 
@@ -34,7 +37,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    validateUuid(id, "hive id");
+
+    const body = await parseJsonBody<unknown>(req);
 
     const validated = HiveUpdate.safeParse(body);
     if (!validated.success) {
@@ -75,11 +80,13 @@ export async function PUT(
     }
     return NextResponse.json(result[0]);
   } catch (err) {
-    console.error("PUT /api/hives/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to update hive" },
-      { status: 500 },
-    );
+    if (isPgError(err, "23503")) {
+      return NextResponse.json(
+        { error: "Apiary does not exist" },
+        { status: 422 },
+      );
+    }
+    return errorResponse(err);
   }
 }
 
@@ -90,16 +97,14 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    validateUuid(id, "hive id");
+
     const result = await db.delete(hives).where(eq(hives.id, id)).returning();
     if (result.length === 0) {
       return NextResponse.json({ error: "Hive not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true, deleted: result[0] });
   } catch (err) {
-    console.error("DELETE /api/hives/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to delete hive" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }

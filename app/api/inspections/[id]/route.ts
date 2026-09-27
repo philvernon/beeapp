@@ -8,6 +8,12 @@ import {
   InspectionInvariantState,
   InspectionRow,
 } from "@/lib/schema";
+import {
+  isPgError,
+  validateUuid,
+  errorResponse,
+  parseJsonBody,
+} from "@/lib/api-error";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
@@ -16,6 +22,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    validateUuid(id, "inspection id");
 
     const result = await getInspection(id);
 
@@ -28,11 +35,7 @@ export async function GET(
 
     return NextResponse.json(result);
   } catch (err) {
-    console.error("GET /api/inspections/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch inspection" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }
 
@@ -43,11 +46,11 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    validateUuid(id, "inspection id");
+
+    const body = await parseJsonBody<unknown>(req);
 
     // Guard against non-object JSON bodies (null, primitives, arrays).
-    // "hiveId" in body throws for null/primitives, which would otherwise
-    // surface as a 500 via the catch block.
     if (typeof body !== "object" || body === null || Array.isArray(body)) {
       return NextResponse.json({ error: "Validation failed" }, { status: 400 });
     }
@@ -135,11 +138,13 @@ export async function PUT(
     }
     return NextResponse.json(result[0]);
   } catch (err) {
-    console.error("PUT /api/inspections/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to update inspection" },
-      { status: 500 },
-    );
+    if (isPgError(err, "23514")) {
+      return NextResponse.json(
+        { error: "Inspection violates a data constraint" },
+        { status: 422 },
+      );
+    }
+    return errorResponse(err);
   }
 }
 
@@ -150,6 +155,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    validateUuid(id, "inspection id");
+
     const result = await db
       .delete(inspections)
       .where(eq(inspections.id, id))
@@ -162,10 +169,6 @@ export async function DELETE(
     }
     return NextResponse.json({ success: true, deleted: result[0] });
   } catch (err) {
-    console.error("DELETE /api/inspections/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to delete inspection" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }

@@ -57,7 +57,7 @@ describe("GET /api/inspections", () => {
     const response = await handlers.GET(req);
     expect(response.status).toBe(500);
     const body = await response.json();
-    expect(body).toEqual({ error: "Failed to fetch inspections" });
+    expect(body.error).toBe("Internal server error");
   });
 
   it("supports hiveId filter", async () => {
@@ -72,6 +72,18 @@ describe("GET /api/inspections", () => {
     expect(mocks.getInspections).toHaveBeenCalledWith({
       hiveId: TEST_INSPECTION.hiveId,
     });
+  });
+
+  it("returns 400 when hive_id filter is malformed", async () => {
+    const req = new Request(
+      "http://localhost/api/inspections?hive_id=not-a-uuid",
+    );
+
+    const response = await handlers.GET(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid hive_id");
+    expect(mocks.getInspections).not.toHaveBeenCalled();
   });
 });
 
@@ -171,6 +183,68 @@ describe("POST /api/inspections", () => {
     expect(mocks.dbInsert).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when JSON body is invalid", async () => {
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{broken json",
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid JSON body");
+    expect(mocks.dbInsert).not.toHaveBeenCalled();
+  });
+
+  it("returns 422 when hive does not exist (FK violation)", async () => {
+    const fkError = Object.assign(new Error("fk violation"), { code: "23503" });
+    mocks.dbInsert.mockReturnValue({
+      values: vi.fn().mockReturnValue({
+        returning: vi.fn().mockRejectedValue(fkError),
+      }),
+    });
+
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: TEST_INSPECTION.hiveId,
+        inspectionDate: TEST_INSPECTION.inspectionDate,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.error).toBe("Hive does not exist");
+  });
+
+  it("returns 422 when inspection violates a data constraint (CHECK)", async () => {
+    const checkError = Object.assign(new Error("check violation"), {
+      code: "23514",
+    });
+    mocks.dbInsert.mockReturnValue({
+      values: vi.fn().mockReturnValue({
+        returning: vi.fn().mockRejectedValue(checkError),
+      }),
+    });
+
+    const req = new Request("http://localhost/api/inspections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: TEST_INSPECTION.hiveId,
+        inspectionDate: TEST_INSPECTION.inspectionDate,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.error).toBe("Inspection violates a data constraint");
+  });
+
   it("returns 500 on DB error", async () => {
     mocks.dbInsert.mockReturnValue({
       values: vi.fn().mockReturnValue({
@@ -189,6 +263,8 @@ describe("POST /api/inspections", () => {
 
     const response = await handlers.POST(req);
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 
   // ── Omitted-default bypass cases ────────────────────────────────

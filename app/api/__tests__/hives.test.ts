@@ -55,7 +55,7 @@ describe("GET /api/hives", () => {
     const response = await handlers.GET(req);
     expect(response.status).toBe(500);
     const body = await response.json();
-    expect(body).toEqual({ error: "Failed to fetch hives" });
+    expect(body.error).toBe("Internal server error");
   });
 
   it("supports apiaryId filter", async () => {
@@ -70,6 +70,16 @@ describe("GET /api/hives", () => {
     expect(mocks.getHives).toHaveBeenCalledWith({
       apiaryId: TEST_HIVE.apiaryId,
     });
+  });
+
+  it("returns 400 when apiary_id filter is malformed", async () => {
+    const req = new Request("http://localhost/api/hives?apiary_id=not-a-uuid");
+
+    const response = await handlers.GET(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid apiary_id");
+    expect(mocks.getHives).not.toHaveBeenCalled();
   });
 });
 
@@ -177,6 +187,43 @@ describe("POST /api/hives", () => {
     });
   });
 
+  it("returns 400 when JSON body is invalid", async () => {
+    const req = new Request("http://localhost/api/hives", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{invalid json",
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Invalid JSON body");
+    expect(mocks.dbInsert).not.toHaveBeenCalled();
+  });
+
+  it("returns 422 when apiary does not exist (FK violation)", async () => {
+    const fkError = Object.assign(new Error("fk violation"), { code: "23503" });
+    mocks.dbInsert.mockReturnValue({
+      values: vi.fn().mockReturnValue({
+        returning: vi.fn().mockRejectedValue(fkError),
+      }),
+    });
+
+    const req = new Request("http://localhost/api/hives", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiaryId: TEST_HIVE.apiaryId,
+        name: TEST_HIVE.name,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(422);
+    const body = await response.json();
+    expect(body.error).toBe("Apiary does not exist");
+  });
+
   it("returns 500 on DB error", async () => {
     mocks.dbInsert.mockReturnValue({
       values: vi.fn().mockReturnValue({
@@ -195,5 +242,7 @@ describe("POST /api/hives", () => {
 
     const response = await handlers.POST(req);
     expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toBe("Internal server error");
   });
 });

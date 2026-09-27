@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getApiaries } from "@/lib/data";
 import { apiaries, ApiaryInsert } from "@/lib/schema";
+import { errorResponse, parseJsonBody } from "@/lib/api-error";
 
 // GET /api/apiaries — list all apiaries
 export async function GET() {
@@ -9,18 +10,14 @@ export async function GET() {
     const result = await getApiaries();
     return NextResponse.json(result);
   } catch (err) {
-    console.error("GET /api/apiaries error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch apiaries" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }
 
 // POST /api/apiaries — create apiary
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await parseJsonBody<unknown>(req);
     const validated = ApiaryInsert.safeParse(body);
     if (!validated.success) {
       return NextResponse.json(
@@ -38,10 +35,6 @@ export async function POST(req: Request) {
       .returning();
     return NextResponse.json(result[0], { status: 201 });
   } catch (err) {
-    console.error("POST /api/apiaries error:", err);
-    return NextResponse.json(
-      { error: "Failed to create apiary" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }

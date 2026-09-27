@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { getApiaryWithHives } from "@/lib/data";
 import { db } from "@/lib/db";
-import { apiaries, hives, ApiaryUpdate } from "@/lib/schema";
+import { apiaries, ApiaryUpdate } from "@/lib/schema";
+import {
+  isPgError,
+  validateUuid,
+  errorResponse,
+  parseJsonBody,
+} from "@/lib/api-error";
 
 // GET /api/apiaries/:id — single apiary with hives
 export async function GET(
@@ -11,6 +17,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    validateUuid(id, "apiary id");
 
     const result = await getApiaryWithHives(id);
     if (!result) {
@@ -19,11 +26,7 @@ export async function GET(
 
     return NextResponse.json(result);
   } catch (err) {
-    console.error("GET /api/apiaries/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to fetch apiary" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }
 
@@ -34,7 +37,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
+    validateUuid(id, "apiary id");
+
+    const body = await parseJsonBody<unknown>(req);
 
     const validated = ApiaryUpdate.safeParse(body);
     if (!validated.success) {
@@ -68,11 +73,7 @@ export async function PUT(
     }
     return NextResponse.json(result[0]);
   } catch (err) {
-    console.error("PUT /api/apiaries/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to update apiary" },
-      { status: 500 },
-    );
+    return errorResponse(err);
   }
 }
 
@@ -83,19 +84,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    validateUuid(id, "apiary id");
 
-    // Check if hives exist (ON DELETE RESTRICT will block, but be explicit)
-    const hiveCheck = await db
-      .select({ count: hives.id })
-      .from(hives)
-      .where(eq(hives.apiaryId, id));
-    if (hiveCheck.length > 0) {
-      return NextResponse.json(
-        { error: "Cannot delete apiary with existing hives" },
-        { status: 409 },
-      );
-    }
-
+    // Let the FK constraint be authoritative — remove the race-prone pre-check.
     const result = await db
       .delete(apiaries)
       .where(eq(apiaries.id, id))
@@ -105,10 +96,13 @@ export async function DELETE(
     }
     return NextResponse.json({ success: true, deleted: result[0] });
   } catch (err) {
-    console.error("DELETE /api/apiaries/:id error:", err);
-    return NextResponse.json(
-      { error: "Failed to delete apiary" },
-      { status: 500 },
-    );
+    if (isPgError(err, "23503")) {
+      return NextResponse.json(
+        { error: "Cannot delete apiary with existing hives" },
+        { status: 409 },
+      );
+    }
+
+    return errorResponse(err);
   }
 }
