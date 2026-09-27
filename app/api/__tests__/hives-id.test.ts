@@ -129,6 +129,32 @@ describe("PUT /api/hives/:id", () => {
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
 
+  it("trims name before saving", async () => {
+    let capturedUpdates: Record<string, unknown> | null = null;
+    const updatedRow = { ...TEST_HIVE, name: "Trimmed Colony" };
+    mocks.dbUpdate.mockReturnValue({
+      set: vi.fn().mockImplementation((updates: Record<string, unknown>) => {
+        capturedUpdates = updates;
+        return {
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([updatedRow]),
+          }),
+        };
+      }),
+    });
+
+    const req = new Request("http://localhost/api/hives/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "  Trimmed Colony  " }),
+    });
+
+    await handlers.PUT(req, mockParams(TEST_ID));
+    expect(
+      (capturedUpdates as unknown as Record<string, unknown>)["name"],
+    ).toBe("Trimmed Colony");
+  });
+
   it("returns 400 when apiaryId is null", async () => {
     const req = new Request("http://localhost/api/hives/" + TEST_ID, {
       method: "PUT",
