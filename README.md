@@ -18,23 +18,38 @@ Manage apiaries, hives, and inspection records.
 
 ## Getting Started
 
+### First-time setup (existing database)
+
+If you already have a PostgreSQL volume from before issue #6, destroy it so the new Drizzle migration can run cleanly:
+
+```bash
+docker compose down -v
+docker compose up -d db
+pnpm db:migrate
+```
+
+### Normal development
+
 ```bash
 # Install dependencies
 pnpm install
 
 # Start PostgreSQL via Docker
-docker compose up -d
+docker compose up -d db
 
 # Set environment variables
-cp .env.local.example .env.local
-# Edit .env.local with your DB_URL
+# Copy .env and update DATABASE_URL to use localhost:5432 for local tooling:
+cp .env .env.local
+# Edit .env.local — change the host in DATABASE_URL from "db" to "localhost"
 
-# Run Drizzle migrations
+# Run Drizzle migrations (if starting fresh)
 pnpm db:migrate
 
 # Start dev server
 pnpm dev
 ```
+
+> **Note:** `docker compose up -d` starts both `db` and `app`. Use `docker compose up -d db` to start only the database, since `pnpm dev` also binds port 3000.
 
 Open [http://localhost:3000](http://localhost:3000).
 
