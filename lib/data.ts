@@ -91,7 +91,7 @@ export interface HiveWithLastInspection {
   apiaryId: string;
   name: string;
   queenBreed: string | null;
-  queenClipped: boolean | null;
+  queenClipped: boolean;
   notes: string | null;
   createdAt: Date;
   inspectionCount: number;

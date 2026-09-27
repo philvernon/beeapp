@@ -102,7 +102,7 @@ describe("POST /api/hives", () => {
       apiaryId: TEST_HIVE.apiaryId,
       name: TEST_HIVE.name,
       queenBreed: null,
-      queenClipped: null,
+      queenClipped: undefined,
       notes: null,
     });
     const body = await response.json();

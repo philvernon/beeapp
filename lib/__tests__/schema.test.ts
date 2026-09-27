@@ -121,6 +121,11 @@ describe("HiveUpdate", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects queenClipped: null (NOT NULL constraint)", () => {
+    const result = HiveUpdate.safeParse({ queenClipped: null });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects whitespace-only name", () => {
     const result = HiveUpdate.safeParse({ name: "   " });
     expect(result.success).toBe(false);
