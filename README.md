@@ -18,23 +18,37 @@ Manage apiaries, hives, and inspection records.
 
 ## Getting Started
 
+### First-time setup (existing database)
+
+If you already have a PostgreSQL volume from before issue #6, destroy it so the new Drizzle migration can run cleanly:
+
+```bash
+docker compose down -v
+```
+
+### Normal development
+
 ```bash
 # Install dependencies
 pnpm install
 
-# Start PostgreSQL via Docker
-docker compose up -d
-
 # Set environment variables
-cp .env.local.example .env.local
-# Edit .env.local with your DB_URL
+cp .env.example .env
+cp .env.example .env.local
+# Edit .env.local — change DATABASE_URL to use localhost:5432 for local tooling:
+#   DATABASE_URL=postgresql://bee:change-me@localhost:5432/beehive
 
-# Run migrations
-# (run SQL in migrations/001_initial.sql against your database)
+# Start PostgreSQL via Docker
+docker compose up -d db
+
+# Run Drizzle migrations (if starting fresh)
+pnpm db:migrate
 
 # Start dev server
 pnpm dev
 ```
+
+> **Note:** `docker compose up -d` starts both `db` and `app`. Use `docker compose up -d db` to start only the database, since `pnpm dev` also binds port 3000.
 
 Open [http://localhost:3000](http://localhost:3000).
 
@@ -49,11 +63,12 @@ app/
     [id]/
       new-inspection/  # Multi-step inspection wizard
 lib/
-  db.ts                # Database connection
-  schema.ts            # Zod schemas + Drizzle tables
-  inspection-wizard-schema.ts  # Client form schema subset
+  db.ts                         # Database connection
+  schema.ts                     # Drizzle tables + Zod schemas (source of truth)
+  inspection-wizard-schema.ts   # Client form schema subset
 migrations/
-  001_initial.sql # Schema definition
+  0000_initial.sql  # Drizzle-generated migration
+  meta/             # Drizzle journal and snapshots
 ```
 
 ## License
