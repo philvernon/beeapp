@@ -24,7 +24,6 @@ If you already have a PostgreSQL volume from before issue #6, destroy it so the 
 
 ```bash
 docker compose down -v
-docker compose up -d db
 ```
 
 ### Normal development
@@ -34,8 +33,9 @@ docker compose up -d db
 pnpm install
 
 # Set environment variables
+cp .env.example .env
 cp .env.example .env.local
-# Edit .env.local — change POSTGRES_PASSWORD and set DATABASE_URL to:
+# Edit .env.local — change DATABASE_URL to use localhost:5432 for local tooling:
 #   DATABASE_URL=postgresql://bee:change-me@localhost:5432/beehive
 
 # Start PostgreSQL via Docker
