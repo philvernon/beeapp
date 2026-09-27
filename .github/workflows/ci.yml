@@ -40,7 +40,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
-      - run: npx drizzle-kit check
+      # Verify schema ↔ migration drift by regenerating and diffing.
+      # drizzle-kit check only validates migration history consistency,
+      # not whether the current TypeScript schema has ungenerated changes.
+      - run: |
+          pnpm db:generate
+          git diff --exit-code -- migrations/
+        continue-on-error: false
       - run: pnpm test -- --run
       - run: pnpm build
         env:
