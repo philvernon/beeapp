@@ -284,27 +284,15 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   .partial()
   .superRefine(inspectionNumericInvariants);
 
-// ── Enum helpers (for UI dropdowns) ───────────────────────
-export const queenColours = ["W", "Y", "R", "G", "B"] as const;
-export const queenColourLabels: Record<string, string> = {
-  W: "White",
-  Y: "Yellow",
-  R: "Red",
-  G: "Green",
-  B: "Blue",
-};
-
-export const varroaLevels = ["l", "m", "h"] as const;
-export const varroaLevelLabels: Record<string, string> = {
-  l: "Low",
-  m: "Medium",
-  h: "High",
-};
-
-export const weatherConditions = ["c", "s", "r", "f"] as const;
-export const weatherConditionLabels: Record<string, string> = {
-  c: "Cloudy",
-  s: "Sunny",
-  r: "Rain",
-  f: "Fair",
-};
+// ── Inspection option type exports (inferred from Drizzle schema) ──
+// These types let inspection-options.ts stay compile-time constrained
+// by the DB enum definitions without importing at runtime.
+export type QueenColour = NonNullable<
+  (typeof inspections.$inferSelect)["queenColour"]
+>;
+export type VarroaLevel = NonNullable<
+  (typeof inspections.$inferSelect)["varroaLevel"]
+>;
+export type WeatherCondition = NonNullable<
+  (typeof inspections.$inferSelect)["weatherCondition"]
+>;

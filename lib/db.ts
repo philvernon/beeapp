@@ -16,6 +16,6 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Drizzle instance with schema for type-safe queries
-export const db = drizzle(pool, { schema, casing: "snake_case" });
+export const db = drizzle(pool, { schema });
 
 export default pool;
