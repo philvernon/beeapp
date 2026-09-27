@@ -40,6 +40,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
+      - run: npx drizzle-kit check
       - run: pnpm test -- --run
       - run: pnpm build
         env:

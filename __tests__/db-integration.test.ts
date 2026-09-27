@@ -35,6 +35,11 @@ function quoteIdentifier(name: string): string {
   return '"' + name.replace(/"/g, '""') + '"';
 }
 
+// Escape a string for use as a SQL literal value (e.g. in WHERE clauses).
+function quoteLiteral(name: string): string {
+  return "'" + name.replace(/'/g, "''") + "'";
+}
+
 async function createTestDb(): Promise<void> {
   const adminClient = new Pool({ connectionString: ADMIN_DB_URL });
   try {
@@ -51,7 +56,7 @@ async function dropTestDb(): Promise<void> {
     await adminClient
       .query(
         "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = " +
-          quoteIdentifier(DB_NAME) +
+          quoteLiteral(DB_NAME) +
           " AND pid <> pg_backend_pid()",
       )
       .catch(() => {});
