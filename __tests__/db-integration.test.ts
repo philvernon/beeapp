@@ -267,11 +267,12 @@ describe("CHECK constraints", () => {
       .then(() => [hiveId, apiaryId] as [string, string]);
   }
 
-  function teardownCheckHive(hiveId: string, apiaryId: string): void {
-    client.query(`DELETE FROM hives WHERE id = $1`, [hiveId]).catch(() => {});
-    client
-      .query(`DELETE FROM apiaries WHERE id = $1`, [apiaryId])
-      .catch(() => {});
+  async function teardownCheckHive(
+    hiveId: string,
+    apiaryId: string,
+  ): Promise<void> {
+    await client.query(`DELETE FROM hives WHERE id = $1`, [hiveId]);
+    await client.query(`DELETE FROM apiaries WHERE id = $1`, [apiaryId]);
   }
 
   it("queen_cells_found >= 0", async () => {
@@ -282,7 +283,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000022"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("brood_frame_count >= 0", async () => {
@@ -293,7 +294,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000023"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("store_frames >= 0", async () => {
@@ -304,7 +305,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000024"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("room_frames >= 0", async () => {
@@ -315,7 +316,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000025"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("varroa_count >= 0", async () => {
@@ -326,7 +327,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000026"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("temperament_score BETWEEN 1 AND 10", async () => {
@@ -343,7 +344,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000028"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("feed_litres_light_syrup >= 0", async () => {
@@ -354,7 +355,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000029"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 
   it("feed_litres_heavy_syrup >= 0", async () => {
@@ -365,7 +366,7 @@ describe("CHECK constraints", () => {
         [makeUuid("000000000030"), hiveId],
       ),
     ).rejects.toThrow();
-    teardownCheckHive(hiveId, apiaryId);
+    await teardownCheckHive(hiveId, apiaryId);
   });
 });
 
@@ -388,11 +389,12 @@ describe("enum/check constraints", () => {
       .then(() => [hiveId, apiaryId] as [string, string]);
   }
 
-  function teardownEnumHive(hiveId: string, apiaryId: string): void {
-    client.query(`DELETE FROM hives WHERE id = $1`, [hiveId]).catch(() => {});
-    client
-      .query(`DELETE FROM apiaries WHERE id = $1`, [apiaryId])
-      .catch(() => {});
+  async function teardownEnumHive(
+    hiveId: string,
+    apiaryId: string,
+  ): Promise<void> {
+    await client.query(`DELETE FROM hives WHERE id = $1`, [hiveId]);
+    await client.query(`DELETE FROM apiaries WHERE id = $1`, [apiaryId]);
   }
 
   it("queen_colour accepts valid enum values", async () => {
@@ -405,7 +407,7 @@ describe("enum/check constraints", () => {
         ),
       ).resolves.toBeDefined();
     }
-    teardownEnumHive(hiveId, apiaryId);
+    await teardownEnumHive(hiveId, apiaryId);
   });
 
   it("queen_colour rejects invalid enum value", async () => {
@@ -416,7 +418,7 @@ describe("enum/check constraints", () => {
         [uid(), hiveId],
       ),
     ).rejects.toThrow();
-    teardownEnumHive(hiveId, apiaryId);
+    await teardownEnumHive(hiveId, apiaryId);
   });
 
   it("varroa_level accepts valid enum values", async () => {
@@ -429,7 +431,7 @@ describe("enum/check constraints", () => {
         ),
       ).resolves.toBeDefined();
     }
-    teardownEnumHive(hiveId, apiaryId);
+    await teardownEnumHive(hiveId, apiaryId);
   });
 
   it("varroa_level rejects invalid enum value", async () => {
@@ -440,7 +442,7 @@ describe("enum/check constraints", () => {
         [uid(), hiveId],
       ),
     ).rejects.toThrow();
-    teardownEnumHive(hiveId, apiaryId);
+    await teardownEnumHive(hiveId, apiaryId);
   });
 
   it("weather_condition accepts valid enum values", async () => {
@@ -453,7 +455,7 @@ describe("enum/check constraints", () => {
         ),
       ).resolves.toBeDefined();
     }
-    teardownEnumHive(hiveId, apiaryId);
+    await teardownEnumHive(hiveId, apiaryId);
   });
 
   it("weather_condition rejects invalid enum value", async () => {
@@ -464,7 +466,7 @@ describe("enum/check constraints", () => {
         [uid(), hiveId],
       ),
     ).rejects.toThrow();
-    teardownEnumHive(hiveId, apiaryId);
+    await teardownEnumHive(hiveId, apiaryId);
   });
 });
 
