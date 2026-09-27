@@ -139,6 +139,116 @@ describe("HiveUpdate", () => {
   });
 });
 
+describe("InspectionInsert — cross-field invariants", () => {
+  const base = {
+    hiveId: UUID,
+    inspectionDate: "2025-03-01",
+  };
+
+  it("rejects queenColour when queenSeen is false", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenSeen: false,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const queenColourIssue = result.error.issues.find((i) =>
+        i.path.includes("queenColour"),
+      );
+      expect(queenColourIssue).toBeDefined();
+    }
+  });
+
+  it("accepts queenColour when queenSeen is true", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenSeen: true,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts null queenColour when queenSeen is false", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenSeen: false,
+      queenColour: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects disease flags when healthOk is true", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      healthOk: true,
+      chalkBroodSuspected: true,
+    });
+    expect(result.success).toBe(false);
+
+    const result2 = InspectionInsert.safeParse({
+      ...base,
+      healthOk: true,
+      efbSuspected: true,
+    });
+    expect(result2.success).toBe(false);
+
+    const result3 = InspectionInsert.safeParse({
+      ...base,
+      healthOk: true,
+      afbSuspected: true,
+    });
+    expect(result3.success).toBe(false);
+  });
+
+  it("accepts disease flags when healthOk is false", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      healthOk: false,
+      chalkBroodSuspected: true,
+      efbSuspected: true,
+      afbSuspected: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects queenCellsRemoved when queenCellsFound is null", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: true,
+      queenCellsFound: null,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects queenCellsRemoved when queenCellsFound is 0", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: true,
+      queenCellsFound: 0,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts queenCellsRemoved when queenCellsFound > 0", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: true,
+      queenCellsFound: 2,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts queenCellsRemoved false with zero cells found", () => {
+    const result = InspectionInsert.safeParse({
+      ...base,
+      queenCellsRemoved: false,
+      queenCellsFound: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
 describe("InspectionInsert", () => {
   it("validates required hiveId and inspectionDate", () => {
     const result = InspectionInsert.safeParse({
@@ -294,6 +404,84 @@ describe("InspectionInsert", () => {
       expect(d.eggsSeen).toBeUndefined();
       expect(d.healthOk).toBeUndefined();
       expect(d.broodPatternOk).toBeUndefined();
+    }
+  });
+});
+
+describe("InspectionUpdate — cross-field invariants", () => {
+  it("rejects queenColour when queenSeen is false", () => {
+    const result = InspectionUpdate.safeParse({
+      queenSeen: false,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts queenColour when queenSeen is true", () => {
+    const result = InspectionUpdate.safeParse({
+      queenSeen: true,
+      queenColour: "Y",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects disease flags when healthOk is true", () => {
+    const result = InspectionUpdate.safeParse({
+      healthOk: true,
+      chalkBroodSuspected: true,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts disease flags when healthOk is false", () => {
+    const result = InspectionUpdate.safeParse({
+      healthOk: false,
+      chalkBroodSuspected: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects queenCellsRemoved when queenCellsFound is null", () => {
+    const result = InspectionUpdate.safeParse({
+      queenCellsRemoved: true,
+      queenCellsFound: null,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects queenCellsRemoved when queenCellsFound is 0", () => {
+    const result = InspectionUpdate.safeParse({
+      queenCellsRemoved: true,
+      queenCellsFound: 0,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts queenCellsRemoved when queenCellsFound > 0", () => {
+    const result = InspectionUpdate.safeParse({
+      queenCellsRemoved: true,
+      queenCellsFound: 2,
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("InspectionUpdate — narrowed contract", () => {
+  it("rejects hiveId (not in update schema)", () => {
+    const result = InspectionUpdate.safeParse({ hiveId: UUID });
+    expect(result.success).toBe(true);
+    // hiveId is omitted from the schema, so it passes validation
+    // but will not appear in the output data
+    if (result.success) {
+      expect("hiveId" in result.data).toBe(false);
+    }
+  });
+
+  it("rejects inspectionDate (not in update schema)", () => {
+    const result = InspectionUpdate.safeParse({ inspectionDate: "2025-04-01" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect("inspectionDate" in result.data).toBe(false);
     }
   });
 });

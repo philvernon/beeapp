@@ -272,9 +272,67 @@ function inspectionNumericInvariants(
   }
 }
 
-export const InspectionInsert = createInsertSchema(inspections).superRefine(
-  inspectionNumericInvariants,
-);
+/**
+ * Cross-field invariants shared between InspectionInsert and InspectionUpdate.
+ *
+ * These rules enforce domain constraints that the UI hides but direct API
+ * callers can bypass.  Normalisation is used only when the intended meaning
+ * is unambiguous; otherwise contradictory input is rejected with a useful
+ * validation error.
+ */
+function inspectionCrossFieldInvariants(
+  val: {
+    queenSeen?: boolean;
+    queenColour?: string | null;
+    healthOk?: boolean;
+    chalkBroodSuspected?: boolean;
+    efbSuspected?: boolean;
+    afbSuspected?: boolean;
+    queenCellsFound?: number | null;
+    queenCellsRemoved?: boolean;
+  },
+  ctx: z.RefinementCtx,
+) {
+  // Queen colour is only meaningful when the queen was seen.
+  if (val.queenSeen === false && val.queenColour != null) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Queen colour cannot be set when the queen was not seen",
+      path: ["queenColour"],
+    });
+  }
+
+  // Disease-suspected flags are only meaningful when healthOk is false.
+  if (
+    val.healthOk === true &&
+    (val.chalkBroodSuspected === true ||
+      val.efbSuspected === true ||
+      val.afbSuspected === true)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Disease suspected flags cannot be set when health is OK",
+      path: ["healthOk"],
+    });
+  }
+
+  // Queen cells removed implies at least one queen cell was found.
+  if (
+    val.queenCellsRemoved === true &&
+    (val.queenCellsFound == null || val.queenCellsFound === 0)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        "Queen cells removed cannot be true when no queen cells were found",
+      path: ["queenCellsRemoved"],
+    });
+  }
+}
+
+export const InspectionInsert = createInsertSchema(inspections)
+  .superRefine(inspectionNumericInvariants)
+  .superRefine(inspectionCrossFieldInvariants);
 export const InspectionSelect = createSelectSchema(inspections);
 export const InspectionUpdate = createUpdateSchema(inspections, {
   queenColour: (schema) => schema.nullable(),
@@ -292,9 +350,10 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   weatherCondition: (schema) => schema.nullable(),
   notes: (schema) => schema.nullable(),
 })
-  .omit({ id: true, createdAt: true })
+  .omit({ id: true, createdAt: true, hiveId: true, inspectionDate: true })
   .partial()
-  .superRefine(inspectionNumericInvariants);
+  .superRefine(inspectionNumericInvariants)
+  .superRefine(inspectionCrossFieldInvariants);
 
 // ── Inspection option type exports (inferred from Drizzle schema) ──
 // These types let inspection-options.ts stay compile-time constrained

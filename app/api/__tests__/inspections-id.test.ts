@@ -115,11 +115,94 @@ describe("PUT /api/inspections/:id", () => {
     expect(body.error).toBe("No fields to update");
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
-  it("returns 400 when hiveId is null", async () => {
+  it("rejects update body with only hiveId (omitted from schema)", async () => {
     const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hiveId: null }),
+      body: JSON.stringify({ hiveId: "d4e5f6a7-b8c9-4123-defa-234567890123" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("No fields to update");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects update body with only inspectionDate (omitted from schema)", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ inspectionDate: "2025-04-01" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("No fields to update");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("ignores hiveId when combined with other valid fields", async () => {
+    const updatedRow = { ...TEST_INSPECTION, notes: "Updated notes" };
+    mocks.dbUpdate.mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([updatedRow]),
+        }),
+      }),
+    });
+
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        hiveId: "d4e5f6a7-b8c9-4123-defa-234567890123",
+        notes: "Updated notes",
+      }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.notes).toBe("Updated notes");
+    // hiveId is silently stripped — the existing hiveId is preserved.
+    expect(body.hiveId).toBe("b2c3d4e5-f6a7-4890-bcde-f12345678901");
+  });
+
+  it("returns 400 when queenColour is set but queenSeen is false", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ queenSeen: false, queenColour: "Y" }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when healthOk is true but disease flags are set", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ healthOk: true, chalkBroodSuspected: true }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when queenCellsRemoved is true but no cells found", async () => {
+    const req = new Request("http://localhost/api/inspections/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ queenCellsRemoved: true, queenCellsFound: 0 }),
     });
 
     const response = await handlers.PUT(req, mockParams(TEST_ID));

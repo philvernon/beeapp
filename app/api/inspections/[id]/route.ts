@@ -60,14 +60,6 @@ export async function PUT(
       );
     }
 
-    // Reject hiveId: null (column is NOT NULL)
-    if (updates.hiveId === null) {
-      return NextResponse.json(
-        { error: "hiveId cannot be null" },
-        { status: 400 },
-      );
-    }
-
     const result = await db
       .update(inspections)
       .set(updates)
