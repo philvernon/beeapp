@@ -25,8 +25,6 @@ const TEST_INSPECTION = {
   eggsSeen: true,
   healthOk: true,
   varroaLevel: "l",
-  temperatureScore: 5,
-  broodPattern: "s",
   notes: null,
   createdAt: new Date("2025-03-01T10:00:00Z"),
 };

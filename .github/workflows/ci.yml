@@ -10,6 +10,21 @@ jobs:
   check:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: bee
+          POSTGRES_PASSWORD: bees2
+          POSTGRES_DB: beehive
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,4 +43,4 @@ jobs:
       - run: pnpm test -- --run
       - run: pnpm build
         env:
-          DATABASE_URL: postgresql://bee:bee@localhost:5432/beehive
+          DATABASE_URL: postgresql://bee:bees2@localhost:5432/beehive
