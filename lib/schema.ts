@@ -52,7 +52,7 @@ export const hives = pgTable(
       .references(() => apiaries.id, { onDelete: "restrict" }),
     name: text("name").notNull(),
     queenBreed: text("queen_breed"),
-    queenClipped: boolean("queen_clipped").default(false),
+    queenClipped: boolean("queen_clipped").notNull().default(false),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -93,7 +93,7 @@ export const inspections = pgTable(
     inspectionDate: date("inspection_date").notNull(),
 
     // Queen
-    queenSeen: boolean("queen_seen").default(false),
+    queenSeen: boolean("queen_seen").notNull().default(false),
     queenColour: text("queen_colour", { enum: ["W", "Y", "R", "G", "B"] }),
 
     // Queen cells
@@ -101,8 +101,8 @@ export const inspections = pgTable(
     queenCellsRemoved: boolean("queen_cells_removed").default(false),
 
     // Brood
-    eggsSeen: boolean("eggs_seen").default(false),
-    broodPatternOk: boolean("brood_pattern_ok").default(true),
+    eggsSeen: boolean("eggs_seen").notNull().default(false),
+    broodPatternOk: boolean("brood_pattern_ok").notNull().default(true),
     broodFrameCount: integer("brood_frame_count"),
 
     // Stores & Space

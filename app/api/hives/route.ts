@@ -38,8 +38,8 @@ export async function POST(req: Request) {
       .values({
         apiaryId: validated.data.apiaryId,
         name: validated.data.name,
-        queenBreed: validated.data.queenBreed ?? null,
-        queenClipped: validated.data.queenClipped ?? null,
+        queenBreed: validated.data.queenBreed,
+        queenClipped: validated.data.queenClipped,
         notes: validated.data.notes ?? null,
       })
       .returning();
