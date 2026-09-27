@@ -284,6 +284,13 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   .partial()
   .superRefine(inspectionNumericInvariants);
 
+// ── Inspection option type exports (inferred from Drizzle schema) ──
+// These types let inspection-options.ts stay compile-time constrained
+// by the DB enum definitions without importing at runtime.
+export type QueenColour = NonNullable<typeof inspections.$inferSelect["queenColour"]>;
+export type VarroaLevel = NonNullable<typeof inspections.$inferSelect["varroaLevel"]>;
+export type WeatherCondition = NonNullable<typeof inspections.$inferSelect["weatherCondition"]>;
+
 // Re-export inspection options for backward compatibility.
 // New code should import from "./inspection-options" instead.
 export {
