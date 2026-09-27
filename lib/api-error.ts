@@ -27,9 +27,8 @@ export function isPgError(err: unknown, code: string): boolean {
       return true;
     }
 
-    current = "cause" in current
-      ? (current as { cause?: unknown }).cause
-      : undefined;
+    current =
+      "cause" in current ? (current as { cause?: unknown }).cause : undefined;
   }
 
   return false;
