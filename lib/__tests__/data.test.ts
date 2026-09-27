@@ -1,29 +1,37 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { InferSelectModel } from "drizzle-orm";
+import { apiaries, hives, inspections } from "@/lib/schema";
+
+// Fixtures are typed against Drizzle inferred row types so that future schema
+// drift (removed/renamed columns) is caught at compile time.
+// The fixtures are intentionally partial — they only supply the fields the unit tests exercise.
+type ApiaryRow = Partial<InferSelectModel<typeof apiaries>>;
+type HiveRow = Partial<InferSelectModel<typeof hives>>;
+type InspectionRow = Partial<InferSelectModel<typeof inspections>>;
 
 const TEST_APIARY_ID = "a1b2c3d4-e5f6-4789-abcd-ef1234567890";
 const TEST_HIVE_ID = "b2c3d4e5-f6a7-4890-bcde-f12345678901";
 const TEST_INSPECTION_ID = "c3d4e5f6-a7b8-4012-cdef-123456789012";
 
-const mockApiary = {
+const mockApiary: ApiaryRow = {
   id: TEST_APIARY_ID,
   name: "Garden Apiary",
   notes: "Behind the house",
   createdAt: new Date("2025-01-15T10:00:00Z"),
 };
 
-const mockHive = {
+const mockHive: HiveRow = {
   id: TEST_HIVE_ID,
   apiaryId: TEST_APIARY_ID,
   name: "Colony Alpha",
-  queenColour: "Y",
-  varroaLevel: "l",
-  broodPattern: "s",
+  queenBreed: "Italian",
+  queenClipped: false,
   notes: null,
   createdAt: new Date("2025-01-15T10:00:00Z"),
 };
 
-const mockInspection = {
+const mockInspection: InspectionRow = {
   id: TEST_INSPECTION_ID,
   hiveId: TEST_HIVE_ID,
   inspectionDate: "2025-03-01",
@@ -31,8 +39,6 @@ const mockInspection = {
   eggsSeen: true,
   healthOk: true,
   varroaLevel: "l",
-  temperatureScore: 5,
-  broodPattern: "s",
   notes: null,
   createdAt: new Date("2025-03-01T10:00:00Z"),
 };

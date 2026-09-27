@@ -31,7 +31,6 @@ const TEST_HIVE = {
   name: "Colony Alpha",
   queenColour: "Y",
   varroaLevel: "l",
-  broodPattern: "s",
   notes: null,
   createdAt: new Date("2025-01-15T10:00:00Z"),
 };
