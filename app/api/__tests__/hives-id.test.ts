@@ -101,6 +101,20 @@ describe("PUT /api/hives/:id", () => {
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when name is whitespace only", async () => {
+    const req = new Request("http://localhost/api/hives/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "   " }),
+    });
+
+    const response = await handlers.PUT(req, mockParams(TEST_ID));
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when no fields to update (empty body)", async () => {
     const req = new Request("http://localhost/api/hives/" + TEST_ID, {
       method: "PUT",
@@ -113,6 +127,32 @@ describe("PUT /api/hives/:id", () => {
     const body = await response.json();
     expect(body.error).toBe("No fields to update");
     expect(mocks.dbUpdate).not.toHaveBeenCalled();
+  });
+
+  it("trims name before saving", async () => {
+    let capturedUpdates: Record<string, unknown> | null = null;
+    const updatedRow = { ...TEST_HIVE, name: "Trimmed Colony" };
+    mocks.dbUpdate.mockReturnValue({
+      set: vi.fn().mockImplementation((updates: Record<string, unknown>) => {
+        capturedUpdates = updates;
+        return {
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([updatedRow]),
+          }),
+        };
+      }),
+    });
+
+    const req = new Request("http://localhost/api/hives/" + TEST_ID, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "  Trimmed Colony  " }),
+    });
+
+    await handlers.PUT(req, mockParams(TEST_ID));
+    expect(
+      (capturedUpdates as unknown as Record<string, unknown>)["name"],
+    ).toBe("Trimmed Colony");
   });
 
   it("returns 400 when apiaryId is null", async () => {

@@ -136,6 +136,47 @@ describe("POST /api/hives", () => {
     expect(mocks.dbInsert).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when name is whitespace only", async () => {
+    const req = new Request("http://localhost/api/hives", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiaryId: TEST_HIVE.apiaryId, name: "   " }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Validation failed");
+    expect(mocks.dbInsert).not.toHaveBeenCalled();
+  });
+
+  it("trims whitespace from name before saving", async () => {
+    mocks.dbInsert.mockReturnValue({
+      values,
+    });
+
+    const req = new Request("http://localhost/api/hives", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiaryId: TEST_HIVE.apiaryId,
+        name: "  Trimmed Hive  ",
+        queenBreed: null,
+        notes: null,
+      }),
+    });
+
+    const response = await handlers.POST(req);
+    expect(response.status).toBe(201);
+    expect(values).toHaveBeenCalledWith({
+      apiaryId: TEST_HIVE.apiaryId,
+      name: "Trimmed Hive",
+      queenBreed: null,
+      queenClipped: undefined,
+      notes: null,
+    });
+  });
+
   it("returns 500 on DB error", async () => {
     mocks.dbInsert.mockReturnValue({
       values: vi.fn().mockReturnValue({
