@@ -4,7 +4,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import { apiaries, hives, inspections } from "@/lib/schema";
 
 // Fixtures are typed against Drizzle inferred row types so that future schema
-// drift (added/removed columns) is caught at compile time.
+// drift (removed/renamed columns) is caught at compile time.
 // The fixtures are intentionally partial — they only supply the fields the unit tests exercise.
 type ApiaryRow = Partial<InferSelectModel<typeof apiaries>>;
 type HiveRow = Partial<InferSelectModel<typeof hives>>;
