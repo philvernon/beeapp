@@ -59,11 +59,11 @@ describe("getLocalDate", () => {
   });
 
   it("handles local midnight correctly when UTC is previous day", () => {
-    // 23:30 UTC on June 14 = 00:30 local on June 15 in UTC+1
-    freezeDate("2025-06-14T22:30:00Z");
+    // 23:30 UTC on June 14 = 00:30 BST (UTC+1) on June 15
+    freezeDate("2025-06-14T23:30:00Z");
     vi.stubEnv("TZ", "Europe/London");
     const result = getLocalDate();
-    expect(result).toBe("2025-06-14");
+    expect(result).toBe("2025-06-15");
     vi.unstubAllEnvs();
   });
 
