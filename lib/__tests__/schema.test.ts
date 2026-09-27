@@ -6,10 +6,12 @@ import {
   HiveUpdate,
   InspectionInsert,
   InspectionUpdate,
+} from "../schema";
+import {
   queenColourLabels,
   varroaLevelLabels,
   weatherConditionLabels,
-} from "../schema";
+} from "../inspection-options";
 
 const UUID = "a1b2c3d4-e5f6-4789-abcd-ef1234567890";
 

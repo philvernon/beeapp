@@ -284,27 +284,13 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   .partial()
   .superRefine(inspectionNumericInvariants);
 
-// ── Enum helpers (for UI dropdowns) ───────────────────────
-export const queenColours = ["W", "Y", "R", "G", "B"] as const;
-export const queenColourLabels: Record<string, string> = {
-  W: "White",
-  Y: "Yellow",
-  R: "Red",
-  G: "Green",
-  B: "Blue",
-};
-
-export const varroaLevels = ["l", "m", "h"] as const;
-export const varroaLevelLabels: Record<string, string> = {
-  l: "Low",
-  m: "Medium",
-  h: "High",
-};
-
-export const weatherConditions = ["c", "s", "r", "f"] as const;
-export const weatherConditionLabels: Record<string, string> = {
-  c: "Cloudy",
-  s: "Sunny",
-  r: "Rain",
-  f: "Fair",
-};
+// Re-export inspection options for backward compatibility.
+// New code should import from "./inspection-options" instead.
+export {
+  queenColours,
+  queenColourLabels,
+  varroaLevels,
+  varroaLevelLabels,
+  weatherConditions,
+  weatherConditionLabels,
+} from "./inspection-options";

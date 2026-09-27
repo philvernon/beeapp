@@ -12,7 +12,7 @@ import {
 import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { queenColourLabels } from "@/lib/schema";
+import { queenColourLabels } from "@/lib/inspection-options";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { NumberInput } from "@/components/ui/number-input";
 
