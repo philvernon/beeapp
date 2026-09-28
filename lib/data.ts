@@ -98,8 +98,8 @@ export interface HiveWithLastInspection {
   lastInspection: {
     id: string;
     inspectionDate: string;
-    queenSeen: boolean | null;
-    healthOk: boolean | null;
+    queenSeen: boolean;
+    healthOk: boolean;
   } | null;
 }
 
