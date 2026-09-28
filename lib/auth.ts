@@ -8,12 +8,29 @@ import * as schema from "./auth-schema";
 /**
  * Parse the AUTH_ALLOWED_IP environment variable.
  *
- * Returns the exact IP address string, or null if unset/empty.
+ * Supports a single IP or CIDR range (e.g. "192.168.1.0/24").
+ * Returns null if unset/empty.
  */
-function parseAllowedIp(): string | null {
+function parseAllowedIp(): { ip: string; prefix?: number } | null {
   const raw = process.env.AUTH_ALLOWED_IP;
   if (!raw || raw.trim() === "") return null;
-  return raw.trim();
+  const trimmed = raw.trim();
+  const slashIdx = trimmed.indexOf("/");
+  if (slashIdx !== -1) {
+    const ip = trimmed.slice(0, slashIdx);
+    const prefix = parseInt(trimmed.slice(slashIdx + 1), 10);
+    if (!isNaN(prefix)) return { ip, prefix };
+  }
+  return { ip: trimmed };
+}
+
+/**
+ * Convert an IPv4 address to a 32-bit integer.
+ */
+function ipToInt(ip: string): number {
+  const parts = ip.split(".").map(Number);
+  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) return -1;
+  return (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
 }
 
 /**
@@ -36,15 +53,24 @@ function getClientIp(headers: Headers): string | null {
 /**
  * Check whether a sign-up request is allowed based on client IP.
  *
- * When AUTH_ALLOWED_IP is set, only requests from that exact IP can register.
+ * Supports exact IP match or CIDR range (e.g. "192.168.1.0/24").
  * When unset, no new registrations are allowed (fails closed).
  */
 function isRegistrationAllowed(headers: Headers): boolean {
-  const allowedIp = parseAllowedIp();
-  if (!allowedIp) return false;
+  const allowed = parseAllowedIp();
+  if (!allowed) return false;
   const clientIp = getClientIp(headers);
   if (!clientIp) return false;
-  return clientIp === allowedIp;
+
+  if (allowed.prefix !== undefined) {
+    const network = ipToInt(allowed.ip);
+    const client = ipToInt(clientIp);
+    if (network === -1 || client === -1) return false;
+    const mask = ~(0xffffffff >> allowed.prefix) >>> 0;
+    return (network & mask) === (client & mask);
+  }
+
+  return clientIp === allowed.ip;
 }
 
 export const auth = betterAuth({

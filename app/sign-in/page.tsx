@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -69,6 +70,12 @@ export default function SignInPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
+            <div className="text-center text-sm text-muted-foreground">
+              Do not have an account?{" "}
+              <Link href="/sign-up" className="text-primary hover:underline">
+                Sign up
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>
