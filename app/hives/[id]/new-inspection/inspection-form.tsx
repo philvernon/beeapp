@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   InspectionWizardSchema,
@@ -80,7 +80,11 @@ export function InspectionForm({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
+  const firedRef = useRef(false);
+
   useEffect(() => {
+    if (firedRef.current) return;
+    firedRef.current = true;
     toast.add({
       type: "success",
       title: "Hive scanned",
