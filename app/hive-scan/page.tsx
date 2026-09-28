@@ -10,13 +10,10 @@ export default function HiveScanPage() {
 
   const handleResult = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes && detectedCodes.length > 0) {
-      const url = detectedCodes[0].rawValue.trim();
-      const match = url.match(/\/hives\/([a-f0-9-]+)/i);
-      if (match) {
-        router.replace(`/hives/${match[1]}/new-inspection`);
-      } else {
-        router.replace(url);
-      }
+      const scannedValue = detectedCodes[0].rawValue.trim();
+      router.replace(
+        `/hives/${encodeURIComponent(scannedValue)}/new-inspection`,
+      );
     }
   };
 
