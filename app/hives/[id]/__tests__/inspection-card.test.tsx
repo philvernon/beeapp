@@ -96,4 +96,18 @@ describe("InspectionCard", () => {
     render(<InspectionCard inspection={baseInspection} />);
     expect(screen.queryByText(/looking/i)).toBeNull();
   });
+
+  it("renders disease badges when healthOk is false", () => {
+    const withDiseases = {
+      ...baseInspection,
+      healthOk: false,
+      chalkBroodSuspected: true,
+      efbSuspected: true,
+      afbSuspected: false,
+    };
+    render(<InspectionCard inspection={withDiseases} />);
+    expect(screen.getByText("Chalk brood")).toBeDefined();
+    expect(screen.getByText("EFB")).toBeDefined();
+    expect(screen.queryByText("AFB")).toBeNull();
+  });
 });
