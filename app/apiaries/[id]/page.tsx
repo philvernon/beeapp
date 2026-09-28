@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/button-link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { validateUuid } from "@/lib/api-error";
 import { getApiaryWithHives } from "@/lib/data";
 
 export default async function ApiaryDetailPage({
@@ -12,7 +11,11 @@ export default async function ApiaryDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  validateUuid(id, "apiary id");
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  ) {
+    notFound();
+  }
   const apiary = await getApiaryWithHives(id);
 
   if (!apiary) notFound();
