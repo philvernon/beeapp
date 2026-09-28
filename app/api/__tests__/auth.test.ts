@@ -1,11 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const TEST_SESSION = {
-  user: { id: "user-1", name: "Test User", email: "test@example.com" },
-  session: { id: "sess-1", token: "tok-1" },
-};
-
 // Shared mock state — controlled per test via getSessionImpl
 const getSessionImpl = vi.fn().mockResolvedValue(null);
 
@@ -20,8 +15,6 @@ vi.mock("@/lib/auth", () => ({
     },
   },
 }));
-
-
 
 describe("POST /api/auth/sign-out", () => {
   beforeEach(() => {
@@ -44,7 +37,9 @@ describe("POST /api/auth/sign-out", () => {
 
     // Need to re-import after doMock
     const { POST } = await import("../auth/sign-out/route");
-    const response = await POST(new Request("http://localhost/api/auth/sign-out", { method: "POST" }));
+    const response = await POST(
+      new Request("http://localhost/api/auth/sign-out", { method: "POST" }),
+    );
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.redirect).toBe("/sign-in");
@@ -71,11 +66,11 @@ describe("POST /api/auth/sign-out", () => {
     }));
 
     const { POST } = await import("../auth/sign-out/route");
-    const response = await POST(new Request("http://localhost/api/auth/sign-out", { method: "POST" }));
+    const response = await POST(
+      new Request("http://localhost/api/auth/sign-out", { method: "POST" }),
+    );
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe("Sign out failed");
   });
 });
-
-

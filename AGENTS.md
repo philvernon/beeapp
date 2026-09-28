@@ -41,16 +41,16 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 
 ### Key files
 
-| File                                | Purpose                                                               |
-| ----------------------------------- | --------------------------------------------------------------------- |
-| `lib/auth.ts`                       | Server-side auth module (adapter, config, hooks)                      |
-| `lib/auth-client.ts`                | React client (`createAuthClient`)                                     |
-| `lib/auth-schema.ts`                | Drizzle schema for auth tables (user, session, account, verification) |
-| `proxy.ts`                          | Next.js 16 proxy — real DB-backed session validation for all routes   |
-| `app/api/auth/[...all]/route.ts`    | Better Auth API handler mounted at `/api/auth/*`                      |
-| `app/api/auth/sign-out/route.ts`    | POST sign-out route (invalidates session + clears cookies)            |
-| `app/sign-in/page.tsx`              | Sign-in page                                                          |
-| `app/sign-up/page.tsx`              | Sign-up page (enforces IP-based registration)                         |
+| File                             | Purpose                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `lib/auth.ts`                    | Server-side auth module (adapter, config, hooks)                      |
+| `lib/auth-client.ts`             | React client (`createAuthClient`)                                     |
+| `lib/auth-schema.ts`             | Drizzle schema for auth tables (user, session, account, verification) |
+| `proxy.ts`                       | Next.js 16 proxy — real DB-backed session validation for all routes   |
+| `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
+| `app/api/auth/sign-out/route.ts` | POST sign-out route (invalidates session + clears cookies)            |
+| `app/sign-in/page.tsx`           | Sign-in page                                                          |
+| `app/sign-up/page.tsx`           | Sign-up page (enforces IP-based registration)                         |
 
 ### Session validation pattern
 

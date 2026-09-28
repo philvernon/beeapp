@@ -10,14 +10,8 @@ export async function POST(request: Request) {
       headers: request.headers,
     });
 
-    return NextResponse.json(
-      { redirect: "/sign-in" },
-      { status: 200 },
-    );
+    return NextResponse.json({ redirect: "/sign-in" }, { status: 200 });
   } catch {
-    return NextResponse.json(
-      { error: "Sign out failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Sign out failed" }, { status: 500 });
   }
 }

@@ -11,11 +11,7 @@ export const auth = betterAuth({
   }),
 
   baseURL: {
-    allowedHosts: [
-      "localhost:3000",
-      "localhost",
-      "192.168.*.*",
-    ],
+    allowedHosts: ["localhost:3000", "localhost", "192.168.*.*"],
   },
 
   emailAndPassword: {
@@ -33,8 +29,6 @@ export const auth = betterAuth({
     sendOnSignUp: false,
     autoSignInAfterVerification: false,
   },
-
-
 
   advanced: {
     useSecureCookies: true,
