@@ -2,7 +2,13 @@ import { useEffect, useRef } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "./boolean-field";
-import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -11,7 +17,8 @@ import { varroaLevelLabels } from "@/lib/inspection-options";
 import { NumberInput } from "@/components/ui/number-input";
 
 export function HealthFields() {
-  const { control, unregister } = useFormContext<InspectionWizardValue>();
+  const { control, setValue, unregister } =
+    useFormContext<InspectionWizardValue>();
   const healthOk = useWatch({ control, name: "healthOk" });
   const prevHealthOkRef = useRef(healthOk);
 
@@ -25,7 +32,35 @@ export function HealthFields() {
   return (
     <FieldSet>
       <FieldGroup>
-        <BooleanField name="healthOk" label="No disease signs" />
+        <Controller
+          name="healthOk"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldDescription>Disease</FieldDescription>
+              <RadioGroup
+                value={String(!field.value)}
+                onValueChange={(value) => {
+                  setValue("healthOk", value === "false", {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
+                }}
+              >
+                <div className="flex gap-4">
+                  <Label>
+                    <RadioGroupItem value="true" />
+                    <span>Yes</span>
+                  </Label>
+                  <Label>
+                    <RadioGroupItem value="false" />
+                    <span>No</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </Field>
+          )}
+        />
         {healthOk === false && (
           <BooleanField
             name="chalkBroodSuspected"

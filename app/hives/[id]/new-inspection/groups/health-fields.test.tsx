@@ -43,13 +43,13 @@ function Wrapper({
 }
 
 describe("HealthFields", () => {
-  it('renders "No disease signs" Yes/No radio', () => {
+  it('renders "Disease" Yes/No radio', () => {
     render(
       <Wrapper>
         <HealthFields />
       </Wrapper>,
     );
-    expect(screen.getByText("No disease signs")).toBeDefined();
+    expect(screen.getByText("Disease")).toBeDefined();
     // Should have at least Yes and No text visible
     const yesNoTexts = screen.getAllByText(/Yes|No/);
     expect(yesNoTexts.length).toBeGreaterThanOrEqual(2);
