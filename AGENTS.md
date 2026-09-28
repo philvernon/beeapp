@@ -41,23 +41,35 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 
 ### Key files
 
-| File                             | Purpose                                                               |
-| -------------------------------- | --------------------------------------------------------------------- |
-| `lib/auth.ts`                    | Server-side auth module (adapter, config, hooks)                      |
-| `lib/auth-client.ts`             | React client (`createAuthClient`)                                     |
-| `lib/auth-schema.ts`             | Drizzle schema for auth tables (user, session, account, verification) |
-| `lib/auth-session.ts`            | `requireSession()` — RSC page session guard (redirects to `/sign-in`) |
-| `lib/auth-middleware.ts`         | `requireApiSession()` — API route session guard (returns JSON 401)    |
-| `src/middleware.ts`              | Next.js middleware — protects all routes via cookie check             |
-| `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
-| `app/sign-in/page.tsx`           | Sign-in page                                                          |
-| `app/sign-up/page.tsx`           | Sign-up page (enforces email allowlist)                               |
+| File                                | Purpose                                                               |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| `lib/auth.ts`                       | Server-side auth module (adapter, config, hooks)                      |
+| `lib/auth-client.ts`                | React client (`createAuthClient`)                                     |
+| `lib/auth-schema.ts`                | Drizzle schema for auth tables (user, session, account, verification) |
+| `lib/auth-session.ts`               | `requireSession()` — RSC page session guard (redirects to `/sign-in`) |
+| `lib/auth-middleware.ts`            | `requireApiSession()` — API route session guard (returns JSON 401)    |
+| `proxy.ts`                          | Next.js 16 proxy — real DB-backed session validation for all routes   |
+| `app/api/auth/[...all]/route.ts`    | Better Auth API handler mounted at `/api/auth/*`                      |
+| `app/api/auth/sign-out/route.ts`    | POST sign-out route (invalidates session + clears cookies)            |
+| `app/sign-in/page.tsx`              | Sign-in page                                                          |
+| `app/sign-up/page.tsx`              | Sign-up page (enforces IP-based registration)                         |
 
 ### Session validation pattern
 
-- **Next.js middleware** (`src/middleware.ts`) protects all routes automatically by checking the `session_token` cookie. Unauthenticated requests are redirected to `/sign-in`.
+- **Next.js proxy** (`proxy.ts`) protects all routes automatically by calling `auth.api.getSession()` — a real DB-backed session check. Unauthenticated requests are redirected to `/sign-in`.
 - **API routes** should also call `requireApiSession()` at the top of each handler for defense-in-depth. If unauthenticated, return the Response early: `const auth = await requireApiSession(); if ("status" in auth) return auth;`
-- **RSC pages** do not need per-page guards — middleware handles it. The legacy `requireSession()` helper remains available for any component-level needs.
+- **RSC pages** do not need per-page guards — proxy handles it. The legacy `requireSession()` helper remains available for any component-level needs.
+
+### Sign-out pattern
+
+- Client calls `POST /api/auth/sign-out` which invokes `auth.api.signOut()` to invalidate the session and clear cookies.
+- After the fetch completes (or fails), navigate to `/sign-in`.
+
+### Registration restriction
+
+- Set `AUTH_ALLOWED_IP` to restrict sign-ups to a specific IP address (e.g. your homelab host).
+- When unset, no new registrations are allowed (fails closed).
+- The check reads `x-forwarded-for` and `x-real-ip` headers from the request context.
 
 ### Auth conventions
 

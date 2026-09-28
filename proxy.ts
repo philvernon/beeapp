@@ -1,20 +1,10 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-
-/**
- * Better Auth session token cookie name (matches better-auth defaults).
- */
-const SESSION_COOKIE_NAME = "session_token";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 /**
  * Public routes that do not require authentication.
  */
-const PUBLIC_PATHS = [
-  "/sign-in",
-  "/sign-up",
-  "/api/auth",
-  "/hive-scan", // camera-based scan — no auth needed
-];
+const PUBLIC_PATHS = ["/sign-in", "/sign-up", "/api/auth"];
 
 /**
  * Check whether a path should be treated as public.
@@ -25,7 +15,7 @@ function isPublic(pathname: string): boolean {
   );
 }
 
-export function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip public routes
@@ -33,10 +23,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for session cookie
-  const sessionToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  // Real DB-backed session validation via Better Auth
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  if (!sessionToken) {
+  if (!session) {
     // Redirect unauthenticated users to sign-in
     const signInUrl = new URL("/sign-in", request.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
@@ -48,7 +40,7 @@ export function middleware(request: NextRequest) {
 }
 
 /**
- * Run middleware on all routes except static assets, API health checks, etc.
+ * Run proxy on all routes except static assets, API health checks, etc.
  */
 export const config = {
   matcher: [
