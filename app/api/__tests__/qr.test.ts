@@ -36,7 +36,6 @@ const TEST_HIVE = {
 describe("GET /api/hives/:id/qr", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
   });
 
   it("returns 200 with PNG image on success", async () => {
