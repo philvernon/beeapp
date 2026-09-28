@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { ApiaryRow } from "@/lib/schema";
 import { HiveInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,7 @@ export function NewHiveForm({
   apiaries,
   preselectedApiaryId,
 }: {
-  apiaries: Pick<ApiaryRow, "id" | "name">[];
+  apiaries: Array<{ id: string; name: string }>;
   preselectedApiaryId: string | null;
 }) {
   const router = useRouter();

@@ -404,12 +404,6 @@ export type WeatherCondition = NonNullable<
   (typeof inspections.$inferSelect)["weatherCondition"]
 >;
 
-/** Full apiary row as returned by the database / select query. */
-export type ApiaryRow = typeof apiaries.$inferSelect;
-
-/** Full hive row as returned by the database / select query. */
-export type HiveRow = typeof hives.$inferSelect;
-
 /** Full inspection row as returned by the database / select query. */
 export type InspectionRow = typeof inspections.$inferSelect;
 
