@@ -83,7 +83,7 @@ export const auth = betterAuth({
     allowedHosts: [
       "localhost:3000",
       "localhost",
-      "*",
+      "192.168.*.*",
     ],
   },
 
