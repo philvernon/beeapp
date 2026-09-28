@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { HiveSelect } from "@/lib/schema";
 import { getHive } from "@/lib/data";
 import { InspectionForm } from "./inspection-form";
 import { Toaster } from "@/components/ui/toast";
@@ -10,12 +11,13 @@ export default async function NewInspectionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  if (
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  ) {
+  const parsedId = HiveSelect.shape.id.safeParse(id);
+
+  if (!parsedId.success) {
     redirect("/hives");
   }
-  const hive = await getHive(id);
+
+  const hive = await getHive(parsedId.data);
 
   if (!hive) {
     redirect("/hives");

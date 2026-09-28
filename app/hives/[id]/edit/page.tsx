@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { HiveSelect } from "@/lib/schema";
 import { getHive, getApiaries } from "@/lib/data";
 import { HiveEditForm } from "./hive-edit-form";
 
@@ -8,12 +9,16 @@ export default async function EditHivePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  if (
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  ) {
+  const parsedId = HiveSelect.shape.id.safeParse(id);
+
+  if (!parsedId.success) {
     redirect("/hives");
   }
-  const [hive, apiaries] = await Promise.all([getHive(id), getApiaries()]);
+
+  const [hive, apiaries] = await Promise.all([
+    getHive(parsedId.data),
+    getApiaries(),
+  ]);
 
   if (!hive) {
     redirect("/hives");
