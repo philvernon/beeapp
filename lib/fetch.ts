@@ -36,24 +36,52 @@ export async function getErrorMessage(
 
 import { z } from "zod";
 
+/** Shared result shape for fetchJson. */
+interface FetchResult<T> {
+  data: T | null;
+  error: string | null;
+}
+
+// ── Overloads ────────────────────────────────────────────────────────────────
+
+/** Unvalidated call — network JSON is `unknown`. */
+export function fetchJson(
+  url: string,
+  options?: RequestInit,
+): Promise<FetchResult<unknown>>;
+
+/** Validated call — returns the schema-inferred type. */
+export function fetchJson<T>(
+  url: string,
+  schema: z.Schema<T>,
+  options?: RequestInit,
+): Promise<FetchResult<T>>;
+
+// ── Implementation ───────────────────────────────────────────────────────────
+
 /**
- * Result of a typed JSON fetch.
+ * Typed JSON fetch — parses successful JSON through an optional Zod schema.
  *
- * - `data` is the parsed (and optionally validated) response body on success,
- *   or `null` when the response is non-OK, non-JSON, or fails validation.
- * - `error` is set when `data` is null — it describes why (HTTP error, network
- *   failure, or schema validation failure).
+ * - No schema → `data` is `unknown` (network JSON is untrusted).
+ * - Schema provided → `data` is `z.infer<typeof schema>` on success, `null` on failure.
  *
  * A non-JSON success response (e.g. 204 No Content) returns `{ data: null, error: null }`
  * so callers can distinguish "no body" from an actual error by checking both fields.
  */
 export async function fetchJson<T>(
   url: string,
-  schema?: z.Schema<T>,
+  schemaOrOptions?: z.Schema<T> | RequestInit,
   options?: RequestInit,
-): Promise<{ data: T | null; error: string | null }> {
+): Promise<FetchResult<T>> {
+  // Distinguish overload: second arg is a Schema or RequestInit?
+  const schema = typeof schemaOrOptions === "object" && "safeParse" in schemaOrOptions
+    ? schemaOrOptions as z.Schema<T>
+    : undefined;
+  const fetchOptions = schema
+    ? options
+    : (schemaOrOptions ?? options) as RequestInit | undefined;
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       const message = await parseErrorBody(
@@ -101,7 +129,7 @@ export async function safeJsonFetch(
   url: string,
   options?: RequestInit,
 ): Promise<{ data: unknown; error: string | null }> {
-  return fetchJson(url, undefined, options);
+  return fetchJson(url, options);
 }
 
 /**

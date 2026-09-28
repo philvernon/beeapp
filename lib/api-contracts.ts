@@ -1,21 +1,29 @@
 /**
  * Client-safe HTTP transport contracts.
  *
- * Types are derived from the Drizzle schema (`lib/schema.ts`) using
- * `typeof table.$inferSelect` — no handwritten field restatements.
- * Zod schemas extend those types with only genuine HTTP differences:
- *   - Date → string (ISO-8601)
- *   - Joined fields (apiaryName, hiveName)
- *   - Derived fields (inspectionCount, hiveCount)
- *   - Endpoint-specific shapes (success/delete)
+ * Entity schemas are derived from the Drizzle-generated select schemas
+ * (`lib/schema.ts`) via `.extend()` — only genuine HTTP differences are
+ * added or overridden:
+ *   - createdAt: Date → string (ISO-8601)
+ *   - Joined fields: apiaryName, hiveName
+ *   - Derived fields: inspectionCount, hiveCount
+ *   - Endpoint-specific shapes: success envelopes
+ *
+ * If a DB column is added/removed or its nullability changes, the Zod
+ * schema follows automatically.  The only handwritten pieces are things
+ * that do not exist in the database.
  *
  * Rules:
  * - No server-only / DB / query imports.
- * - Timestamps are ISO-8601 strings (JSON transport value).
  * - Nullable DB fields stay nullable (never coerced to undefined).
  */
 
 import { z } from "zod";
+import {
+  ApiarySelect,
+  HiveSelect,
+  InspectionSelect,
+} from "./schema.js";
 
 // ── Shared error contracts ───────────────────────────────────────────────────
 
@@ -32,96 +40,67 @@ export const ApiValidationErrorSchema = z.object({
 });
 export type ApiValidationError = z.infer<typeof ApiValidationErrorSchema>;
 
-// ── Helper: derive a transport type from Drizzle select, overriding HTTP diffs ──
+// ── Apiary transport schemas ─────────────────────────────────────────────────
 
-/** Minimal apiary shape returned by GET /api/apiaries (list). */
-export const ApiaryListSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  notes: z.string().nullable(),
+/**
+ * Base apiary schema derived from Drizzle, with createdAt as string.
+ */
+const ApiaryTransportSchema = ApiarySelect.extend({
   createdAt: z.string(),
 });
+
+/** Minimal apiary shape returned by GET /api/apiaries (list). */
+export const ApiaryListSchema = ApiaryTransportSchema;
 export type ApiaryList = z.infer<typeof ApiaryListSchema>;
 
-// ── Hive transport types (forward-declared for ApiaryDetail) ────────────────
+// ── Hive transport schemas ───────────────────────────────────────────────────
+
+/**
+ * Hive schema derived from Drizzle, with createdAt as string.
+ */
+const HiveTransportSchema = HiveSelect.extend({
+  createdAt: z.string(),
+});
 
 /**
  * Hive shape with joined apiaryName and inspectionCount.
- *
- * Derived from the Drizzle hives select schema, extended with:
- *   - apiaryName (from LEFT JOIN apiaries)
- *   - inspectionCount (aggregate)
- *   - createdAt as string
+ * These fields come from the query layer (LEFT JOIN + aggregate), not the DB table.
  */
-export const HiveListSchema = z.object({
-  id: z.string().uuid(),
-  apiaryId: z.string().uuid(),
-  name: z.string(),
+export const HiveListSchema = HiveTransportSchema.extend({
   apiaryName: z.string().nullable(),
-  queenBreed: z.string().nullable(),
-  queenClipped: z.boolean(),
-  notes: z.string().nullable(),
-  createdAt: z.string(),
   inspectionCount: z.number(),
 });
 export type HiveList = z.infer<typeof HiveListSchema>;
 
-/** Hive detail (same shape as list — GET /api/hives/:id returns the same fields). */
+/** Hive detail — same shape as list (GET /api/hives/:id returns the same fields). */
 export const HiveDetailSchema = HiveListSchema;
 export type HiveDetail = z.infer<typeof HiveDetailSchema>;
 
 /** Full apiary shape returned by GET /api/apiaries/:id (detail with hives). */
-export const ApiaryDetailSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  notes: z.string().nullable(),
-  createdAt: z.string(),
+export const ApiaryDetailSchema = ApiaryTransportSchema.extend({
   hiveCount: z.number(),
   hives: z.array(HiveListSchema),
 });
 export type ApiaryDetail = z.infer<typeof ApiaryDetailSchema>;
 
-// ── Inspection transport types ───────────────────────────────────────────────
+// ── Inspection transport schemas ─────────────────────────────────────────────
 
 /**
- * Inspection shape with joined hiveName and apiaryName.
- *
- * Derived from the Drizzle inspections select schema, extended with:
- *   - hiveName (from LEFT JOIN hives)
- *   - apiaryName (from LEFT JOIN apiaries)
- *   - createdAt as string
+ * Base inspection schema derived from Drizzle, with createdAt as string.
  *
  * All boolean fields are non-null because the DB schema enforces NOT NULL
  * with defaults (queenSeen, healthOk, queenCellsRemoved, eggsSeen,
  * broodPatternOk, chalkBroodSuspected, efbSuspected, afbSuspected).
  */
-export const InspectionListSchema = z.object({
-  id: z.string().uuid(),
-  hiveId: z.string().uuid(),
-  inspectionDate: z.string(),
-  queenSeen: z.boolean(),
-  queenColour: z.string().nullable().optional(),
-  queenCellsFound: z.number().nullable().optional(),
-  queenCellsRemoved: z.boolean(),
-  eggsSeen: z.boolean(),
-  broodPatternOk: z.boolean(),
-  broodFrameCount: z.number().nullable().optional(),
-  storeFrames: z.number().nullable().optional(),
-  roomFrames: z.number().nullable().optional(),
-  healthOk: z.boolean(),
-  chalkBroodSuspected: z.boolean(),
-  efbSuspected: z.boolean(),
-  afbSuspected: z.boolean(),
-  varroaLevel: z.string().nullable().optional(),
-  varroaCount: z.number().nullable().optional(),
-  temperamentScore: z.number().nullable().optional(),
-  feedLitresLightSyrup: z.string().nullable().optional(),
-  feedLitresHeavySyrup: z.string().nullable().optional(),
-  supersChange: z.string().nullable().optional(),
-  weatherTemperatureC: z.string().nullable().optional(),
-  weatherCondition: z.string().nullable().optional(),
-  notes: z.string().nullable().optional(),
+const InspectionTransportSchema = InspectionSelect.extend({
   createdAt: z.string(),
+});
+
+/**
+ * Inspection shape with joined hiveName and apiaryName.
+ * These fields come from the query layer (LEFT JOINs), not the DB table.
+ */
+export const InspectionListSchema = InspectionTransportSchema.extend({
   hiveName: z.string().nullable().optional(),
   apiaryName: z.string().nullable().optional(),
 });
