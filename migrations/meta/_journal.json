@@ -15,6 +15,13 @@
       "when": 1790617829016,
       "tag": "0001_graceful_joshua_kane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790623486320,
+      "tag": "0002_supreme_silver_sable",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,3 @@
-import "server-only";
-
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { username } from "better-auth/plugins";
@@ -30,7 +28,8 @@ function parseAllowedIp(): { ip: string; prefix?: number } | null {
  */
 function ipToInt(ip: string): number {
   const parts = ip.split(".").map(Number);
-  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) return -1;
+  if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255))
+    return -1;
   return (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3];
 }
 
@@ -101,7 +100,10 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user, ctx) => {
-          if (!ctx?.request?.headers || !isRegistrationAllowed(ctx.request.headers)) {
+          if (
+            !ctx?.request?.headers ||
+            !isRegistrationAllowed(ctx.request.headers)
+          ) {
             const { APIError } = await import("better-auth/api");
             throw new APIError("FORBIDDEN", {
               message: "Sign-ups are restricted to allowed IP addresses.",
