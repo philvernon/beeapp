@@ -7,7 +7,7 @@ Manage apiaries, hives, and inspection records.
 - **Apiary Management** — Create and organize multiple apiary locations
 - **Hive Tracking** — Record hive details (queen breed, clipping status, apiary assignment)
 - **Inspection Records** — Log inspections with queen presence, brood pattern, varroa mite load, stores, temperament, feeding, and weather
-- **Authentication** — Email/password auth via Better Auth with email allowlist enforcement
+- **Authentication** — Email/password auth via Better Auth with LAN-only sign-up restriction
 
 ## Tech Stack
 
@@ -34,8 +34,8 @@ cp .env.example .env.local
 #   BETTER_AUTH_SECRET=<generated-secret>
 # Set the app URL (must match what Better Auth uses for callbacks):
 #   BETTER_AUTH_URL=http://localhost:3000
-# Restrict sign-ups to a specific IP address (e.g. your homelab host):
-#   AUTH_ALLOWED_IP=10.0.0.5
+# Restrict sign-ups to a CIDR range (e.g. your LAN):
+#   AUTH_SIGNUP_CIDR=192.168.1.0/24
 
 # Start PostgreSQL and the app
 docker compose up -d
@@ -62,11 +62,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### First-user sign-up
 
-When `AUTH_ALLOWED_IP` is set, only requests from that exact IP address can create accounts. If `AUTH_ALLOWED_IP` is empty or unset, sign-ups are blocked entirely (fails closed). For local development you can leave it unset to prevent accidental sign-ups.
+When `AUTH_SIGNUP_CIDR` is set, only requests from IPs within that CIDR range can create accounts. If `AUTH_SIGNUP_CIDR` is empty or unset, sign-ups are blocked entirely (fails closed). For local development you can leave it unset to prevent accidental sign-ups.
 
 ### Docker deployment notes
 
-Docker deployments pass `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `AUTH_ALLOWED_IP` from the host environment. Ensure these are set in your `.env` file before running `docker compose up`. The `BETTER_AUTH_URL` should match the public URL of your deployment (e.g. `https://beehive.yourdomain.com`).
+Docker deployments pass `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `AUTH_SIGNUP_CIDR` from the host environment. Ensure these are set in your `.env` file before running `docker compose up`. The `BETTER_AUTH_URL` should match the public URL of your deployment (e.g. `https://beehive.yourdomain.com`).
 
 ## Database Migrations
 

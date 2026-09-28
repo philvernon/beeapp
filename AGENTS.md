@@ -50,7 +50,7 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 | `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
 | `app/api/auth/sign-out/route.ts` | POST sign-out route (invalidates session + clears cookies)            |
 | `app/sign-in/page.tsx`           | Sign-in page                                                          |
-| `app/sign-up/page.tsx`           | Sign-up page (enforces IP-based registration)                         |
+| `app/sign-up/page.tsx`           | Sign-up page (enforces LAN-only registration)                         |
 
 ### Session validation pattern
 
@@ -65,9 +65,9 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 
 ### Registration restriction
 
-- Set `AUTH_ALLOWED_IP` to restrict sign-ups to a specific IP address (e.g. your homelab host).
-- When unset, no new registrations are allowed (fails closed).
-- The check reads `x-forwarded-for` and `x-real-ip` headers from the request context.
+- Set `AUTH_SIGNUP_CIDR` to restrict sign-ups to a CIDR range (e.g. `192.168.1.0/24`).
+- When unset or empty, no new registrations are allowed (fails closed).
+- The check reads `x-real-ip` first (for Nginx Proxy Manager), then falls back to `x-forwarded-for`.
 
 ### Auth conventions
 
