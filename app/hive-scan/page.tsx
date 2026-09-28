@@ -5,14 +5,15 @@ import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-
 export default function HiveScanPage() {
   const router = useRouter();
 
   const handleResult = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes && detectedCodes.length > 0) {
       const scannedValue = detectedCodes[0].rawValue.trim();
-      router.replace(`/hives/${encodeURIComponent(scannedValue)}/new-inspection`);
+      router.replace(
+        `/hives/${encodeURIComponent(scannedValue)}/new-inspection`,
+      );
     }
   };
 
