@@ -33,30 +33,3 @@ export async function getErrorMessage(
   if (response.ok) return "";
   return parseErrorBody(response, fallback);
 }
-
-/**
- * Safe JSON fetch helper for client-side API calls.
- * Checks response.ok before parsing, returns a structured error on failure.
- */
-export async function safeJsonFetch(
-  url: string,
-  options?: RequestInit,
-): Promise<{ data: unknown; error: string | null }> {
-  try {
-    const response = await fetch(url, options);
-
-    if (!response.ok) {
-      const message = await parseErrorBody(
-        response,
-        `Request failed (${response.status})`,
-      );
-      return { data: null, error: message };
-    }
-
-    const data = await response.json();
-    return { data, error: null };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Network error";
-    return { data: null, error: message };
-  }
-}

@@ -4,6 +4,7 @@ import { ButtonLink } from "@/components/button-link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { HiveSelect } from "@/lib/schema";
 import { getHive, getInspections } from "@/lib/data";
 import { InspectionCard } from "./inspection-card";
 import { Download } from "lucide-react";
@@ -14,7 +15,13 @@ export default async function HiveDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const hive = await getHive(id);
+  const parsedId = HiveSelect.shape.id.safeParse(id);
+
+  if (!parsedId.success) {
+    notFound();
+  }
+
+  const hive = await getHive(parsedId.data);
 
   if (!hive) notFound();
 
@@ -95,6 +102,7 @@ export default async function HiveDetailPage({
         </CardHeader>
         <Separator />
         <CardContent className="pt-4 flex items-center gap-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/api/hives/${id}/qr`}
             alt={`QR code for ${hive.name}`}
