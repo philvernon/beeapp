@@ -16,10 +16,7 @@ export async function GET(
       return NextResponse.json({ error: "Hive not found" }, { status: 404 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const url = `${baseUrl}/hives/${id}/new-inspection`;
-
-    const png = await QRCode.toBuffer(url, {
+    const png = await QRCode.toBuffer(id, {
       width: 512,
       margin: 2,
       errorCorrectionLevel: "M",

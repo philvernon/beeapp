@@ -4,24 +4,33 @@ import { useRouter } from "next/navigation";
 import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HiveSelect } from "@/lib/schema";
+import { Toaster, toast } from "@/components/ui/toast";
 
 export default function HiveScanPage() {
   const router = useRouter();
 
   const handleResult = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes && detectedCodes.length > 0) {
-      const url = detectedCodes[0].rawValue.trim();
-      const match = url.match(/\/hives\/([a-f0-9-]+)/i);
-      if (match) {
-        router.replace(`/hives/${match[1]}/new-inspection`);
-      } else {
-        router.replace(url);
+      const scannedValue = detectedCodes[0].rawValue.trim();
+      const parsedId = HiveSelect.shape.id.safeParse(scannedValue);
+
+      if (!parsedId.success) {
+        toast.add({
+          type: "error",
+          title: "Invalid QR code",
+          description: "The scanned code is not a valid hive ID.",
+        });
+        return;
       }
+
+      router.replace(`/hives/${parsedId.data}/new-inspection`);
     }
   };
 
   return (
     <div className="max-w-md mx-auto space-y-4">
+      <Toaster />
       <Card>
         <CardHeader>
           <CardTitle>Scan Hive QR Code</CardTitle>

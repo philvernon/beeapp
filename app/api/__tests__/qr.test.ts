@@ -50,6 +50,19 @@ describe("GET /api/hives/:id/qr", () => {
     expect(response.headers.get("Cache-Control")).toBe("public, max-age=3600");
   });
 
+  it("encodes only the raw hive UUID", async () => {
+    const buffer = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    mocks.toBuffer.mockResolvedValue(buffer);
+    mocks.getHive.mockResolvedValue(TEST_HIVE);
+
+    await handlers.GET({} as Request, mockParams(TEST_ID));
+    expect(mocks.toBuffer).toHaveBeenCalledWith(TEST_ID, {
+      errorCorrectionLevel: "M",
+      margin: 2,
+      width: 512,
+    });
+  });
+
   it("returns 400 when route UUID is malformed", async () => {
     const response = await handlers.GET(
       {} as Request,
