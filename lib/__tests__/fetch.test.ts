@@ -165,17 +165,12 @@ describe("fetchJson", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers({ "content-type": "application/json" }),
-        json: () =>
-          Promise.resolve([
-            { id: "1", name: "Test 1" },
-          ]),
+        json: () => Promise.resolve([{ id: "1", name: "Test 1" }]),
       }),
     );
 
     const result = await fetchJson("/api/test", ArraySchema);
-    expect(result.data).toEqual([
-      { id: "1", name: "Test 1" },
-    ]);
+    expect(result.data).toEqual([{ id: "1", name: "Test 1" }]);
     expect(result.error).toBeNull();
   });
 });
