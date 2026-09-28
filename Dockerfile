@@ -2,7 +2,7 @@
 # Base
 # ============================================
 
-ARG NODE_VERSION=24.13.0-slim
+ARG NODE_VERSION=22-slim
 
 FROM node:${NODE_VERSION} AS base
 
