@@ -42,6 +42,15 @@ pnpm dev
 
 > **Note:** `docker compose up -d` starts both `db` and `app`. Use `docker compose up -d db` to start only the database, since `pnpm dev` also binds port 3000.
 
+### Deploying to a host (Docker)
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+Docker deployments automatically run pending migrations before the app starts via the `migrate` service. For local/host-side development, migrations can still be applied manually with `pnpm db:migrate`.
+
 Open [http://localhost:3000](http://localhost:3000).
 
 ## Database Migrations
