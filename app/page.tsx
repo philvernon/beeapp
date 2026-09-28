@@ -161,10 +161,7 @@ export default async function AnalyticsPage() {
                       ? (varroaLow / totalInspections) * 100
                       : 0
                   }
-                  className="h-2"
-                >
-                  <ProgressIndicator className="bg-primary" />
-                </Progress>
+                ></Progress>
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -179,10 +176,7 @@ export default async function AnalyticsPage() {
                       ? (varroaMed / totalInspections) * 100
                       : 0
                   }
-                  className="h-2"
-                >
-                  <ProgressIndicator className="bg-primary" />
-                </Progress>
+                ></Progress>
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -197,10 +191,7 @@ export default async function AnalyticsPage() {
                       ? (varroaHigh / totalInspections) * 100
                       : 0
                   }
-                  className="h-2"
-                >
-                  <ProgressIndicator className="bg-destructive" />
-                </Progress>
+                ></Progress>
               </div>
             </div>
           </CardContent>
