@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 export default function SignUpPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function SignUpPage() {
     setLoading(true);
 
     const { error } = await authClient.signUp.email(
-      { email: username, password, name },
+      { email, password, name },
       {
         onError: (ctx) => {
           if (ctx.error.status === 403) {
@@ -62,13 +62,13 @@ export default function SignUpPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="text"
+                id="email"
+                type="email"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">

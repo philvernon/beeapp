@@ -11,7 +11,7 @@ import Link from "next/link";
 
 export default function SignInPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,10 +22,10 @@ export default function SignInPage() {
     setLoading(true);
 
     const { error } = await authClient.signIn.email(
-      { email: username, password },
+      { email, password },
       {
         onError: () => {
-          setError("Invalid username or password");
+          setError("Invalid email or password");
         },
       },
     );
@@ -48,13 +48,13 @@ export default function SignInPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <div className="text-sm text-destructive">{error}</div>}
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="text"
+                id="email"
+                type="email"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
