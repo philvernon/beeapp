@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
-import { getApiaryWithHives, getApiary } from "@/lib/data";
+import { getApiaryWithHives } from "@/lib/data";
 import { db } from "@/lib/db";
 import { apiaries, ApiaryUpdate } from "@/lib/schema";
 import {
