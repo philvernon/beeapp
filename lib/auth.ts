@@ -79,6 +79,13 @@ export const auth = betterAuth({
     schema: schema,
   }),
 
+  trustedOrigins: [
+    "http://localhost:3000",
+    ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS
+      ? process.env.BETTER_AUTH_TRUSTED_ORIGINS.split(",")
+      : []),
+  ],
+
   emailAndPassword: {
     enabled: true,
   },
