@@ -5,7 +5,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HiveUpdate } from "@/lib/schema";
-import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { parseJsonFetch, getErrorMessage } from "@/lib/fetch";
+import {
+  ApiaryListSchema,
+  type ApiaryList,
+  HiveDetailSchema,
+} from "@/lib/api-contracts";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,9 +34,7 @@ export default function EditHivePage({
   const router = useRouter();
   const { id } = React.use(params);
 
-  const [apiaries, setApiaries] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
+  const [apiaries, setApiaries] = useState<ApiaryList[]>([]);
   const [apiaryId, setApiaryId] = useState("");
   const [name, setName] = useState("");
   const [queenBreed, setQueenBreed] = useState("");
@@ -46,8 +50,8 @@ export default function EditHivePage({
 
     async function load() {
       const [apiariesResult, hiveResult] = await Promise.all([
-        safeJsonFetch("/api/apiaries"),
-        safeJsonFetch(`/api/hives/${id}`),
+        parseJsonFetch("/api/apiaries", z.array(ApiaryListSchema)),
+        parseJsonFetch(`/api/hives/${id}`, HiveDetailSchema),
       ]);
 
       if (cancelled) return;
@@ -62,24 +66,19 @@ export default function EditHivePage({
         return;
       }
 
-      const apiaries = apiariesResult.data as Array<{
-        id: string;
-        name: string;
-      }>;
-      const hive = hiveResult.data as Record<string, unknown> | null;
+      setApiaries(apiariesResult.data ?? ([] as ApiaryList[]));
 
-      setApiaries(apiaries);
-      if (hive?.error) {
+      if (!hiveResult.data) {
         router.push("/hives");
         return;
       }
-      if (hive && typeof hive === "object") {
-        setApiaryId((hive.apiaryId as string) || "");
-        setName((hive.name as string) || "");
-        setQueenBreed((hive.queenBreed as string) || "");
-        setQueenClipped((hive.queenClipped as boolean) ?? false);
-        setNotes((hive.notes as string) || "");
-      }
+
+      const hive = hiveResult.data;
+      setApiaryId(hive.apiaryId);
+      setName(hive.name);
+      setQueenBreed(hive.queenBreed || "");
+      setQueenClipped(hive.queenClipped);
+      setNotes(hive.notes || "");
       setInitialized(true);
     }
 

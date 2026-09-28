@@ -3,7 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { safeJsonFetch } from "@/lib/fetch";
+import { parseJsonFetch } from "@/lib/fetch";
+import { HiveDetailSchema } from "@/lib/api-contracts";
 import { InspectionForm } from "./inspection-form";
 import { toast, Toaster } from "@/components/ui/toast";
 
@@ -22,7 +23,7 @@ export default function NewInspectionPage({
     let cancelled = false;
 
     async function load() {
-      const result = await safeJsonFetch(`/api/hives/${id}`);
+      const result = await parseJsonFetch(`/api/hives/${id}`, HiveDetailSchema);
       if (cancelled) return;
 
       if (result.error) {
@@ -30,12 +31,12 @@ export default function NewInspectionPage({
         return;
       }
 
-      const data = result.data as Record<string, unknown> | null;
-      if (data && typeof data === "object" && (data.name as string)) {
-        setHiveName(data.name as string);
-      } else {
+      if (!result.data) {
         router.push("/hives");
+        return;
       }
+
+      setHiveName(result.data.name);
     }
 
     load();

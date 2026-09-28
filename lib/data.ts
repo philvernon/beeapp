@@ -231,7 +231,11 @@ export async function getApiaryWithHives(id: string) {
     inspectionCount: counts.get(hive.id) ?? 0,
   }));
 
-  return { ...apiary, hives: hiveListWithCounts };
+  return {
+    ...apiary,
+    hiveCount: hiveListWithCounts.length,
+    hives: hiveListWithCounts,
+  };
 }
 
 // ── Hives ─────────────────────────────────────────────────

@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApiaryUpdate } from "@/lib/schema";
-import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { parseJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { ApiaryDetailSchema } from "@/lib/api-contracts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,7 +31,10 @@ export default function EditApiaryPage({
     let cancelled = false;
 
     async function load() {
-      const result = await safeJsonFetch(`/api/apiaries/${id}`);
+      const result = await parseJsonFetch(
+        `/api/apiaries/${id}`,
+        ApiaryDetailSchema,
+      );
       if (cancelled) return;
 
       if (result.error) {
@@ -38,15 +42,13 @@ export default function EditApiaryPage({
         return;
       }
 
-      const data = result.data as Record<string, unknown> | null;
-      if (data?.error) {
+      if (!result.data) {
         router.push("/apiaries");
         return;
       }
-      if (data && typeof data === "object") {
-        setName((data.name as string) || "");
-        setNotes((data.notes as string) || "");
-      }
+
+      setName(result.data.name);
+      setNotes(result.data.notes || "");
       setInitialized(true);
     }
 

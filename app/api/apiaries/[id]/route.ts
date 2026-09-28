@@ -9,6 +9,7 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
+import { serializeApiary, serializeApiaryWithHives } from "@/lib/api-contracts";
 
 // GET /api/apiaries/:id — single apiary with hives
 export async function GET(
@@ -24,7 +25,7 @@ export async function GET(
       return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result);
+    return NextResponse.json(serializeApiaryWithHives(result));
   } catch (err) {
     return errorResponse(err);
   }
@@ -71,7 +72,7 @@ export async function PUT(
     if (result.length === 0) {
       return NextResponse.json({ error: "Apiary not found" }, { status: 404 });
     }
-    return NextResponse.json(result[0]);
+    return NextResponse.json(serializeApiary(result[0]));
   } catch (err) {
     return errorResponse(err);
   }

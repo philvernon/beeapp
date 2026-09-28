@@ -9,6 +9,7 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
+import { serializeHive } from "@/lib/api-contracts";
 
 // GET /api/hives/:id — single hive with apiary name and inspection count
 export async function GET(
@@ -24,7 +25,7 @@ export async function GET(
       return NextResponse.json({ error: "Hive not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result);
+    return NextResponse.json(serializeHive(result));
   } catch (err) {
     return errorResponse(err);
   }
@@ -78,7 +79,7 @@ export async function PUT(
     if (result.length === 0) {
       return NextResponse.json({ error: "Hive not found" }, { status: 404 });
     }
-    return NextResponse.json(result[0]);
+    return NextResponse.json(serializeHive(result[0]));
   } catch (err) {
     if (isPgError(err, "23503")) {
       return NextResponse.json(

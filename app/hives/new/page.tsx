@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
 import { HiveInsert } from "@/lib/schema";
-import { safeJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { parseJsonFetch, getErrorMessage } from "@/lib/fetch";
+import { ApiaryListSchema, type ApiaryList } from "@/lib/api-contracts";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,9 +27,7 @@ function NewHiveForm() {
   const searchParams = useSearchParams();
   const preselectedApiary = searchParams.get("apiary_id");
 
-  const [apiaries, setApiaries] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
+  const [apiaries, setApiaries] = useState<ApiaryList[]>([]);
   const [apiaryId, setApiaryId] = useState(preselectedApiary || "");
   const [name, setName] = useState("");
   const [queenBreed, setQueenBreed] = useState("");
@@ -42,7 +42,10 @@ function NewHiveForm() {
     let cancelled = false;
 
     async function load() {
-      const result = await safeJsonFetch("/api/apiaries");
+      const result = await parseJsonFetch(
+        "/api/apiaries",
+        z.array(ApiaryListSchema),
+      );
       if (cancelled) return;
 
       if (result.error) {
@@ -50,8 +53,7 @@ function NewHiveForm() {
         return;
       }
 
-      const data = result.data as Array<{ id: string; name: string }>;
-      setApiaries(data);
+      setApiaries(result.data ?? ([] as ApiaryList[]));
       setInitialized(true);
     }
 
