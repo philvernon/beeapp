@@ -14,7 +14,6 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { varroaLevelLabels } from "@/lib/inspection-options";
-import { NumberInput } from "@/components/ui/number-input";
 
 export function HealthFields() {
   const { control, setValue, unregister } =
