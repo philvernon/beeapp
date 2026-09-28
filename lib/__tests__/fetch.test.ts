@@ -115,7 +115,7 @@ describe("fetchJson", () => {
     });
     vi.stubGlobal("fetch", mockFn);
 
-    await fetchJson("/api/test", undefined, {
+    await fetchJson("/api/test", {
       method: "POST",
       headers: { "X-Custom": "1" },
     });

@@ -19,11 +19,7 @@
  */
 
 import { z } from "zod";
-import {
-  ApiarySelect,
-  HiveSelect,
-  InspectionSelect,
-} from "./schema.js";
+import { ApiarySelect, HiveSelect, InspectionSelect } from "./schema";
 
 // ── Shared error contracts ───────────────────────────────────────────────────
 

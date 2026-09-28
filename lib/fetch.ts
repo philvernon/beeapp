@@ -74,12 +74,13 @@ export async function fetchJson<T>(
   options?: RequestInit,
 ): Promise<FetchResult<T>> {
   // Distinguish overload: second arg is a Schema or RequestInit?
-  const schema = typeof schemaOrOptions === "object" && "safeParse" in schemaOrOptions
-    ? schemaOrOptions as z.Schema<T>
-    : undefined;
+  const schema =
+    typeof schemaOrOptions === "object" && "safeParse" in schemaOrOptions
+      ? (schemaOrOptions as z.Schema<T>)
+      : undefined;
   const fetchOptions = schema
     ? options
-    : (schemaOrOptions ?? options) as RequestInit | undefined;
+    : ((schemaOrOptions ?? options) as RequestInit | undefined);
   try {
     const response = await fetch(url, fetchOptions);
 
