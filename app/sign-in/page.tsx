@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,10 +21,10 @@ export default function SignInPage() {
     setLoading(true);
 
     const { error } = await authClient.signIn.email(
-      { email, password },
+      { email: username, password },
       {
         onError: () => {
-          setError("Invalid email or password");
+          setError("Invalid username or password");
         },
       },
     );
@@ -47,13 +47,13 @@ export default function SignInPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <div className="text-sm text-destructive">{error}</div>}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="space-y-2">
