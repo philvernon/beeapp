@@ -4,7 +4,7 @@ import { ApiaryHives } from "@/components/apiary-hives";
 import { StatCard } from "@/components/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress, ProgressIndicator } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 
 export const dynamic = "force-dynamic";
