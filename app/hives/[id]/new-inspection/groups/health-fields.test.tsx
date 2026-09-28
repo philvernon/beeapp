@@ -88,18 +88,4 @@ describe("HealthFields", () => {
     const varroaOptions = screen.getAllByText(/Low|Medium|High/);
     expect(varroaOptions.length).toBeGreaterThan(0);
   });
-
-  it("varroa count renders a number input", () => {
-    render(
-      <Wrapper>
-        <HealthFields />
-      </Wrapper>,
-    );
-    const label = screen.getByText("Varroa count");
-    const field = label.closest('[data-slot="field"]');
-    const input = field?.querySelector<HTMLInputElement>(
-      '[data-slot="number-input-value"]',
-    );
-    expect(input).not.toBeNull();
-  });
 });

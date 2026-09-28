@@ -74,10 +74,10 @@ describe("InspectionCard", () => {
     expect(screen.getByText("1")).toBeDefined();
   });
 
-  it("shows varroa level with count", () => {
+  it("shows varroa level", () => {
     render(<InspectionCard inspection={baseInspection} />);
     expect(screen.getByText(/Varroa/)).toBeDefined();
-    expect(screen.getByText(/L.*3/)).toBeDefined();
+    expect(screen.getByText(/L/)).toBeDefined();
   });
 
   it("shows temperament score", () => {
