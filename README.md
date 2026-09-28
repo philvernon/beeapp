@@ -7,6 +7,7 @@ Manage apiaries, hives, and inspection records.
 - **Apiary Management** — Create and organize multiple apiary locations
 - **Hive Tracking** — Record hive details (queen breed, clipping status, apiary assignment)
 - **Inspection Records** — Log inspections with queen presence, brood pattern, varroa mite load, stores, temperament, feeding, and weather
+- **Authentication** — Email/password auth via Better Auth with email allowlist enforcement
 
 ## Tech Stack
 
@@ -29,6 +30,12 @@ cp .env.example .env
 cp .env.example .env.local
 # Edit .env.local — change DATABASE_URL to use localhost:5432 for local tooling:
 #   DATABASE_URL=postgresql://bee:change-me@localhost:5432/beehive
+# Generate a secret:  openssl rand -hex 32
+#   BETTER_AUTH_SECRET=<generated-secret>
+# Set the app URL (must match what Better Auth uses for callbacks):
+#   BETTER_AUTH_URL=http://localhost:3000
+# Optionally restrict sign-ups to specific emails:
+#   AUTH_ALLOWED_EMAILS=admin@example.com,user@example.com
 
 # Start PostgreSQL and the app
 docker compose up -d
@@ -52,6 +59,14 @@ docker compose up -d --build
 Docker deployments automatically run pending migrations before the app starts via the `migrate` service. For local/host-side development, migrations can still be applied manually with `pnpm db:migrate`.
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### First-user sign-up
+
+When `AUTH_ALLOWED_EMAILS` is set, only listed emails can create accounts. The first registered user becomes the initial admin — subsequent users must also be allowlisted. If `AUTH_ALLOWED_EMAILS` is empty or unset, sign-ups are blocked entirely (fails closed). For local development you can leave it unset to prevent accidental sign-ups.
+
+### Docker deployment notes
+
+Docker deployments pass `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `AUTH_ALLOWED_EMAILS` from the host environment. Ensure these are set in your `.env` file before running `docker compose up`. The `BETTER_AUTH_URL` should match the public URL of your deployment (e.g. `https://beehive.yourdomain.com`).
 
 ## Database Migrations
 

@@ -8,9 +8,13 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
+import { requireApiSession } from "@/lib/auth-middleware";
 
 // GET /api/inspections — list inspections (filter by hive_id)
 export async function GET(req: Request) {
+  const auth = await requireApiSession();
+  if ("status" in auth) return auth;
+
   try {
     const url = new URL(req.url);
     const hiveId = url.searchParams.get("hive_id");
@@ -28,6 +32,9 @@ export async function GET(req: Request) {
 
 // POST /api/inspections — create inspection
 export async function POST(req: Request) {
+  const auth = await requireApiSession();
+  if ("status" in auth) return auth;
+
   try {
     const body = await parseJsonBody<unknown>(req);
     const validated = InspectionInsert.safeParse(body);

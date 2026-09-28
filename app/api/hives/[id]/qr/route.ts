@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { getHive } from "@/lib/data";
 import QRCode from "qrcode";
 import { validateUuid, errorResponse } from "@/lib/api-error";
+import { requireApiSession } from "@/lib/auth-middleware";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const auth = await requireApiSession();
+  if ("status" in auth) return auth;
+
   try {
     const { id } = await params;
     validateUuid(id, "hive id");

@@ -8,9 +8,13 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
+import { requireApiSession } from "@/lib/auth-middleware";
 
 // GET /api/hives — list all hives (with apiary name and inspection count)
 export async function GET(req: Request) {
+  const auth = await requireApiSession();
+  if ("status" in auth) return auth;
+
   try {
     const url = new URL(req.url);
     const apiaryId = url.searchParams.get("apiary_id");
@@ -29,6 +33,9 @@ export async function GET(req: Request) {
 
 // POST /api/hives — create hive
 export async function POST(req: Request) {
+  const auth = await requireApiSession();
+  if ("status" in auth) return auth;
+
   try {
     const body = await parseJsonBody<unknown>(req);
     const validated = HiveInsert.safeParse(body);

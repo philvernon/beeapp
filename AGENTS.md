@@ -35,7 +35,31 @@ components/   ← ui/ (shadcn UI layer), button-link, app-header, apiary-hives, 
 - **Toast notifications**: `toast.add({ type, title, description })` from `@/components/ui/toast`
 - **QR flow**: `/hive-scan` page uses camera scanner → reads raw hive UUID from QR code → redirects to inspection form
 
-## Conventions
+## Auth
+
+BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authentication.
+
+### Key files
+
+| File                             | Purpose                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `lib/auth.ts`                    | Server-side auth module (adapter, config, hooks)                      |
+| `lib/auth-client.ts`             | React client (`createAuthClient`)                                     |
+| `lib/auth-schema.ts`             | Drizzle schema for auth tables (user, session, account, verification) |
+| `lib/auth-session.ts`            | `requireSession()` — RSC page session guard (redirects to `/sign-in`) |
+| `lib/auth-middleware.ts`         | `requireApiSession()` — API route session guard (returns JSON 401)    |
+| `src/middleware.ts`              | Next.js middleware — protects all routes via cookie check             |
+| `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
+| `app/sign-in/page.tsx`           | Sign-in page                                                          |
+| `app/sign-up/page.tsx`           | Sign-up page (enforces email allowlist)                               |
+
+### Session validation pattern
+
+- **Next.js middleware** (`src/middleware.ts`) protects all routes automatically by checking the `session_token` cookie. Unauthenticated requests are redirected to `/sign-in`.
+- **API routes** should also call `requireApiSession()` at the top of each handler for defense-in-depth. If unauthenticated, return the Response early: `const auth = await requireApiSession(); if ("status" in auth) return auth;`
+- **RSC pages** do not need per-page guards — middleware handles it. The legacy `requireSession()` helper remains available for any component-level needs.
+
+### Auth conventions
 
 - Server functions: `import "server-only"`, query helpers in `lib/data.ts`
 - Error responses: `{ error: string }` — keep consistent across routes
