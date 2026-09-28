@@ -97,19 +97,6 @@ export function HealthFields() {
             </Field>
           )}
         />
-        <Controller
-          name="varroaCount"
-          control={control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Varroa count</FieldLabel>
-              <NumberInput
-                value={field.value ?? null}
-                onChange={field.onChange}
-              />
-            </Field>
-          )}
-        />
       </FieldGroup>
     </FieldSet>
   );

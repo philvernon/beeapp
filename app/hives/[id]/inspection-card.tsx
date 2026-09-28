@@ -111,8 +111,6 @@ export function InspectionCard({ inspection }: { inspection: InspectionRow }) {
               <p className="text-xs text-muted-foreground">Varroa</p>
               <p className="font-medium text-foreground">
                 {inspection.varroaLevel.toUpperCase()}
-                {inspection.varroaCount !== null &&
-                  ` (${inspection.varroaCount})`}
               </p>
             </div>
           )}

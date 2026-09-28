@@ -44,7 +44,6 @@ const wizardDefaultValues: InspectionWizardInput = {
   efbSuspected: false,
   afbSuspected: false,
   varroaLevel: null,
-  varroaCount: null,
   temperamentScore: null,
   feedLitresLightSyrup: null,
   feedLitresHeavySyrup: null,
@@ -122,7 +121,6 @@ export function InspectionForm({
       "efbSuspected",
       "afbSuspected",
       "varroaLevel",
-      "varroaCount",
     ],
     [
       "temperamentScore",
