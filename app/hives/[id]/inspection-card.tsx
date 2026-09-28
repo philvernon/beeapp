@@ -126,6 +126,19 @@ export function InspectionCard({ inspection }: { inspection: InspectionRow }) {
           )}
         </div>
 
+        {!inspection.healthOk && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {inspection.chalkBroodSuspected && (
+              <Badge variant="destructive">Chalk brood</Badge>
+            )}
+            {inspection.efbSuspected && (
+              <Badge variant="destructive">EFB</Badge>
+            )}
+            {inspection.afbSuspected && (
+              <Badge variant="destructive">AFB</Badge>
+            )}
+          </div>
+        )}
         {inspection.notes && (
           <>
             <Separator className="my-3" />

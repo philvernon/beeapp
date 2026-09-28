@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { BooleanField } from "./boolean-field";
@@ -10,8 +11,16 @@ import { varroaLevelLabels } from "@/lib/inspection-options";
 import { NumberInput } from "@/components/ui/number-input";
 
 export function HealthFields() {
-  const { control } = useFormContext<InspectionWizardValue>();
+  const { control, unregister } = useFormContext<InspectionWizardValue>();
   const healthOk = useWatch({ control, name: "healthOk" });
+  const prevHealthOkRef = useRef(healthOk);
+
+  useEffect(() => {
+    if (prevHealthOkRef.current === false && healthOk === true) {
+      unregister(["chalkBroodSuspected", "efbSuspected", "afbSuspected"]);
+    }
+    prevHealthOkRef.current = healthOk;
+  }, [healthOk, unregister]);
 
   return (
     <FieldSet>
