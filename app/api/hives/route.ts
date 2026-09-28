@@ -8,7 +8,6 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
-import { serializeHive } from "@/lib/api-contracts";
 
 // GET /api/hives — list all hives (with apiary name and inspection count)
 export async function GET(req: Request) {
@@ -22,7 +21,7 @@ export async function GET(req: Request) {
 
     const result = await getHives(apiaryId ? { apiaryId } : undefined);
 
-    return NextResponse.json(result.map(serializeHive));
+    return NextResponse.json(result);
   } catch (err) {
     return errorResponse(err);
   }
@@ -50,7 +49,7 @@ export async function POST(req: Request) {
         notes: validated.data.notes ?? null,
       })
       .returning();
-    return NextResponse.json(serializeHive(result[0]), { status: 201 });
+    return NextResponse.json(result[0], { status: 201 });
   } catch (err) {
     if (isPgError(err, "23503")) {
       return NextResponse.json(

@@ -8,7 +8,6 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
-import { serializeInspection } from "@/lib/api-contracts";
 
 // GET /api/inspections — list inspections (filter by hive_id)
 export async function GET(req: Request) {
@@ -21,7 +20,7 @@ export async function GET(req: Request) {
     }
 
     const result = await getInspections(hiveId ? { hiveId } : undefined);
-    return NextResponse.json(result.map(serializeInspection));
+    return NextResponse.json(result);
   } catch (err) {
     return errorResponse(err);
   }

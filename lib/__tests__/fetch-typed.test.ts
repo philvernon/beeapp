@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { parseJsonFetch } from "../fetch";
+import { fetchJson } from "../fetch";
 import { z } from "zod";
 
 const TestSchema = z.object({
@@ -7,8 +7,8 @@ const TestSchema = z.object({
   name: z.string(),
 });
 
-describe("parseJsonFetch", () => {
-  it("returns parsed data on successful JSON response", async () => {
+describe("fetchJson", () => {
+  it("returns parsed data on successful JSON response (no schema)", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -22,7 +22,31 @@ describe("parseJsonFetch", () => {
       }),
     );
 
-    const result = await parseJsonFetch("/api/test", TestSchema);
+    const result = await fetchJson("/api/test");
+    expect(result).toEqual({
+      data: {
+        id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+        name: "Test",
+      },
+      error: null,
+    });
+  });
+
+  it("returns parsed data on successful JSON response (with schema)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () =>
+          Promise.resolve({
+            id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+            name: "Test",
+          }),
+      }),
+    );
+
+    const result = await fetchJson("/api/test", TestSchema);
     expect(result).toEqual({
       data: {
         id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
@@ -44,14 +68,14 @@ describe("parseJsonFetch", () => {
       }),
     );
 
-    const result = await parseJsonFetch("/api/test", TestSchema);
+    const result = await fetchJson("/api/test", TestSchema);
     expect(result).toEqual({ data: null, error: "Server error" });
   });
 
   it("returns error on network failure", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Timeout")));
 
-    const result = await parseJsonFetch("/api/test", TestSchema);
+    const result = await fetchJson("/api/test", TestSchema);
     expect(result).toEqual({ data: null, error: "Timeout" });
   });
 
@@ -65,7 +89,7 @@ describe("parseJsonFetch", () => {
       }),
     );
 
-    const result = await parseJsonFetch("/api/test", TestSchema);
+    const result = await fetchJson("/api/test", TestSchema);
     expect(result.data).toBeNull();
     expect(result.error).toContain("Response validation failed");
   });
@@ -80,7 +104,7 @@ describe("parseJsonFetch", () => {
       }),
     );
 
-    const result = await parseJsonFetch("/api/test", TestSchema);
+    const result = await fetchJson("/api/test", TestSchema);
     expect(result.error).toBeNull();
   });
 
@@ -96,7 +120,7 @@ describe("parseJsonFetch", () => {
     });
     vi.stubGlobal("fetch", mockFn);
 
-    await parseJsonFetch("/api/test", TestSchema, {
+    await fetchJson("/api/test", TestSchema, {
       method: "POST",
       headers: { "X-Custom": "1" },
     });
@@ -123,7 +147,7 @@ describe("parseJsonFetch", () => {
       }),
     );
 
-    const result = await parseJsonFetch("/api/test", ArraySchema);
+    const result = await fetchJson("/api/test", ArraySchema);
     expect(result.data).toEqual([
       { id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8", name: "Test 1" },
     ]);

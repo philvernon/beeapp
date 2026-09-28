@@ -14,7 +14,6 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
-import { serializeInspection } from "@/lib/api-contracts";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
@@ -34,7 +33,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(serializeInspection(result));
+    return NextResponse.json(result);
   } catch (err) {
     return errorResponse(err);
   }
@@ -137,7 +136,7 @@ export async function PUT(
         { status: 404 },
       );
     }
-    return NextResponse.json(serializeInspection(result[0]));
+    return NextResponse.json(result[0]);
   } catch (err) {
     if (isPgError(err, "23514")) {
       return NextResponse.json(

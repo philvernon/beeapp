@@ -3,13 +3,12 @@ import { NextResponse } from "next/server";
 import { getApiaries } from "@/lib/data";
 import { apiaries, ApiaryInsert } from "@/lib/schema";
 import { errorResponse, parseJsonBody } from "@/lib/api-error";
-import { serializeApiary } from "@/lib/api-contracts";
 
 // GET /api/apiaries — list all apiaries
 export async function GET() {
   try {
     const result = await getApiaries();
-    return NextResponse.json(result.map(serializeApiary));
+    return NextResponse.json(result);
   } catch (err) {
     return errorResponse(err);
   }
@@ -34,7 +33,7 @@ export async function POST(req: Request) {
         notes: validated.data.notes ?? null,
       })
       .returning();
-    return NextResponse.json(serializeApiary(result[0]), { status: 201 });
+    return NextResponse.json(result[0], { status: 201 });
   } catch (err) {
     return errorResponse(err);
   }

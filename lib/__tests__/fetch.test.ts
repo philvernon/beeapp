@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { getErrorMessage, safeJsonFetch } from "../fetch";
+import { getErrorMessage, fetchJson } from "../fetch";
+
 describe("getErrorMessage", () => {
   it("returns empty string when response.ok is true", async () => {
     const response = new Response(null, { status: 200 });
@@ -32,6 +33,7 @@ describe("getErrorMessage", () => {
       "Fallback error",
     );
   });
+
   it("uses default fallback when body is empty and no custom fallback provided", async () => {
     const response = new Response("", {
       status: 500,
@@ -43,19 +45,36 @@ describe("getErrorMessage", () => {
   });
 });
 
-describe("safeJsonFetch", () => {
-  it("returns { data, error: null } on success", async () => {
+describe("fetchJson", () => {
+  it("returns parsed data on successful JSON response (no schema)", async () => {
     const mockData = { id: "1", name: "Test" };
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
         json: () => Promise.resolve(mockData),
       }),
     );
 
-    const result = await safeJsonFetch("/api/test");
+    const result = await fetchJson("/api/test");
     expect(result).toEqual({ data: mockData, error: null });
+  });
+
+  it("returns parsed data on successful JSON response (with schema)", async () => {
+    const { z } = await import("zod");
+    const TestSchema = z.object({ id: z.string(), name: z.string() });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () => Promise.resolve({ id: "1", name: "Test" }),
+      }),
+    );
+
+    const result = await fetchJson("/api/test", TestSchema);
+    expect(result).toEqual({ data: { id: "1", name: "Test" }, error: null });
   });
 
   it("returns { data: null, error: message } on non-ok response", async () => {
@@ -70,32 +89,33 @@ describe("safeJsonFetch", () => {
       }),
     );
 
-    const result = await safeJsonFetch("/api/test");
+    const result = await fetchJson("/api/test");
     expect(result).toEqual({ data: null, error: "Server error" });
   });
 
   it("returns { data: null, error: err.message } when fetch rejects with an Error", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Timeout")));
 
-    const result = await safeJsonFetch("/api/test");
+    const result = await fetchJson("/api/test");
     expect(result).toEqual({ data: null, error: "Timeout" });
   });
 
   it('returns { data: null, error: "Network error" } for non-Error rejections', async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue("string error"));
 
-    const result = await safeJsonFetch("/api/test");
+    const result = await fetchJson("/api/test");
     expect(result).toEqual({ data: null, error: "Network error" });
   });
 
   it("passes url and options to fetch", async () => {
     const mockFn = vi.fn().mockResolvedValue({
       ok: true,
+      headers: new Headers({ "content-type": "application/json" }),
       json: () => Promise.resolve({}),
     });
     vi.stubGlobal("fetch", mockFn);
 
-    await safeJsonFetch("/api/test", {
+    await fetchJson("/api/test", undefined, {
       method: "POST",
       headers: { "X-Custom": "1" },
     });
@@ -103,5 +123,59 @@ describe("safeJsonFetch", () => {
       "/api/test",
       expect.objectContaining({ method: "POST", headers: { "X-Custom": "1" } }),
     );
+  });
+
+  it("returns validation error when response violates schema", async () => {
+    const { z } = await import("zod");
+    const TestSchema = z.object({ id: z.string().uuid(), name: z.string() });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () => Promise.resolve({ id: "not-a-uuid", name: "Test" }),
+      }),
+    );
+
+    const result = await fetchJson("/api/test", TestSchema);
+    expect(result.data).toBeNull();
+    expect(result.error).toContain("Response validation failed");
+  });
+
+  it("returns { data: null, error: null } for non-JSON success responses", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "text/plain" }),
+        json: () => Promise.resolve({}),
+      }),
+    );
+
+    const result = await fetchJson("/api/test");
+    expect(result.error).toBeNull();
+  });
+
+  it("handles array schemas", async () => {
+    const { z } = await import("zod");
+    const TestSchema = z.object({ id: z.string(), name: z.string() });
+    const ArraySchema = z.array(TestSchema);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: () =>
+          Promise.resolve([
+            { id: "1", name: "Test 1" },
+          ]),
+      }),
+    );
+
+    const result = await fetchJson("/api/test", ArraySchema);
+    expect(result.data).toEqual([
+      { id: "1", name: "Test 1" },
+    ]);
+    expect(result.error).toBeNull();
   });
 });
