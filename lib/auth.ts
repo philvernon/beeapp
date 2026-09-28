@@ -35,6 +35,11 @@ export const auth = betterAuth({
     before: createAuthMiddleware(async (ctx) => {
       if (ctx.path !== "/sign-up/email") return;
 
+      // LAN restriction only applies in production (behind Nginx Proxy Manager).
+      // Local development via pnpm dev connects directly to localhost:3000
+      // without X-Real-IP, so skip the check there.
+      if (process.env.NODE_ENV !== "production") return;
+
       const clientIp = ctx.headers?.get("x-real-ip");
 
       if (!clientIp || !clientIp.startsWith("192.168.1.")) {

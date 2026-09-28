@@ -48,9 +48,8 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 | `lib/auth-schema.ts`             | Drizzle schema for auth tables (user, session, account, verification) |
 | `proxy.ts`                       | Next.js 16 proxy — real DB-backed session validation for all routes   |
 | `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
-
-| `app/sign-in/page.tsx` | Sign-in page |
-| `app/sign-up/page.tsx` | Sign-up page (enforces LAN-only registration) |
+| `app/sign-in/page.tsx`           | Sign-in page                                                          |
+| `app/sign-up/page.tsx`           | Sign-up page (enforces LAN-only registration)                         |
 
 ### Session validation pattern
 

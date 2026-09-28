@@ -2,12 +2,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 describe("LAN-only sign-up restriction", () => {
+  const originalNodeEnv = (process.env as Record<string, string>).NODE_ENV;
+
   beforeEach(() => {
     vi.resetModules();
+    // LAN check only applies in production
+    (process.env as Record<string, string>).NODE_ENV = "production";
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    (process.env as Record<string, string>).NODE_ENV = originalNodeEnv;
   });
 
   async function signUp(body: Record<string, unknown>, ip?: string) {
@@ -61,5 +66,18 @@ describe("LAN-only sign-up restriction", () => {
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.message).toBe("Sign-up is restricted to the local network.");
+  });
+
+  it("skips LAN check in development", async () => {
+    (process.env as Record<string, string>).NODE_ENV = "development";
+    vi.resetModules();
+
+    const res = await signUp({
+      email: "test@example.com",
+      password: "password123",
+      name: "Test",
+      username: "testuser",
+    });
+    expect(res.status).not.toBe(403);
   });
 });
