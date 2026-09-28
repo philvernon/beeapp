@@ -20,7 +20,7 @@ import {
 import { QueenFields } from "./groups/queen-fields";
 import { ColonyFields } from "./groups/colony-fields";
 import { HealthFields } from "./groups/health-fields";
-import { WeatherFields } from "./groups/weather-fields";
+import { DetailsFields } from "./groups/details-fields";
 import { NotesFields } from "./groups/notes-fields";
 import { InspectionInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
@@ -97,13 +97,13 @@ export function InspectionForm({
     defaultValues: wizardDefaultValues,
   });
 
-  const stepLabels = ["Queen", "Brood", "Health", "Weather", "Notes"];
+  const stepLabels = ["Queen", "Brood", "Health", "Details", "Notes"];
 
   const steps = [
     QueenFields,
     ColonyFields,
     HealthFields,
-    WeatherFields,
+    DetailsFields,
     NotesFields,
   ];
 

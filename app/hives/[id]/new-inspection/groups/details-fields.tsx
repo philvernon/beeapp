@@ -4,7 +4,7 @@ import { Field, FieldLabel, FieldGroup, FieldSet } from "@/components/ui/field";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
 import { NumberInput } from "@/components/ui/number-input";
 
-export function WeatherFields() {
+export function DetailsFields() {
   const { control } = useFormContext<InspectionWizardValue>();
 
   return (

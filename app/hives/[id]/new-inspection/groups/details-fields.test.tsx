@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { InspectionWizardValue } from "@/lib/inspection-wizard-schema";
-import { WeatherFields } from "./weather-fields";
+import { DetailsFields } from "./details-fields";
 
 const defaultValues: InspectionWizardValue = {
   eggsSeen: false,
@@ -34,11 +34,11 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   return <FormProvider {...form}>{children}</FormProvider>;
 }
 
-describe("WeatherFields", () => {
+describe("DetailsFields", () => {
   it("renders temperament score number input", () => {
     render(
       <Wrapper>
-        <WeatherFields />
+        <DetailsFields />
       </Wrapper>,
     );
     const label = screen.getByText("Temperament score");
@@ -52,7 +52,7 @@ describe("WeatherFields", () => {
   it("renders light syrup number input", () => {
     render(
       <Wrapper>
-        <WeatherFields />
+        <DetailsFields />
       </Wrapper>,
     );
     const label = screen.getByText("Light syrup (litres)");
@@ -66,7 +66,7 @@ describe("WeatherFields", () => {
   it("renders heavy syrup number input", () => {
     render(
       <Wrapper>
-        <WeatherFields />
+        <DetailsFields />
       </Wrapper>,
     );
     const label = screen.getByText("Heavy syrup (litres)");
@@ -80,7 +80,7 @@ describe("WeatherFields", () => {
   it("renders supers change number input", () => {
     render(
       <Wrapper>
-        <WeatherFields />
+        <DetailsFields />
       </Wrapper>,
     );
     const label = screen.getByText("Supers change");
