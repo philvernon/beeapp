@@ -33,5 +33,3 @@ export async function getErrorMessage(
   if (response.ok) return "";
   return parseErrorBody(response, fallback);
 }
-
-
