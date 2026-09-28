@@ -83,15 +83,9 @@ export const auth = betterAuth({
     allowedHosts: [
       "localhost:3000",
       "localhost",
-      ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS
-        ? process.env.BETTER_AUTH_TRUSTED_ORIGINS.split(",")
-        : []),
+      "*",
     ],
   },
-
-  trustedOrigins: [
-    "http://192.168.*.*:*",
-  ],
 
   emailAndPassword: {
     enabled: true,
