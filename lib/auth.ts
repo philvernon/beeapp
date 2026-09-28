@@ -2,6 +2,7 @@ import "server-only";
 
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { username } from "better-auth/plugins";
 import { db } from "./db";
 import * as schema from "./auth-schema";
 
@@ -82,6 +83,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+
+  plugins: [
+    username({
+      displayUsername: false,
+    }),
+  ],
 
   // No email verification in this issue.
   emailVerification: {
