@@ -54,18 +54,28 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 
 ### Session validation pattern
 
-- **Next.js proxy** (`proxy.ts`) protects all routes automatically by calling `auth.api.getSession()` — a real DB-backed session check. Unauthenticated requests are redirected to `/sign-in`.
+- **Next.js proxy** (`proxy.ts`) protects all routes automatically by calling `auth.api.getSession()` — a real DB-backed session check.
 - Public routes (`/sign-in`, `/sign-up`, `/api/auth/*`) are excluded from the proxy.
+- Unauthenticated browser pages redirect to `/sign-in` with a `callbackUrl` parameter.
+- Unauthenticated BeeApp API routes (`/api/**` excluding `/api/auth/**`) return JSON `{ "error": "Unauthorized" }` with HTTP 401.
 - No per-route auth guards are needed — pages or API routes do not call `requireSession()` or `requireApiSession()`.
+
+### Sign-in / Sign-up
+
+- Users sign in with **username + password** via the Better Auth username plugin.
+- Email is collected during sign-up because Better Auth requires it, but it is not used for authentication or allowlisting.
+- Sign-up is restricted to LAN clients: Nginx Proxy Manager supplies `X-Real-IP`, and the server rejects any IP that does not start with `192.168.1.`.
+- Sign-in and existing sessions are **not** LAN-restricted — they work from anywhere.
 
 ### Sign-out pattern
 
 - Client calls `POST /api/auth/sign-out` which invokes `auth.api.signOut()` to invalidate the session and clear cookies.
 - After the fetch completes (or fails), navigate to `/sign-in`.
 
-### Registration restriction
+### Runtime configuration
 
-- Sign-ups are restricted to the LAN (`192.168.1.x`). The check reads `x-real-ip` and rejects any IP that does not start with `192.168.1.`.
+- `BETTER_AUTH_SECRET` — cryptographic secret for signing sessions (runtime only, not a build arg).
+- `BETTER_AUTH_URL` — externally reachable HTTPS hostname used through Nginx Proxy Manager.
 
 ### Auth conventions
 

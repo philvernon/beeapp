@@ -29,7 +29,11 @@ export async function proxy(request: NextRequest) {
   });
 
   if (!session) {
-    // Redirect unauthenticated users to sign-in
+    // BeeApp API routes return JSON 401; browser pages redirect to sign-in.
+    if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const signInUrl = new URL("/sign-in", request.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);
