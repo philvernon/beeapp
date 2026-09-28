@@ -88,5 +88,4 @@ describe("HealthFields", () => {
     const varroaOptions = screen.getAllByText(/Low|Medium|High/);
     expect(varroaOptions.length).toBeGreaterThan(0);
   });
-
 });
