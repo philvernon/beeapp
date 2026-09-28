@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   InspectionWizardSchema,
@@ -26,6 +26,7 @@ import { InspectionInsert } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { getLocalDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 import { Separator } from "@/components/ui/separator";
 
 const wizardDefaultValues: InspectionWizardInput = {
@@ -69,9 +70,23 @@ function Next({ next }: { next: () => void }) {
   );
 }
 
-export function InspectionForm({ hiveId }: { hiveId: string }) {
+export function InspectionForm({
+  hiveId,
+  hiveName,
+}: {
+  hiveId: string;
+  hiveName: string;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    toast.add({
+      type: "success",
+      title: "Hive scanned",
+      description: `Opening inspection for ${hiveName}`,
+    });
+  }, [hiveName]);
 
   const methods = useForm<InspectionWizardInput>({
     resolver: zodResolver(InspectionWizardSchema),

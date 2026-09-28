@@ -29,7 +29,7 @@ export default async function NewInspectionPage({
         New Inspection — {hive.name}
       </h1>
 
-      <InspectionForm hiveId={id} />
+      <InspectionForm hiveId={id} hiveName={hive.name} />
     </div>
   );
 }

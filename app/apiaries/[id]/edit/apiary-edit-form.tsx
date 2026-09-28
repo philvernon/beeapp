@@ -4,6 +4,7 @@ import React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import type { ApiaryRow } from "@/lib/schema";
 import { ApiaryUpdate } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ export function ApiaryEditForm({
   initialName,
   initialNotes,
 }: {
-  apiaryId: string;
+  apiaryId: ApiaryRow["id"];
   initialName: string;
   initialNotes: string;
 }) {
