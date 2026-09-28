@@ -1,2 +1,3 @@
 # Generated Drizzle migration metadata
 migrations/meta/*
+pnpm-lock.yaml
