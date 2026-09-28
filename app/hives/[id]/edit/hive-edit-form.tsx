@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HiveUpdate } from "@/lib/schema";
-import type { ApiaryRow, HiveRow } from "@/lib/schema";
 import { getErrorMessage } from "@/lib/fetch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,13 +29,13 @@ export function HiveEditForm({
   initialNotes,
   apiaries,
 }: {
-  hiveId: HiveRow["id"];
+  hiveId: string;
   initialApiaryId: string;
   initialName: string;
   initialQueenBreed: string;
   initialQueenClipped: boolean;
   initialNotes: string;
-  apiaries: Pick<ApiaryRow, "id" | "name">[];
+  apiaries: Array<{ id: string; name: string }>;
 }) {
   const router = useRouter();
   const [apiaryId, setApiaryId] = useState(initialApiaryId);

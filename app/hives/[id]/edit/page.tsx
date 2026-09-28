@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import type { ApiaryRow } from "@/lib/schema";
 import { getHive, getApiaries } from "@/lib/data";
 import { HiveEditForm } from "./hive-edit-form";
 
@@ -23,7 +22,7 @@ export default async function EditHivePage({
       initialQueenBreed={hive.queenBreed ?? ""}
       initialQueenClipped={hive.queenClipped}
       initialNotes={hive.notes ?? ""}
-      apiaries={apiaries as Pick<ApiaryRow, "id" | "name">[]}
+      apiaries={apiaries.map(({ id, name }) => ({ id, name }))}
     />
   );
 }

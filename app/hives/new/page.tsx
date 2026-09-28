@@ -1,4 +1,3 @@
-import type { ApiaryRow } from "@/lib/schema";
 import { getApiaries } from "@/lib/data";
 import { NewHiveForm } from "./new-hive-form";
 
@@ -13,7 +12,7 @@ export default async function NewHivePage({
 
   return (
     <NewHiveForm
-      apiaries={apiaries as Pick<ApiaryRow, "id" | "name">[]}
+      apiaries={apiaries.map(({ id, name }) => ({ id, name }))}
       preselectedApiaryId={preselectedApiary ?? null}
     />
   );
