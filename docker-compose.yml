@@ -38,7 +38,6 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL}
-      AUTH_SIGNUP_CIDR: ${AUTH_SIGNUP_CIDR}
     depends_on:
       migrate:
         condition: service_completed_successfully

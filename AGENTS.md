@@ -65,9 +65,7 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 
 ### Registration restriction
 
-- Set `AUTH_SIGNUP_CIDR` to restrict sign-ups to a CIDR range (e.g. `192.168.1.0/24`).
-- When unset or empty, no new registrations are allowed (fails closed).
-- The check reads `x-real-ip` first (for Nginx Proxy Manager), then falls back to `x-forwarded-for`.
+- Sign-ups are restricted to the LAN (`192.168.1.x`). The check reads `x-real-ip` and rejects any IP that does not start with `192.168.1.`.
 
 ### Auth conventions
 
