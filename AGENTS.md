@@ -33,7 +33,7 @@ components/   ← ui/ (shadcn UI layer), button-link, app-header, apiary-hives, 
 - **Wizard inspection form**: multi-step via `FormProvider` + `useForm`, steps defined as `[QueenFields, ColonyFields, HealthFields, WeatherFields, NotesFields]`, step validation via `methods.trigger(stepFields[stepIndex])`
 - **Server list/detail pages**: export `dynamic = "force-dynamic"`, use `Suspense` for async sub-components
 - **Toast notifications**: `toast.add({ type, title, description })` from `@/components/ui/toast`
-- **QR flow**: `/hive-scan` page uses camera scanner → parses hive ID from URL → redirects to inspection form
+- **QR flow**: `/hive-scan` page uses camera scanner → reads raw hive UUID from QR code → redirects to inspection form
 
 ## Conventions
 
@@ -41,6 +41,16 @@ components/   ← ui/ (shadcn UI layer), button-link, app-header, apiary-hives, 
 - Error responses: `{ error: string }` — keep consistent across routes
 - No debug `console.log` in committed code
 - Date formatting: `toLocaleDateString("en-GB")` — extract to utility if repeated
+
+## Database & Migrations
+
+- `lib/schema.ts` is the maintained database source of truth.
+- The `migrations/` directory contains generated Drizzle migration history — do not hand-edit it.
+- Schema changes require generating a new migration: `pnpm db:generate`.
+- Pending migrations are applied via: `pnpm db:migrate`.
+- Query, UI, API, or business-logic changes that do not alter the database schema must **not** generate migrations.
+- Do not delete migration history, regenerate the baseline, run destructive DB resets, or use `docker compose down -v` unless the task explicitly calls for resetting a disposable development database.
+- Production migrations should be preceded by an appropriate database backup.
 
 ## Key files
 
