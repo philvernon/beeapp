@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -17,12 +18,14 @@ function useSignOut() {
   const router = useRouter();
 
   return async function handleSignOut() {
-    try {
-      await fetch("/api/auth/sign-out", { method: "POST" });
-    } catch {
-      // Sign out failure is non-blocking — still redirect
-    }
-    router.push("/sign-in");
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/sign-in");
+          router.refresh();
+        },
+      },
+    });
   };
 }
 

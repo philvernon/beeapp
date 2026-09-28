@@ -48,9 +48,9 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 | `lib/auth-schema.ts`             | Drizzle schema for auth tables (user, session, account, verification) |
 | `proxy.ts`                       | Next.js 16 proxy — real DB-backed session validation for all routes   |
 | `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
-| `app/api/auth/sign-out/route.ts` | POST sign-out route (invalidates session + clears cookies)            |
-| `app/sign-in/page.tsx`           | Sign-in page                                                          |
-| `app/sign-up/page.tsx`           | Sign-up page (enforces LAN-only registration)                         |
+
+| `app/sign-in/page.tsx` | Sign-in page |
+| `app/sign-up/page.tsx` | Sign-up page (enforces LAN-only registration) |
 
 ### Session validation pattern
 
@@ -69,8 +69,8 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 
 ### Sign-out pattern
 
-- Client calls `POST /api/auth/sign-out` which invokes `auth.api.signOut()` to invalidate the session and clear cookies.
-- After the fetch completes (or fails), navigate to `/sign-in`.
+- Client calls `authClient.signOut()` which invalidates the session and clears cookies via Better Auth's built-in `/api/auth/sign-out` endpoint.
+- On success, navigate to `/sign-in`.
 
 ### Runtime configuration
 
