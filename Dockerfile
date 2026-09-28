@@ -25,6 +25,15 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc* ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
+# ============================================
+# Migrations
+# ============================================
+
+FROM dependencies AS migrator
+
+COPY . .
+
+CMD ["pnpm", "db:migrate"]
 
 # ============================================
 # Build
