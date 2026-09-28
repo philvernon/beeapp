@@ -25,13 +25,6 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/lib/auth-middleware", () => ({
-  requireApiSession: async () => ({
-    user: { id: "test-user" },
-    session: { id: "test-session", token: "test-token" },
-  }),
-}));
-
 const TEST_HIVE = {
   id: TEST_ID,
   apiaryId: "a1b2c3d4-e5f6-4789-abcd-ef1234567890",

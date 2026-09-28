@@ -46,8 +46,6 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 | `lib/auth.ts`                       | Server-side auth module (adapter, config, hooks)                      |
 | `lib/auth-client.ts`                | React client (`createAuthClient`)                                     |
 | `lib/auth-schema.ts`                | Drizzle schema for auth tables (user, session, account, verification) |
-| `lib/auth-session.ts`               | `requireSession()` — RSC page session guard (redirects to `/sign-in`) |
-| `lib/auth-middleware.ts`            | `requireApiSession()` — API route session guard (returns JSON 401)    |
 | `proxy.ts`                          | Next.js 16 proxy — real DB-backed session validation for all routes   |
 | `app/api/auth/[...all]/route.ts`    | Better Auth API handler mounted at `/api/auth/*`                      |
 | `app/api/auth/sign-out/route.ts`    | POST sign-out route (invalidates session + clears cookies)            |
@@ -57,8 +55,8 @@ BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authenticat
 ### Session validation pattern
 
 - **Next.js proxy** (`proxy.ts`) protects all routes automatically by calling `auth.api.getSession()` — a real DB-backed session check. Unauthenticated requests are redirected to `/sign-in`.
-- **API routes** should also call `requireApiSession()` at the top of each handler for defense-in-depth. If unauthenticated, return the Response early: `const auth = await requireApiSession(); if ("status" in auth) return auth;`
-- **RSC pages** do not need per-page guards — proxy handles it. The legacy `requireSession()` helper remains available for any component-level needs.
+- Public routes (`/sign-in`, `/sign-up`, `/api/auth/*`) are excluded from the proxy.
+- No per-route auth guards are needed — pages or API routes do not call `requireSession()` or `requireApiSession()`.
 
 ### Sign-out pattern
 

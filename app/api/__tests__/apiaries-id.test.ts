@@ -18,13 +18,6 @@ vi.mock("@/lib/data", () => ({
   getApiaryWithHives: (...args: unknown[]) => mocks.getApiaryWithHives(...args),
 }));
 
-vi.mock("@/lib/auth-middleware", () => ({
-  requireApiSession: async () => ({
-    user: { id: "test-user" },
-    session: { id: "test-session", token: "test-token" },
-  }),
-}));
-
 vi.mock("@/lib/db", () => ({
   db: {
     update: (...args: unknown[]) => mocks.dbUpdate(...args),

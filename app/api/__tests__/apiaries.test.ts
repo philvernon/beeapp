@@ -7,13 +7,6 @@ const mocks = vi.hoisted(() => ({
   getApiaries: vi.fn(),
 }));
 
-vi.mock("@/lib/auth-middleware", () => ({
-  requireApiSession: async () => ({
-    user: { id: "test-user" },
-    session: { id: "test-session", token: "test-token" },
-  }),
-}));
-
 vi.mock("@/lib/data", () => ({
   getApiaries: (...args: unknown[]) => mocks.getApiaries(...args),
 }));

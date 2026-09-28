@@ -3,13 +3,9 @@ import { NextResponse } from "next/server";
 import { getApiaries } from "@/lib/data";
 import { apiaries, ApiaryInsert } from "@/lib/schema";
 import { errorResponse, parseJsonBody } from "@/lib/api-error";
-import { requireApiSession } from "@/lib/auth-middleware";
 
 // GET /api/apiaries — list all apiaries
 export async function GET() {
-  const auth = await requireApiSession();
-  if ("status" in auth) return auth;
-
   try {
     const result = await getApiaries();
     return NextResponse.json(result);
@@ -20,9 +16,6 @@ export async function GET() {
 
 // POST /api/apiaries — create apiary
 export async function POST(req: Request) {
-  const auth = await requireApiSession();
-  if ("status" in auth) return auth;
-
   try {
     const body = await parseJsonBody<unknown>(req);
     const validated = ApiaryInsert.safeParse(body);

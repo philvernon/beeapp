@@ -14,16 +14,12 @@ import {
   errorResponse,
   parseJsonBody,
 } from "@/lib/api-error";
-import { requireApiSession } from "@/lib/auth-middleware";
 
 // GET /api/inspections/:id — single inspection
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireApiSession();
-  if ("status" in auth) return auth;
-
   try {
     const { id } = await params;
     validateUuid(id, "inspection id");
@@ -48,9 +44,6 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireApiSession();
-  if ("status" in auth) return auth;
-
   try {
     const { id } = await params;
     validateUuid(id, "inspection id");
@@ -160,9 +153,6 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireApiSession();
-  if ("status" in auth) return auth;
-
   try {
     const { id } = await params;
     validateUuid(id, "inspection id");

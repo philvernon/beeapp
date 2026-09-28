@@ -21,32 +21,7 @@ vi.mock("@/lib/auth", () => ({
   },
 }));
 
-describe("requireApiSession", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    getSessionImpl.mockResolvedValue(null);
-  });
 
-  it("returns 401 when auth.api.getSession returns null", async () => {
-    getSessionImpl.mockResolvedValue(null);
-    const { requireApiSession } = await import("@/lib/auth-middleware");
-    const result = await requireApiSession();
-    if (typeof result === "object" && "status" in result) {
-      expect(result.status).toBe(401);
-      const body = await result.json();
-      expect(body).toEqual({ error: "Unauthorized" });
-    } else {
-      throw new Error("expected 401 Response");
-    }
-  });
-
-  it("returns session when auth.api.getSession returns a session", async () => {
-    getSessionImpl.mockResolvedValue(TEST_SESSION);
-    const { requireApiSession } = await import("@/lib/auth-middleware");
-    const result = await requireApiSession();
-    expect(result).toBe(TEST_SESSION);
-  });
-});
 
 describe("POST /api/auth/sign-out", () => {
   beforeEach(() => {
@@ -103,45 +78,4 @@ describe("POST /api/auth/sign-out", () => {
   });
 });
 
-describe("API route auth protection (real handlers)", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    getSessionImpl.mockResolvedValue(null);
-  });
 
-  it("GET /api/apiaries returns 401 when session is null", async () => {
-    getSessionImpl.mockResolvedValue(null);
-    const { GET } = await import("../apiaries/route");
-    const response = await GET();
-    expect(response.status).toBe(401);
-    const body = await response.json();
-    expect(body.error).toBe("Unauthorized");
-  });
-
-  it("GET /api/hives returns 401 when session is null", async () => {
-    getSessionImpl.mockResolvedValue(null);
-    const { GET } = await import("../hives/route");
-    const response = await GET(new Request("http://localhost/api/hives"));
-    expect(response.status).toBe(401);
-    const body = await response.json();
-    expect(body.error).toBe("Unauthorized");
-  });
-
-  it("GET /api/inspections returns 401 when session is null", async () => {
-    getSessionImpl.mockResolvedValue(null);
-    const { GET } = await import("../inspections/route");
-    const response = await GET(new Request("http://localhost/api/inspections"));
-    expect(response.status).toBe(401);
-    const body = await response.json();
-    expect(body.error).toBe("Unauthorized");
-  });
-
-  it("GET /api/hives/:id/qr returns 401 when session is null", async () => {
-    getSessionImpl.mockResolvedValue(null);
-    const { GET } = await import("../hives/[id]/qr/route");
-    const response = await GET({} as Request, { params: Promise.resolve({ id: "test-id" }) });
-    expect(response.status).toBe(401);
-    const body = await response.json();
-    expect(body.error).toBe("Unauthorized");
-  });
-});
