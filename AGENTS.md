@@ -28,7 +28,8 @@ components/   ← ui/ (shadcn UI layer), button-link, app-header, apiary-hives, 
 ## Frontend patterns
 
 - **RSC pages**: data fetches directly in component body, no `useEffect` for loading
-- **Client forms**: use `useState` per field + `safeJsonFetch`/`getErrorMessage` from `lib/fetch.ts`, validate with Zod schema before POST/PUT, redirect on success
+- **Client forms**: use `useState` per field + `getErrorMessage` from `lib/fetch.ts`, validate with Zod schema before POST/PUT, redirect on success
+- **Initial form data**: loaded in RSC pages via `lib/data.ts` functions and passed as typed props to client form components
 - **Wizard inspection form**: multi-step via `FormProvider` + `useForm`, steps defined as `[QueenFields, ColonyFields, HealthFields, WeatherFields, NotesFields]`, step validation via `methods.trigger(stepFields[stepIndex])`
 - **Server list/detail pages**: export `dynamic = "force-dynamic"`, use `Suspense` for async sub-components
 - **Toast notifications**: `toast.add({ type, title, description })` from `@/components/ui/toast`
