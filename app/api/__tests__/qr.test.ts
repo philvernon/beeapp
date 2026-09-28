@@ -44,15 +44,10 @@ describe("GET /api/hives/:id/qr", () => {
     mocks.toBuffer.mockResolvedValue(buffer);
     mocks.getHive.mockResolvedValue(TEST_HIVE);
 
-    const response = await handlers.GET(
-      {} as Request,
-      mockParams(TEST_ID),
-    );
+    const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("image/png");
-    expect(response.headers.get("Cache-Control")).toBe(
-      "public, max-age=3600",
-    );
+    expect(response.headers.get("Cache-Control")).toBe("public, max-age=3600");
   });
 
   it("returns 400 when route UUID is malformed", async () => {
@@ -69,10 +64,7 @@ describe("GET /api/hives/:id/qr", () => {
   it("returns 404 when hive not found", async () => {
     mocks.getHive.mockResolvedValue(null);
 
-    const response = await handlers.GET(
-      {} as Request,
-      mockParams(TEST_ID),
-    );
+    const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(404);
     const body = await response.json();
     expect(body.error).toBe("Hive not found");
@@ -81,10 +73,7 @@ describe("GET /api/hives/:id/qr", () => {
   it("returns 500 on unexpected error", async () => {
     mocks.getHive.mockRejectedValue(new Error("DB connection failed"));
 
-    const response = await handlers.GET(
-      {} as Request,
-      mockParams(TEST_ID),
-    );
+    const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe("Internal server error");
@@ -94,10 +83,7 @@ describe("GET /api/hives/:id/qr", () => {
     mocks.getHive.mockResolvedValue(TEST_HIVE);
     mocks.toBuffer.mockRejectedValue(new Error("QR library error"));
 
-    const response = await handlers.GET(
-      {} as Request,
-      mockParams(TEST_ID),
-    );
+    const response = await handlers.GET({} as Request, mockParams(TEST_ID));
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe("Internal server error");
