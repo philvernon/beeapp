@@ -52,6 +52,15 @@ describe("proxy.ts — authentication boundary", () => {
     expect(location).toContain("/sign-in");
   });
 
+  it("preserves query strings in the callbackUrl redirect", async () => {
+    const response = await proxy("/hives?tab=inspections&apiary=5");
+    expect(response.status).toBe(307);
+    const location = response.headers.get("location");
+    expect(location).toContain(
+      "callbackUrl=%2Fhives%3Ftab%3Dinspections%26apiary%3D5",
+    );
+  });
+
   // ── Authenticated pages ──────────────────────────────────────────
 
   it("continues authenticated normal page", async () => {

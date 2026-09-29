@@ -9,19 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-function CallbackUrlHandler({
-  setCallbackUrl,
-}: {
-  setCallbackUrl: (url: string) => void;
-}): React.JSX.Element {
+function SignInForm(): React.JSX.Element {
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") ?? "/";
-  setCallbackUrl(callbackUrl);
-  return <></>;
-}
-
-export default function SignInPage() {
-  const [callbackUrl, setCallbackUrl] = useState("/");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -42,9 +32,14 @@ export default function SignInPage() {
     );
 
     if (!error) {
-      // Only allow internal paths — no javascript: or external URLs
-      if (callbackUrl.startsWith("/") && !callbackUrl.includes("://")) {
-        window.location.href = callbackUrl;
+      // Only allow internal paths — no protocol-relative, absolute, javascript:, or data: URIs
+      if (
+        callbackUrl.startsWith("/") &&
+        !callbackUrl.startsWith("//") &&
+        !callbackUrl.includes("://") &&
+        !callbackUrl.startsWith("data:")
+      ) {
+        window.location.assign(callbackUrl);
       }
     }
 
@@ -58,9 +53,6 @@ export default function SignInPage() {
           <CardTitle>Sign In</CardTitle>
         </CardHeader>
         <CardContent>
-          <Suspense>
-            <CallbackUrlHandler setCallbackUrl={setCallbackUrl} />
-          </Suspense>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <div className="text-sm text-destructive">{error}</div>}
             <div className="space-y-2">
@@ -96,5 +88,13 @@ export default function SignInPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }
