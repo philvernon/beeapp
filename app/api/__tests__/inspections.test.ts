@@ -118,6 +118,7 @@ describe("POST /api/inspections", () => {
       eggsSeen: false,
       feedLitresHeavySyrup: null,
       feedLitresLightSyrup: null,
+      feedFondantAmount: null,
       healthOk: true,
       notes: null,
       queenCellsFound: null,

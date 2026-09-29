@@ -24,6 +24,7 @@ interface InspectionRow {
   temperamentScore?: number | null;
   feedLitresLightSyrup?: string | null;
   feedLitresHeavySyrup?: string | null;
+  feedFondantAmount?: string | null;
   supersChange?: string | null;
   weatherTemperatureC?: string | null;
   weatherCondition?: string | null;

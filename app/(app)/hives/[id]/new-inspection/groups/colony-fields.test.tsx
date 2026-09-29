@@ -23,6 +23,7 @@ const defaultValues: InspectionWizardValue = {
   temperamentScore: null,
   feedLitresLightSyrup: null,
   feedLitresHeavySyrup: null,
+  feedFondantAmount: null,
   supersChange: null,
   weatherTemperatureC: null,
   weatherCondition: null,

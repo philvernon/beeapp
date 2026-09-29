@@ -57,6 +57,21 @@ export function DetailsFields() {
           )}
         />
         <Controller
+          name="feedFondantAmount"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel>Fondant (kg)</FieldLabel>
+              <NumberInput
+                value={field.value ?? null}
+                onChange={(v) => field.onChange(v === null ? null : String(v))}
+                step={0.25}
+                min={0}
+              />
+            </Field>
+          )}
+        />
+        <Controller
           name="supersChange"
           control={control}
           render={({ field, fieldState }) => (

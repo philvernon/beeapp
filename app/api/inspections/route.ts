@@ -62,6 +62,7 @@ export async function POST(req: Request) {
         temperamentScore: data.temperamentScore ?? null,
         feedLitresLightSyrup: data.feedLitresLightSyrup ?? null,
         feedLitresHeavySyrup: data.feedLitresHeavySyrup ?? null,
+        feedFondantAmount: data.feedFondantAmount ?? null,
         supersChange: data.supersChange ?? null,
         weatherTemperatureC: data.weatherTemperatureC ?? null,
         weatherCondition: data.weatherCondition ?? null,

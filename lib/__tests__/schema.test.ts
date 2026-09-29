@@ -409,6 +409,15 @@ describe("InspectionInsert", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects negative feedFondantAmount", () => {
+    const result = InspectionInsert.safeParse({
+      hiveId: UUID,
+      inspectionDate: "2025-03-01",
+      feedFondantAmount: "-1.0",
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("accepts zero for feed quantities", () => {
     const result = InspectionInsert.safeParse({
       hiveId: UUID,
@@ -431,6 +440,7 @@ describe("InspectionInsert", () => {
       temperamentScore: null,
       feedLitresLightSyrup: null,
       feedLitresHeavySyrup: null,
+      feedFondantAmount: null,
     });
     expect(result.success).toBe(true);
   });
@@ -523,6 +533,13 @@ describe("InspectionUpdate — narrowed contract", () => {
   it("rejects negative feedLitresHeavySyrup", () => {
     const result = InspectionUpdate.safeParse({
       feedLitresHeavySyrup: "-2.0",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative feedFondantAmount", () => {
+    const result = InspectionUpdate.safeParse({
+      feedFondantAmount: "-1.0",
     });
     expect(result.success).toBe(false);
   });
