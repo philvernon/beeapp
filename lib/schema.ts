@@ -133,7 +133,6 @@ export const inspections = pgTable(
 
     // Varroa
     varroaLevel: text("varroa_level", { enum: ["l", "m", "h"] }),
-    varroaCount: integer("varroa_count"),
 
     // Temperament
     temperamentScore: integer("temperament_score"),
@@ -174,7 +173,6 @@ export const inspections = pgTable(
     check("check_brood_frame_count", sql`${t.broodFrameCount} >= 0`),
     check("check_store_frames", sql`${t.storeFrames} >= 0`),
     check("check_room_frames", sql`${t.roomFrames} >= 0`),
-    check("check_varroa_count", sql`${t.varroaCount} >= 0`),
     check(
       "check_temperament_score",
       sql`${t.temperamentScore} BETWEEN 1 AND 10`,
@@ -204,7 +202,6 @@ function inspectionNumericInvariants(
     storeFrames?: number | null;
     broodFrameCount?: number | null;
     roomFrames?: number | null;
-    varroaCount?: number | null;
     feedLitresLightSyrup?: string | null;
     feedLitresHeavySyrup?: string | null;
     feedFondantAmount?: string | null;
@@ -247,13 +244,6 @@ function inspectionNumericInvariants(
       code: "custom",
       message: "Room frames must not be negative",
       path: ["roomFrames"],
-    });
-  }
-  if (val.varroaCount != null && val.varroaCount < 0) {
-    ctx.addIssue({
-      code: "custom",
-      message: "Varroa count must not be negative",
-      path: ["varroaCount"],
     });
   }
   if (
@@ -391,7 +381,6 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   storeFrames: (schema) => schema.nullable(),
   roomFrames: (schema) => schema.nullable(),
   varroaLevel: (schema) => schema.nullable(),
-  varroaCount: (schema) => schema.nullable(),
   temperamentScore: (schema) => schema.nullable(),
   feedLitresLightSyrup: (schema) => schema.nullable(),
   feedLitresHeavySyrup: (schema) => schema.nullable(),

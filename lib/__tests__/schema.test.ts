@@ -382,15 +382,6 @@ describe("InspectionInsert", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects negative varroaCount", () => {
-    const result = InspectionInsert.safeParse({
-      hiveId: UUID,
-      inspectionDate: "2025-03-01",
-      varroaCount: -1,
-    });
-    expect(result.success).toBe(false);
-  });
-
   it("rejects negative feedLitresLightSyrup", () => {
     const result = InspectionInsert.safeParse({
       hiveId: UUID,
@@ -436,7 +427,6 @@ describe("InspectionInsert", () => {
       broodFrameCount: null,
       storeFrames: null,
       roomFrames: null,
-      varroaCount: null,
       temperamentScore: null,
       feedLitresLightSyrup: null,
       feedLitresHeavySyrup: null,
@@ -518,11 +508,6 @@ describe("InspectionUpdate — narrowed contract", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects negative varroaCount", () => {
-    const result = InspectionUpdate.safeParse({ varroaCount: -1 });
-    expect(result.success).toBe(false);
-  });
-
   it("rejects negative feedLitresLightSyrup", () => {
     const result = InspectionUpdate.safeParse({
       feedLitresLightSyrup: "-1.5",
@@ -551,7 +536,6 @@ describe("InspectionUpdate — narrowed contract", () => {
       storeFrames: null,
       broodFrameCount: null,
       roomFrames: null,
-      varroaCount: null,
     });
     expect(result.success).toBe(true);
   });

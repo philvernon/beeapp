@@ -20,7 +20,6 @@ const baseInspection = {
   efbSuspected: false,
   afbSuspected: false,
   varroaLevel: "l",
-  varroaCount: 3,
   temperamentScore: 7,
   feedLitresLightSyrup: null,
   feedLitresHeavySyrup: null,

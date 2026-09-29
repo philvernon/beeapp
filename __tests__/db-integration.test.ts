@@ -628,14 +628,14 @@ describe("round-trip CRUD", () => {
         queen_cells_found, queen_cells_removed, eggs_seen, brood_pattern_ok,
         brood_frame_count, store_frames, room_frames, health_ok,
         chalk_brood_suspected, efb_suspected, afb_suspected,
-        varroa_level, varroa_count, temperament_score,
+        varroa_level, temperament_score,
         feed_litres_light_syrup, feed_litres_heavy_syrup, supers_change,
         weather_temperature_c, weather_condition, notes
       ) VALUES (
         $1, $2, '2025-06-01', true, 'Y', 0, false, true, true,
         6, 3, 1, true,
         false, false, false,
-        'l', 2, 3,
+        'l', 3,
         '2.5', '1.0', '0.5',
         '18.5', 's', 'Good inspection'
       )`,
