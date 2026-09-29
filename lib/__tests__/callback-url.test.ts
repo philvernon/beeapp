@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { getSafeCallbackUrl } from "../callback-url";
 
-// Mock window.location.origin so URL() resolves relative paths to our origin
 const mockOrigin = "http://localhost:3000";
+
 beforeEach(() => {
   Object.defineProperty(window, "location", {
     value: { origin: mockOrigin },
@@ -37,7 +37,7 @@ describe("getSafeCallbackUrl", () => {
     expect(getSafeCallbackUrl("//evil.com")).toBe("/");
   });
 
-  it("rejects /\\evil.com (backslash normalisation — browser resolves to https://evil.com/)", () => {
+  it("rejects /\\evil.com (backslash normalisation)", () => {
     expect(getSafeCallbackUrl("/\\evil.com")).toBe("/");
   });
 
@@ -45,8 +45,7 @@ describe("getSafeCallbackUrl", () => {
     expect(getSafeCallbackUrl("https://evil.com/phish")).toBe("/");
   });
 
-  it("rejects http://localhost:9999 (different port = different origin)", () => {
-    // Same host but different port → different origin
+  it("rejects http://localhost:9999 (different port)", () => {
     expect(getSafeCallbackUrl("http://localhost:9999/")).toBe("/");
   });
 
@@ -60,10 +59,7 @@ describe("getSafeCallbackUrl", () => {
     );
   });
 
-  it("rejects relative URL that resolves to external origin via base", () => {
-    // Even though it looks relative, if someone could control the base
-    // this would be caught by the origin check. With our fixed base,
-    // a path like "/hives" stays safe.
+  it("allows /hives (same-origin via default base)", () => {
     expect(getSafeCallbackUrl("/hives")).toBe("/hives");
   });
 
