@@ -43,9 +43,9 @@ export const auth = betterAuth({
       // Local development via pnpm dev or docker compose skips the check.
       if (process.env.DEV === "true") return;
 
-      const clientIp = ctx.headers?.get("x-real-ip");
+      const viaNginx = ctx.headers?.get("X-Via-Nginx") === "1";
 
-      if (!clientIp || !clientIp.startsWith("192.168.1.")) {
+      if (viaNginx) {
         throw new APIError("FORBIDDEN", {
           message: "Sign-up is restricted to the local network.",
         });
