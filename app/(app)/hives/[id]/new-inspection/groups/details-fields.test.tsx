@@ -23,6 +23,7 @@ const defaultValues: InspectionWizardValue = {
   temperamentScore: null,
   feedLitresLightSyrup: null,
   feedLitresHeavySyrup: null,
+  feedFondantAmount: null,
   supersChange: null,
   weatherTemperatureC: null,
   weatherCondition: null,
@@ -70,6 +71,20 @@ describe("DetailsFields", () => {
       </Wrapper>,
     );
     const label = screen.getByText("Heavy syrup (litres)");
+    const field = label.closest('[data-slot="field"]');
+    const input = field?.querySelector<HTMLInputElement>(
+      '[data-slot="number-input-value"]',
+    );
+    expect(input).not.toBeNull();
+  });
+
+  it("renders fondant number input", () => {
+    render(
+      <Wrapper>
+        <DetailsFields />
+      </Wrapper>,
+    );
+    const label = screen.getByText("Fondant (kg)");
     const field = label.closest('[data-slot="field"]');
     const input = field?.querySelector<HTMLInputElement>(
       '[data-slot="number-input-value"]',

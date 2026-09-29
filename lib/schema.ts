@@ -147,6 +147,10 @@ export const inspections = pgTable(
       precision: 5,
       scale: 2,
     }),
+    feedFondantAmount: numeric("feed_fondant_amount", {
+      precision: 5,
+      scale: 2,
+    }),
 
     // Supers
     supersChange: numeric("supers_change", { precision: 5, scale: 2 }),
@@ -177,6 +181,7 @@ export const inspections = pgTable(
     ),
     check("check_feed_litres_light_syrup", sql`${t.feedLitresLightSyrup} >= 0`),
     check("check_feed_litres_heavy_syrup", sql`${t.feedLitresHeavySyrup} >= 0`),
+    check("check_feed_fondant_amount", sql`${t.feedFondantAmount} >= 0`),
     check(
       "check_queen_colour",
       sql`${t.queenColour} IS NULL OR ${t.queenColour} IN ('W', 'Y', 'R', 'G', 'B')`,
@@ -202,6 +207,7 @@ function inspectionNumericInvariants(
     varroaCount?: number | null;
     feedLitresLightSyrup?: string | null;
     feedLitresHeavySyrup?: string | null;
+    feedFondantAmount?: string | null;
   },
   ctx: z.RefinementCtx,
 ) {
@@ -268,6 +274,13 @@ function inspectionNumericInvariants(
       code: "custom",
       message: "Heavy syrup quantity must not be negative",
       path: ["feedLitresHeavySyrup"],
+    });
+  }
+  if (val.feedFondantAmount != null && Number(val.feedFondantAmount) < 0) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Fondant amount must not be negative",
+      path: ["feedFondantAmount"],
     });
   }
 }
@@ -382,6 +395,7 @@ export const InspectionUpdate = createUpdateSchema(inspections, {
   temperamentScore: (schema) => schema.nullable(),
   feedLitresLightSyrup: (schema) => schema.nullable(),
   feedLitresHeavySyrup: (schema) => schema.nullable(),
+  feedFondantAmount: (schema) => schema.nullable(),
   supersChange: (schema) => schema.nullable(),
   weatherTemperatureC: (schema) => schema.nullable(),
   weatherCondition: (schema) => schema.nullable(),

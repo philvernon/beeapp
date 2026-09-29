@@ -24,6 +24,7 @@ const baseInspection = {
   temperamentScore: 7,
   feedLitresLightSyrup: null,
   feedLitresHeavySyrup: null,
+  feedFondantAmount: null,
   supersChange: null,
   weatherTemperatureC: null,
   weatherCondition: null,
