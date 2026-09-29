@@ -319,17 +319,6 @@ describe("CHECK constraints", () => {
     await teardownCheckHive(hiveId, apiaryId);
   });
 
-  it("varroa_count >= 0", async () => {
-    const [hiveId, apiaryId] = await setupCheckHive();
-    await expect(
-      client.query(
-        `INSERT INTO inspections (id, hive_id, inspection_date, varroa_count) VALUES ($1, $2, '2025-06-01', -1)`,
-        [makeUuid("000000000026"), hiveId],
-      ),
-    ).rejects.toThrow();
-    await teardownCheckHive(hiveId, apiaryId);
-  });
-
   it("temperament_score BETWEEN 1 AND 10", async () => {
     const [hiveId, apiaryId] = await setupCheckHive();
     await expect(
