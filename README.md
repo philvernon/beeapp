@@ -62,7 +62,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### First-user sign-up
 
-Sign-ups are restricted to the local LAN. Nginx Proxy Manager supplies the client IP via `X-Real-IP`, and only IPs starting with `192.168.1.` are accepted. Sign-in and existing sessions work from anywhere.
+Sign-ups are restricted to the local LAN by default. Nginx Proxy Manager supplies the client IP via `X-Real-IP`, and only IPs starting with `192.168.1.` are accepted. Set `DEV=true` in your `.env` to disable this restriction for local development (pnpm dev or docker compose). Sign-in and existing sessions work from anywhere.
 
 ### Docker deployment notes
 

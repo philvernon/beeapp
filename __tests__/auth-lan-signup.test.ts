@@ -2,17 +2,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 describe("LAN-only sign-up restriction", () => {
-  const originalNodeEnv = (process.env as Record<string, string>).NODE_ENV;
+  const originalDev = (process.env as Record<string, string>).DEV;
 
   beforeEach(() => {
     vi.resetModules();
-    // LAN check only applies in production
-    (process.env as Record<string, string>).NODE_ENV = "production";
+    // LAN check applies when DEV is not "true"
+    delete process.env.DEV;
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    (process.env as Record<string, string>).NODE_ENV = originalNodeEnv;
+    if (originalDev !== undefined) {
+      (process.env as Record<string, string>).DEV = originalDev;
+    } else {
+      delete process.env.DEV;
+    }
   });
 
   async function signUp(body: Record<string, unknown>, ip?: string) {
