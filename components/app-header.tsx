@@ -58,7 +58,7 @@ function DesktopNav() {
 
 function MobileNav({ className }: { className?: string }) {
   return (
-    <nav className={cn("flex flex-col gap-1 p-2", className)}>
+    <nav className={cn("flex flex-col gap-1", className)}>
       {navItems.map((item) => (
         <SheetClose
           key={item.href}
@@ -91,11 +91,11 @@ export function AppHeader() {
           <span>Beehive Tracker</span>
         </Link>
 
-        {/* Desktop nav */}
-        <DesktopNav />
-
-        {/* Desktop sign-out */}
         <div className="hidden md:flex items-center gap-2">
+          {/* Desktop nav */}
+          <DesktopNav />
+
+          {/* Desktop sign-out */}
           <Separator orientation="vertical" className="h-6" />
           <button
             onClick={handleSignOut}
@@ -119,12 +119,12 @@ export function AppHeader() {
               <ListIcon weight="bold" />
               <span className="sr-only">Open menu</span>
             </SheetTrigger>
-            <SheetContent side="right" className="w-48 p-0">
+            <SheetContent side="right" className="w-48 p-2">
               <MobileNav />
               <Separator className="my-2" />
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-destructive hover:bg-muted transition-colors w-full"
+                className="flex items-center gap-2 p-2 py-1.5 text-sm font-medium text-destructive hover:bg-muted transition-colors w-full"
               >
                 <SignOut weight="bold" size={16} />
                 Sign Out
