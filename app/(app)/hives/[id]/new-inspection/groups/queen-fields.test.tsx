@@ -19,7 +19,6 @@ const defaultValues: InspectionWizardValue = {
   efbSuspected: false,
   afbSuspected: false,
   varroaLevel: null,
-  varroaCount: null,
   temperamentScore: null,
   feedLitresLightSyrup: null,
   feedLitresHeavySyrup: null,

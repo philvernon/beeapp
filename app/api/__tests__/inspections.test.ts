@@ -129,7 +129,6 @@ describe("POST /api/inspections", () => {
       storeFrames: null,
       supersChange: null,
       temperamentScore: null,
-      varroaCount: null,
       varroaLevel: null,
       weatherCondition: null,
       weatherTemperatureC: null,

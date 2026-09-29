@@ -58,7 +58,6 @@ export async function POST(req: Request) {
         efbSuspected: data.efbSuspected ?? false,
         afbSuspected: data.afbSuspected ?? false,
         varroaLevel: data.varroaLevel ?? null,
-        varroaCount: data.varroaCount ?? null,
         temperamentScore: data.temperamentScore ?? null,
         feedLitresLightSyrup: data.feedLitresLightSyrup ?? null,
         feedLitresHeavySyrup: data.feedLitresHeavySyrup ?? null,

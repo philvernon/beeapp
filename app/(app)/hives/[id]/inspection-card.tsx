@@ -20,7 +20,6 @@ interface InspectionRow {
   efbSuspected: boolean;
   afbSuspected: boolean;
   varroaLevel?: string | null;
-  varroaCount?: number | null;
   temperamentScore?: number | null;
   feedLitresLightSyrup?: string | null;
   feedLitresHeavySyrup?: string | null;
