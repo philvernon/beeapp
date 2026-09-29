@@ -27,6 +27,10 @@ export const auth = betterAuth({
     autoSignInAfterVerification: false,
   },
 
+  baseURL: process.env.BETTER_AUTH_URL || {
+    allowedHosts: ["localhost", "127.0.0.1"],
+  },
+
   advanced: {
     useSecureCookies: true,
   },
