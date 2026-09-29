@@ -59,8 +59,8 @@ describe("LAN-only sign-up restriction", () => {
     expect(body.message).toBe("Sign-up is restricted to the local network.");
   });
 
-  it("skips LAN check in development", async () => {
-    (process.env as Record<string, string>).NODE_ENV = "development";
+  it("skips LAN check when DEV=true", async () => {
+    (process.env as Record<string, string>).DEV = "true";
     vi.resetModules();
 
     const res = await signUp({
