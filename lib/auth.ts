@@ -28,7 +28,7 @@ export const auth = betterAuth({
   },
 
   baseURL: process.env.BETTER_AUTH_URL || {
-    allowedHosts: ["localhost", "127.0.0.1"],
+    allowedHosts: ["localhost:*", "127.0.0.1:*", "localhost", "127.0.0.1"],
   },
 
   advanced: {

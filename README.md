@@ -32,8 +32,9 @@ cp .env.example .env.local
 #   DATABASE_URL=postgresql://bee:change-me@localhost:5432/beehive
 # Generate a secret:  openssl rand -hex 32
 #   BETTER_AUTH_SECRET=<generated-secret>
-# Set the app URL (the externally reachable hostname through Nginx Proxy Manager):
+# For production deployments, set BETTER_AUTH_URL to your public hostname:
 #   BETTER_AUTH_URL=https://beehive.yourdomain.com
+# (Local dev does not require this — localhost and 127.0.0.1 are allowed by default.)
 
 
 # Start PostgreSQL and the app
