@@ -36,6 +36,10 @@ services:
       - "${APP_PORT:-3000}:3000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+    env_file:
+      - .env
     depends_on:
       migrate:
         condition: service_completed_successfully

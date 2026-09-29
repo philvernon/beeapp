@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-import { AppHeader } from "@/components/app-header";
 import { cn } from "@/lib/utils";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -41,11 +40,7 @@ export default function RootLayout({
       )}
     >
       <body className="h-dvh flex flex-col bg-background text-foreground">
-        <AppHeader />
-
-        <main className="flex flex-1 min-h-0 flex-col mx-auto w-full max-w-7xl px-4 py-2 sm:py-8 sm:px-6 lg:px-8">
-          {children}
-        </main>
+        {children}
       </body>
     </html>
   );

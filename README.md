@@ -7,6 +7,7 @@ Manage apiaries, hives, and inspection records.
 - **Apiary Management** — Create and organize multiple apiary locations
 - **Hive Tracking** — Record hive details (queen breed, clipping status, apiary assignment)
 - **Inspection Records** — Log inspections with queen presence, brood pattern, varroa mite load, stores, temperament, feeding, and weather
+- **Authentication** — Username/password login via Better Auth; email collected during signup; LAN-only sign-up restriction
 
 ## Tech Stack
 
@@ -29,6 +30,12 @@ cp .env.example .env
 cp .env.example .env.local
 # Edit .env.local — change DATABASE_URL to use localhost:5432 for local tooling:
 #   DATABASE_URL=postgresql://bee:change-me@localhost:5432/beehive
+# Generate a secret:  openssl rand -hex 32
+#   BETTER_AUTH_SECRET=<generated-secret>
+# For production deployments, set BETTER_AUTH_URL to your public hostname:
+#   BETTER_AUTH_URL=https://beehive.yourdomain.com
+# (Local dev does not require this — localhost and 127.0.0.1 are allowed by default.)
+
 
 # Start PostgreSQL and the app
 docker compose up -d
@@ -52,6 +59,14 @@ docker compose up -d --build
 Docker deployments automatically run pending migrations before the app starts via the `migrate` service. For local/host-side development, migrations can still be applied manually with `pnpm db:migrate`.
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### First-user sign-up
+
+Sign-ups are restricted to the local LAN by default. Nginx Proxy Manager supplies the client IP via `X-Real-IP`, and only IPs starting with `192.168.1.` are accepted. Set `DEV=true` in your `.env` to disable this restriction for local development (pnpm dev or docker compose). Sign-in and existing sessions work from anywhere.
+
+### Docker deployment notes
+
+Docker deployments pass `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` from the host environment as runtime variables. Ensure these are set in your `.env` file before running `docker compose up`. The `BETTER_AUTH_URL` should match the public URL of your deployment (e.g. `https://beehive.yourdomain.com`).
 
 ## Database Migrations
 

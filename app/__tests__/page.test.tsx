@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { act, render } from "@testing-library/react";
-import Home from "../page";
+import Home from "../(app)/page";
 import { mockApiaries, mockHives, mockInspections } from "../../mocks/data";
 
 // Mock DB methods

@@ -35,7 +35,48 @@ components/   ← ui/ (shadcn UI layer), button-link, app-header, apiary-hives, 
 - **Toast notifications**: `toast.add({ type, title, description })` from `@/components/ui/toast`
 - **QR flow**: `/hive-scan` page uses camera scanner → reads raw hive UUID from QR code → redirects to inspection form
 
-## Conventions
+## Auth
+
+BeeApp uses [Better Auth](https://www.better-auth.com/) (v1.7.6) for authentication.
+
+### Key files
+
+| File                             | Purpose                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `lib/auth.ts`                    | Server-side auth module (adapter, config, hooks)                      |
+| `lib/auth-client.ts`             | React client (`createAuthClient`)                                     |
+| `lib/auth-schema.ts`             | Drizzle schema for auth tables (user, session, account, verification) |
+| `proxy.ts`                       | Next.js 16 proxy — real DB-backed session validation for all routes   |
+| `app/api/auth/[...all]/route.ts` | Better Auth API handler mounted at `/api/auth/*`                      |
+| `app/sign-in/page.tsx`           | Sign-in page                                                          |
+| `app/sign-up/page.tsx`           | Sign-up page (enforces LAN-only registration)                         |
+
+### Session validation pattern
+
+- **Next.js proxy** (`proxy.ts`) protects all routes automatically by calling `auth.api.getSession()` — a real DB-backed session check.
+- Public routes (`/sign-in`, `/sign-up`, `/api/auth/*`) are excluded from the proxy.
+- Unauthenticated browser pages redirect to `/sign-in` with a `callbackUrl` parameter.
+- Unauthenticated BeeApp API routes (`/api/**` excluding `/api/auth/**`) return JSON `{ "error": "Unauthorized" }` with HTTP 401.
+- No per-route auth guards are needed — pages or API routes do not call `requireSession()` or `requireApiSession()`.
+
+### Sign-in / Sign-up
+
+- Users sign in with **username + password** via the Better Auth username plugin.
+- Email is collected during sign-up because Better Auth requires it, but it is not used for authentication or allowlisting.
+- Sign-up is restricted to LAN clients: Nginx Proxy Manager supplies `X-Real-IP`, and the server rejects any IP that does not start with `192.168.1.`.
+- Sign-in and existing sessions are **not** LAN-restricted — they work from anywhere.
+
+### Sign-out pattern
+
+- Client calls `authClient.signOut()` which invalidates the session and clears cookies via Better Auth's built-in `/api/auth/sign-out` endpoint.
+- On success, navigate to `/sign-in`.
+
+### Runtime configuration
+
+- `BETTER_AUTH_SECRET` — cryptographic secret for signing sessions (runtime only, not a build arg).
+- `BETTER_AUTH_URL` — externally reachable HTTPS hostname used through Nginx Proxy Manager.
+
+### Auth conventions
 
 - Server functions: `import "server-only"`, query helpers in `lib/data.ts`
 - Error responses: `{ error: string }` — keep consistent across routes
