@@ -21,7 +21,6 @@ function CallbackUrlHandler({
 }
 
 export default function SignInPage() {
-
   const [callbackUrl, setCallbackUrl] = useState("/");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
