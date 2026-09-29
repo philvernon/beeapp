@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { getSafeCallbackUrl } from "@/lib/callback-url";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import Link from "next/link";
 
 function SignInForm(): React.JSX.Element {
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") ?? "/";
+  const callbackUrl = getSafeCallbackUrl(params.get("callbackUrl"));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,15 +33,7 @@ function SignInForm(): React.JSX.Element {
     );
 
     if (!error) {
-      // Only allow internal paths — no protocol-relative, absolute, javascript:, or data: URIs
-      if (
-        callbackUrl.startsWith("/") &&
-        !callbackUrl.startsWith("//") &&
-        !callbackUrl.includes("://") &&
-        !callbackUrl.startsWith("data:")
-      ) {
-        window.location.assign(callbackUrl);
-      }
+      window.location.assign(callbackUrl);
     }
 
     setLoading(false);
