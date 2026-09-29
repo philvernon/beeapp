@@ -1,0 +1,2 @@
+ALTER TABLE "inspections" ADD COLUMN "feed_fondant_amount" numeric(5, 2);--> statement-breakpoint
+ALTER TABLE "inspections" ADD CONSTRAINT "check_feed_fondant_amount" CHECK ("inspections"."feed_fondant_amount" >= 0);
