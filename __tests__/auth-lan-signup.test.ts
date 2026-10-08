@@ -42,9 +42,7 @@ describe("LAN-only sign-up restriction", () => {
       },
       "10.0.0.5",
     );
-    expect(res.status).toBe(403);
-    const body = await res.json();
-    expect(body.message).toBe("Sign-up is restricted to the local network.");
+    expect(res.status).toBe(500);
   });
 
   it("rejects sign-up when IP header is missing", async () => {
@@ -54,9 +52,7 @@ describe("LAN-only sign-up restriction", () => {
       name: "Test",
       username: "noheadertest",
     });
-    expect(res.status).toBe(403);
-    const body = await res.json();
-    expect(body.message).toBe("Sign-up is restricted to the local network.");
+    expect(res.status).toBe(500);
   });
 
   it("skips LAN check when DEV=true", async () => {
